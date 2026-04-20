@@ -1,10 +1,12 @@
 <a id="readme-top"></a>
 
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![Proprietary][license-shield]][license-url]
+<p align="center">
+  <a href="https://github.com/Code-DER/sureplus-app/graphs/contributors"><img src="https://img.shields.io/github/contributors/Code-DER/sureplus-app.svg?style=for-the-badge" alt="Contributors" /></a>
+  <a href="https://github.com/Code-DER/sureplus-app/network/members"><img src="https://img.shields.io/github/forks/Code-DER/sureplus-app.svg?style=for-the-badge" alt="Forks" /></a>
+  <a href="https://github.com/Code-DER/sureplus-app/stargazers"><img src="https://img.shields.io/github/stars/Code-DER/sureplus-app.svg?style=for-the-badge" alt="Stars" /></a>
+  <a href="https://github.com/Code-DER/sureplus-app/issues"><img src="https://img.shields.io/github/issues/Code-DER/sureplus-app.svg?style=for-the-badge" alt="Issues" /></a>
+  <a href="https://github.com/Code-DER/sureplus-app/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/license-proprietary-lightgrey.svg?style=for-the-badge" alt="Proprietary License" /></a>
+</p>
 
 [![Sureplus Website Screen Shot][product-screenshot]](https://github.com/Code-DER/sureplus-app)
 
@@ -13,7 +15,7 @@
   <p align="center">
     <strong>A web platform concept for Sureplus Philippines, focused on rescuing edible surplus food, supporting responsible inedible-food recycling, and tracking social impact.</strong>
     <br />
-    Version: v0.0.2
+    Version: v0.0.3
     <br />
     Status: design kickoff / early scaffold.
     <br />
@@ -103,7 +105,7 @@ Sureplus is a proposed website for a food-rescue marketplace in the Philippines.
 
 This repository is currently at the design kickoff and early scaffold stage. The committed application dependency manifest and runnable web application are not yet present. Add framework-specific setup steps after the frontend or backend stack is committed.
 
-Version documentation for the current license correction is available in `docs/version-0.0.2-docs.md`.
+Version documentation for the current README badge layout update is available in `docs/version-0.0.3-docs.md`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -215,14 +217,4 @@ Project Link: [https://github.com/Code-DER/sureplus-app](https://github.com/Code
 
 
 
-[contributors-shield]: https://img.shields.io/github/contributors/Code-DER/sureplus-app.svg?style=for-the-badge
-[contributors-url]: https://github.com/Code-DER/sureplus-app/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Code-DER/sureplus-app.svg?style=for-the-badge
-[forks-url]: https://github.com/Code-DER/sureplus-app/network/members
-[stars-shield]: https://img.shields.io/github/stars/Code-DER/sureplus-app.svg?style=for-the-badge
-[stars-url]: https://github.com/Code-DER/sureplus-app/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Code-DER/sureplus-app.svg?style=for-the-badge
-[issues-url]: https://github.com/Code-DER/sureplus-app/issues
-[license-shield]: https://img.shields.io/badge/license-proprietary-lightgrey.svg?style=for-the-badge
-[license-url]: https://github.com/Code-DER/sureplus-app/blob/main/LICENSE.txt
 [product-screenshot]: repo/images/project_screen.png

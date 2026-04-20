@@ -2,6 +2,17 @@
 
 Status: design kickoff / early scaffold.
 
+## v0.0.3
+
+### Added or Changed
+- Centered the README badge row by replacing the top Markdown badge references with a GitHub-renderable HTML alignment block.
+- Preserved the proprietary static license badge while moving it into the centered badge row.
+- Removed unused README badge reference definitions after converting the badge links to inline HTML.
+- Added detailed version documentation at `docs/version-0.0.3-docs.md`.
+
+### For Deletion
+- None from this task context.
+
 ## v0.0.2
 
 ### Added or Changed
