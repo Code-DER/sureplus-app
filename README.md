@@ -4,7 +4,7 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![Apache-2.0][license-shield]][license-url]
+[![Proprietary][license-shield]][license-url]
 
 [![Sureplus Website Screen Shot][product-screenshot]](https://github.com/Code-DER/sureplus-app)
 
@@ -13,7 +13,7 @@
   <p align="center">
     <strong>A web platform concept for Sureplus Philippines, focused on rescuing edible surplus food, supporting responsible inedible-food recycling, and tracking social impact.</strong>
     <br />
-    Version: v0.0.1
+    Version: v0.0.2
     <br />
     Status: design kickoff / early scaffold.
     <br />
@@ -103,7 +103,7 @@ Sureplus is a proposed website for a food-rescue marketplace in the Philippines.
 
 This repository is currently at the design kickoff and early scaffold stage. The committed application dependency manifest and runnable web application are not yet present. Add framework-specific setup steps after the frontend or backend stack is committed.
 
-Version documentation for this scaffold is available in `docs/version-0.0.1-docs.md`.
+Version documentation for the current license correction is available in `docs/version-0.0.2-docs.md`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -179,7 +179,8 @@ See `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md` for process, beha
 
 ## License
 
-Distributed under the Apache-2.0 license. See `LICENSE.txt` for more information.
+This project is proprietary and confidential. All rights are reserved by the Sureplus Website Development Team.
+See `LICENSE.txt` for the complete notice.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -222,6 +223,6 @@ Project Link: [https://github.com/Code-DER/sureplus-app](https://github.com/Code
 [stars-url]: https://github.com/Code-DER/sureplus-app/stargazers
 [issues-shield]: https://img.shields.io/github/issues/Code-DER/sureplus-app.svg?style=for-the-badge
 [issues-url]: https://github.com/Code-DER/sureplus-app/issues
-[license-shield]: https://img.shields.io/github/license/Code-DER/sureplus-app.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/badge/license-proprietary-lightgrey.svg?style=for-the-badge
 [license-url]: https://github.com/Code-DER/sureplus-app/blob/main/LICENSE.txt
 [product-screenshot]: repo/images/project_screen.png

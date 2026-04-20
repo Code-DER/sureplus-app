@@ -10,7 +10,7 @@ You are likely looking at the correct version if the repository contains:
 - a Sureplus-specific root `README.md`
 - a root `CHANGELOG.md`
 - governance files for contributing, conduct, and security
-- Apache-2.0 license text
+- proprietary license notice
 - a repository screenshot at `repo/images/project_screen.png`
 - no committed frontend or backend dependency manifest yet
 
@@ -123,8 +123,8 @@ These files are especially important because Sureplus touches user accounts, add
 
 ### License
 
-`LICENSE.txt` adds Apache License 2.0 text with a 2026 Sureplus Website contributors notice.
-This makes the repository's usage, redistribution, patent, and contribution terms explicit.
+`LICENSE.txt` adds an all-rights-reserved proprietary notice for the Sureplus Website Development Team.
+This makes the repository's confidentiality, copying, transfer, reproduction, warranty, and liability terms explicit.
 
 ### Repository Hygiene
 
@@ -154,7 +154,7 @@ This version is ready for a documentation scaffold commit when:
 - the README renders without broken local image references
 - the changelog includes `v0.0.1`
 - governance files exist at the repository root
-- Apache-2.0 license text is present
+- proprietary license notice is present
 - no build output or dependency folder is staged
 - the screenshot asset is intentionally included
 - the next implementation work is represented in the roadmap
