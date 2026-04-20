@@ -5,7 +5,7 @@
   <a href="https://github.com/Code-DER/sureplus-app/network/members"><img src="https://img.shields.io/github/forks/Code-DER/sureplus-app.svg?style=for-the-badge" alt="Forks" /></a>
   <a href="https://github.com/Code-DER/sureplus-app/stargazers"><img src="https://img.shields.io/github/stars/Code-DER/sureplus-app.svg?style=for-the-badge" alt="Stars" /></a>
   <a href="https://github.com/Code-DER/sureplus-app/issues"><img src="https://img.shields.io/github/issues/Code-DER/sureplus-app.svg?style=for-the-badge" alt="Issues" /></a>
-  <a href="https://github.com/Code-DER/sureplus-app/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/license-proprietary-lightgrey.svg?style=for-the-badge" alt="Proprietary License" /></a>
+  <a href="https://github.com/Code-DER/sureplus-app/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/license-proprietary-red.svg?style=for-the-badge" alt="Proprietary License" /></a>
 </p>
 
 [![Sureplus Website Screen Shot][product-screenshot]](https://github.com/Code-DER/sureplus-app)
@@ -15,7 +15,7 @@
   <p align="center">
     <strong>A web platform concept for Sureplus Philippines, focused on rescuing edible surplus food, supporting responsible inedible-food recycling, and tracking social impact.</strong>
     <br />
-    Version: v0.0.4
+    Version: v0.0.5
     <br />
     Status: design kickoff / early scaffold.
     <br />
@@ -105,7 +105,7 @@ Sureplus is a proposed website for a food-rescue marketplace in the Philippines.
 
 This repository is currently at the design kickoff and early scaffold stage. Backend and frontend environment sample placeholders now exist under `sureplus-app/backend/.sample.env` and `sureplus-app/frontend/.sample.env`, but the committed application dependency manifest and runnable web application are not yet present. Add framework-specific setup steps after the frontend or backend stack is committed.
 
-Version documentation for the current environment-sample placeholder update is available in `docs/version-0.0.4-docs.md`.
+Version documentation for the current proprietary badge color update is available in `docs/version-0.0.5-docs.md`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
