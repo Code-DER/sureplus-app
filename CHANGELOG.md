@@ -2,6 +2,17 @@
 
 Status: design kickoff / early scaffold.
 
+## v0.0.5
+
+### Added or Changed
+- Updated the README proprietary license badge color from gray to red.
+- Updated the README version marker from `v0.0.4` to `v0.0.5`.
+- Updated the README current-version documentation pointer to `docs/version-0.0.5-docs.md`.
+- Added detailed version documentation at `docs/version-0.0.5-docs.md`.
+
+### For Deletion
+- None from this task context.
+
 ## v0.0.4
 
 ### Added or Changed
