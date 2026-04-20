@@ -1,0 +1,62 @@
+# Local workflow metadata and agent-generated context
+git/
+AGENTS.md
+CLAUDE.md
+QWEN.md
+agent/
+.codex/
+.qwen/
+.claude/
+dump/
+learn/
+puller-out/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Web build outputs and caches
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.vite/
+.turbo/
+.parcel-cache/
+.cache/
+coverage/
+
+# Logs and runtime output
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local database artifacts
+*.db
+*.sqlite
+*.sqlite3
+
+# Packaged exports and generated archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+ca-update.ps1
