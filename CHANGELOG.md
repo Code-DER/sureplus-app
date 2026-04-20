@@ -2,6 +2,17 @@
 
 Status: design kickoff / early scaffold.
 
+## v0.0.4
+
+### Added or Changed
+- Added backend and frontend environment sample placeholder files at `sureplus-app/backend/.sample.env` and `sureplus-app/frontend/.sample.env`.
+- Updated the README version marker from `v0.0.3` to `v0.0.4`.
+- Updated the README current-state and local-setup guidance to acknowledge the environment sample placeholders while preserving the early-scaffold status.
+- Added detailed version documentation at `docs/version-0.0.4-docs.md`.
+
+### For Deletion
+- `update.zip` exists locally as an ignored packaged archive. It was not changed by this task, but should stay out of commits and can be removed manually if no longer needed.
+
 ## v0.0.3
 
 ### Added or Changed

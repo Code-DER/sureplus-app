@@ -15,7 +15,7 @@
   <p align="center">
     <strong>A web platform concept for Sureplus Philippines, focused on rescuing edible surplus food, supporting responsible inedible-food recycling, and tracking social impact.</strong>
     <br />
-    Version: v0.0.3
+    Version: v0.0.4
     <br />
     Status: design kickoff / early scaffold.
     <br />
@@ -103,9 +103,9 @@ Sureplus is a proposed website for a food-rescue marketplace in the Philippines.
 
 ### Current Repository State
 
-This repository is currently at the design kickoff and early scaffold stage. The committed application dependency manifest and runnable web application are not yet present. Add framework-specific setup steps after the frontend or backend stack is committed.
+This repository is currently at the design kickoff and early scaffold stage. Backend and frontend environment sample placeholders now exist under `sureplus-app/backend/.sample.env` and `sureplus-app/frontend/.sample.env`, but the committed application dependency manifest and runnable web application are not yet present. Add framework-specific setup steps after the frontend or backend stack is committed.
 
-Version documentation for the current README badge layout update is available in `docs/version-0.0.3-docs.md`.
+Version documentation for the current environment-sample placeholder update is available in `docs/version-0.0.4-docs.md`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -131,7 +131,11 @@ Version documentation for the current README badge layout update is available in
    ```sh
    dir
    ```
-4. Add stack-specific install and run commands when the frontend or backend implementation is committed.
+4. Review the current backend and frontend environment sample placeholders.
+   ```powershell
+   Get-ChildItem -Force sureplus-app -Recurse -Filter .sample.env
+   ```
+5. Add stack-specific install, run, and environment-variable setup commands when the frontend or backend implementation is committed.
 
 For PowerShell users, the repository can be opened from the project root:
 
