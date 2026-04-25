@@ -2,6 +2,20 @@
 
 Status: design kickoff / early scaffold.
 
+## v0.0.7
+
+### Added or Changed
+- Added the local Supabase project skeleton under `app/supabase/` with `config.toml` and `.gitignore`.
+- Added the initial database migration `app/supabase/migrations/20260425000000_initial_schema.sql` covering 17 tables (`User`, `Buyer`, `Seller`, `Charity`, `Admin`, `Notifications`, `CharityApplication`, `CharityPost`, `Allergen`, `Food`, `FoodAllergen`, `UserAllergies`, `Purchase`, `PurchaseItems`, `SocialImpact`, `Rating`, `AdminActivity`) with foreign keys, Row Level Security policies, and performance indexes.
+- Added `SUPABASE_SETUP.md` at the repository root as the developer-onboarding guide for local Supabase via Docker (CLI install, `supabase start`, `supabase db reset`, RLS summary, and connection examples).
+- Updated the README version marker from `v0.0.6` to `v0.0.7`.
+- Updated the README current-state, prerequisites, local-setup, data-model, and roadmap sections to reflect the committed database layer and the new Supabase onboarding flow.
+- Updated `CONTRIBUTING.md` to point backend-data work at the local Supabase setup defined in `SUPABASE_SETUP.md`.
+- Added detailed version documentation at `docs/version-0.0.7-docs.md`.
+
+### For Deletion
+- None from this task context.
+
 ## v0.0.6
 
 ### Added or Changed

@@ -15,7 +15,7 @@
   <p align="center">
     <strong>A web platform concept for Sureplus Philippines, focused on rescuing edible surplus food, supporting responsible inedible-food recycling, and tracking social impact.</strong>
     <br />
-    Version: v0.0.6
+    Version: v0.0.7
     <br />
     Status: design kickoff / early scaffold.
     <br />
@@ -93,19 +93,23 @@ Sureplus is a proposed website for a food-rescue marketplace in the Philippines.
 
 ### Data Model Highlights
 
-- `User` plus role extensions for `Buyer`, `Seller`, `Charity`, `Innovator`, `Composter`, and `Admin`.
+The initial database migration at `app/supabase/migrations/20260425000000_initial_schema.sql` provisions 17 tables with Row Level Security policies and supporting indexes:
+
+- `User` plus role extensions for `Buyer`, `Seller`, `Charity`, and `Admin`. The `User.role` column is constrained to `buyer`, `seller`, `charity`, or `admin` in the current schema.
 - `Food`, `Allergen`, `FoodAllergen`, and `UserAllergies` for listings and allergy-aware discovery.
 - `Purchase`, `PurchaseItems`, `Rating`, and `SocialImpact` for transactions and outcome tracking.
-- `CharityPost` and `RecycleRequest` for donation and circular-economy workflows.
-- `Conversation`, `Message`, `Notifications`, and `AdminActivity` for communication and administration.
+- `CharityApplication` and `CharityPost` for charity onboarding and donation workflows.
+- `Notifications` and `AdminActivity` for user notifications and administrator action logging.
+
+Innovator, composter, recycling-request, and direct messaging entities described in the broader product scope are not yet part of the committed schema and remain on the roadmap.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Current Repository State
 
-This repository is currently at the design kickoff and early scaffold stage. Backend and frontend environment sample placeholders now exist under `sureplus-app/backend/.sample.env` and `sureplus-app/frontend/.sample.env`, but the committed application dependency manifest and runnable web application are not yet present. Add framework-specific setup steps after the frontend or backend stack is committed.
+This repository is currently at the design kickoff and early scaffold stage. Backend and frontend environment sample placeholders exist under `sureplus-app/backend/.sample.env` and `sureplus-app/frontend/.sample.env`, and the local Supabase project skeleton is now committed under `app/supabase/` with the initial database migration and Row Level Security policies. The runnable web application and committed dependency manifests for the frontend and backend stacks are not yet present. Add framework-specific setup steps after the frontend or backend stack is committed.
 
-Version documentation for the current ignore-file update is available in `docs/version-0.0.6-docs.md`.
+Refer to `SUPABASE_SETUP.md` at the repository root for the local-development onboarding flow that runs Supabase entirely on Docker without requiring a hosted Supabase account. Detailed version documentation for the database-layer and onboarding-guide additions is available in `docs/version-0.0.7-docs.md`, and earlier version notes are tracked under the other `docs/version-*-docs.md` files and in `CHANGELOG.md`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -115,7 +119,9 @@ Version documentation for the current ignore-file update is available in `docs/v
 
 - Git
 - A code editor
-- Project-specific runtime dependencies, once the implementation stack is added
+- Docker Desktop, kept running before any `supabase` command is used
+- Supabase CLI (via Homebrew on macOS or `npm install -g supabase` on Windows or Linux)
+- Project-specific runtime dependencies, once the frontend or backend implementation stack is added
 
 ### Local Setup
 
@@ -135,7 +141,13 @@ Version documentation for the current ignore-file update is available in `docs/v
    ```powershell
    Get-ChildItem -Force sureplus-app -Recurse -Filter .sample.env
    ```
-5. Add stack-specific install, run, and environment-variable setup commands when the frontend or backend implementation is committed.
+5. Bring up the local Supabase stack and apply the initial schema. See `SUPABASE_SETUP.md` for the full walkthrough; the short form is:
+   ```sh
+   cd app/supabase
+   supabase start
+   supabase db reset
+   ```
+6. Add stack-specific install, run, and environment-variable setup commands when the frontend or backend implementation is committed.
 
 For PowerShell users, the repository can be opened from the project root:
 
@@ -156,7 +168,8 @@ code .
 - [ ] Implement buyer discovery, purchase, receipt, points, and rating flows.
 - [ ] Implement charity, innovator, composter, and admin workflows.
 - [ ] Add notification, messaging, social-impact, analytics, and leaderboard outputs.
-- [ ] Add database migrations, validation rules, tests, deployment notes, and operations guidance.
+- [x] Commit the initial Supabase database migration with Row Level Security policies for the 17 baseline tables.
+- [ ] Add additional database migrations, validation rules, tests, deployment notes, and operations guidance.
 
 See the [open issues](https://github.com/Code-DER/sureplus-app/issues) for proposed features and known gaps.
 
