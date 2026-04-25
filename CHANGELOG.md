@@ -2,6 +2,17 @@
 
 Status: design kickoff / early scaffold.
 
+## v0.0.6
+
+### Added or Changed
+- Added `.california-agentic/` to `.gitignore` to exclude the local agentic shell directory from version control.
+- Updated the README version marker from `v0.0.5` to `v0.0.6`.
+- Updated the README current-state section documentation pointer to `docs/version-0.0.6-docs.md`.
+- Added detailed version documentation at `docs/version-0.0.6-docs.md`.
+
+### For Deletion
+- None from this task context.
+
 ## v0.0.5
 
 ### Added or Changed

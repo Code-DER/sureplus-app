@@ -15,7 +15,7 @@
   <p align="center">
     <strong>A web platform concept for Sureplus Philippines, focused on rescuing edible surplus food, supporting responsible inedible-food recycling, and tracking social impact.</strong>
     <br />
-    Version: v0.0.5
+    Version: v0.0.6
     <br />
     Status: design kickoff / early scaffold.
     <br />
@@ -105,7 +105,7 @@ Sureplus is a proposed website for a food-rescue marketplace in the Philippines.
 
 This repository is currently at the design kickoff and early scaffold stage. Backend and frontend environment sample placeholders now exist under `sureplus-app/backend/.sample.env` and `sureplus-app/frontend/.sample.env`, but the committed application dependency manifest and runnable web application are not yet present. Add framework-specific setup steps after the frontend or backend stack is committed.
 
-Version documentation for the current proprietary badge color update is available in `docs/version-0.0.5-docs.md`.
+Version documentation for the current ignore-file update is available in `docs/version-0.0.6-docs.md`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
