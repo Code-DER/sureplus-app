@@ -10,6 +10,7 @@ agent/
 dump/
 learn/
 puller-out/
+.california-agentic/
 
 # Environment and secrets
 .env

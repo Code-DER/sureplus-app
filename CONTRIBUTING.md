@@ -45,7 +45,9 @@ This guide aligns contributions with these working values:
    - validation evidence (test output, logs, screenshots)
    - risks, tradeoffs, and rollback notes when relevant
 
-The runnable application stack has not been committed yet. Until stack-specific commands exist, document manual validation clearly and add repeatable setup, test, and run commands with the first frontend or backend implementation.
+The runnable frontend and backend application stacks have not been committed yet. The local database layer, however, is now provisioned through Supabase: the project skeleton lives at `app/supabase/`, and the initial schema with Row Level Security policies is applied via `supabase start` and `supabase db reset`. See `SUPABASE_SETUP.md` for the full local-development walkthrough.
+
+When you change anything that touches the database schema, add a new migration file under `app/supabase/migrations/` (use `supabase migration new <name>`) rather than editing the existing initial-schema migration in place, and confirm `supabase db reset` succeeds locally before opening a pull request. Until frontend and backend stack commands exist, document manual validation clearly and add repeatable setup, test, and run commands with the first frontend or backend implementation.
 
 ## Branch Naming
 
