@@ -19,6 +19,9 @@ puller-out/
 !.env.sample
 **/.venv/
 
+# Python
+__pycache__/
+
 # Dependencies
 node_modules/
 .pnpm-store/
