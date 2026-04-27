@@ -17,6 +17,7 @@ puller-out/
 .env.*
 !.env.example
 !.env.sample
+.venv
 
 # Dependencies
 node_modules/
