@@ -17,6 +17,10 @@ puller-out/
 .env.*
 !.env.example
 !.env.sample
+**/.venv/
+
+# Python
+__pycache__/
 
 # Dependencies
 node_modules/
