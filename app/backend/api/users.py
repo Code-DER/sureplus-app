@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from services import user_service
-from schemas.user import UserResponse
+from models.user import UserResponse
 from typing import List
 
 router = APIRouter()
