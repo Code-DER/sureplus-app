@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from services import user_service
 from models.user import UserResponse
 from typing import List

@@ -17,7 +17,8 @@ class UserSignUp(BaseModel):
     lastName: str
     emailAddress: EmailStr
     password: str
-    role: str
+    phoneNumber: str
+    role: str = "buyer"
     street: str
     residentialName: str
     barangay: str
