@@ -1,14 +1,10 @@
-from fastapi import FastAPI, HTTPException
-from database import supabase
+from fastapi import FastAPI
+from api.users import router as users_router
 
-app = FastAPI()
+app = FastAPI(title="SurePlus API")
+
+app.include_router(users_router, prefix="/users", tags=["Users"])
 
 @app.get("/")
 async def root():
     return {"message": "Hello sureplus!"}
-
-@app.get("/users")
-async def get_users():
-    response = supabase.table("User").select("*").execute()
-
-    return response.data
