@@ -7,7 +7,7 @@ from uuid import UUID
 router = APIRouter()
 
 # Endpoint to fetch all users and their details
-@router.get("/", response_model=List[UserResponse])
+@router.get("", response_model=List[UserResponse])
 async def get_users():
     response = user_service.fetch_all_users()
     return response.data
