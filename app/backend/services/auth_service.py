@@ -19,6 +19,26 @@ def create_user(user_data: dict):
     # Hash password
     user_data['password'] = hash_password(user_data['password'])
 
-    # Insert user into the database
-    response = supabase.table("User").insert(user_data).execute()
-    return response.data[0]
+    # Insert user into User Table
+    user_response = supabase.table("User").insert(user_data).execute()
+
+    # Check if user creation was successful
+    if not user_response.data:
+        raise HTTPException(status_code=500, detail="Failed to create user!")
+
+    # Get the new user's ID
+    new_user = user_response.data[0]
+    new_user_id = new_user['userID']
+
+    # Create an entry on the Buyer Table if the user is a buyer
+    if new_user.get('role') == 'buyer':
+        buyer_data = {
+            "userID": new_user_id,
+            "points": 0
+        }
+        buyer_response = supabase.table("Buyer").insert(buyer_data).execute()
+
+        if not buyer_response.data:
+            raise HTTPException(status_code=500, detail="Failed to create buyer!")
+
+    return new_user
