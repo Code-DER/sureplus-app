@@ -8,14 +8,22 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Context for password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# Function to hash the password
 def hash_password(password: str):
+    # Convert the password to a string
     clean_password = str(password)
+
+    # Check the length of the password given bcrypt's limit
     if len(clean_password.encode('utf-8')) > 72:
         raise HTTPException(status_code=400, detail="Password too long!")
+    
+    # Hash and return the password
     return pwd_context.hash(clean_password)
 
+# Function to create a new user
 def create_user(user_data: dict):
     # Check if email exists
     existing = supabase.table("User").select("emailAddress").eq("emailAddress", user_data["emailAddress"]).execute()
@@ -49,23 +57,30 @@ def create_user(user_data: dict):
 
     return new_user
 
+# Function to verify the password
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
+# Function to create a JWT access token
 def create_access_token(data: dict):
+    # Create a copy of the data to encode
     to_encode = data.copy()
 
+    # Get the keys, algorithm, and expiry time from the env
     secret_key = os.getenv("SUPABASE_ANON_KEY")
-
     algorithm = os.getenv("ALGORITHM", "HS256")
-
     expire_time = int(os.getenv("ACCESS_TOKEN_EXPIRE_TIME_MINUTES", "30"))
 
+    # Raise an error if secret key is missing
     if not secret_key:
         raise ValueError("Secret Key is missing from .env")
     
+    # Calcualte the expiry time 
     expire = datetime.now(timezone.utc) + timedelta(minutes=expire_time)
     to_encode.update({"exp": expire})
 
+    # Encode the final JWT token
     encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)
+    
+    # Return the token
     return encoded_jwt
