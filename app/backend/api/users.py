@@ -10,7 +10,7 @@ router = APIRouter()
 
 # Endpoint to fetch all users and their details
 @router.get("/list", response_model=List[UserResponse])
-async def get_users():
+async def get_users(current_user: dict = Depends(get_current_user)):
     # Fetch all users from the database using the user service
     response = user_service.fetch_all_users()
 
@@ -39,7 +39,7 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
 
 # Endpoint to fetch a user by their ID
 @router.get("/{user_id}", response_model=UserResponse)
-async def get_user_by_id(user_id: UUID):
+async def get_user_by_id(user_id: UUID, current_user: dict = Depends(get_current_user)):
     try:
         # Get the user details from the database
         response = user_service.fetch_user_by_id(str(user_id))
