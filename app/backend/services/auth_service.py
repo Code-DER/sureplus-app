@@ -1,6 +1,12 @@
 from passlib.context import CryptContext
 from database import supabase
 from fastapi import HTTPException
+import jwt
+import os
+from datetime import datetime, timedelta, timezone
+from dotenv import load_dotenv
+
+load_dotenv()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -42,3 +48,24 @@ def create_user(user_data: dict):
             raise HTTPException(status_code=500, detail="Failed to create buyer!")
 
     return new_user
+
+def verify_password(plain_password: str, hashed_password: str):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+
+    secret_key = os.getenv("SUPABASE_ANON_KEY")
+
+    algorithm = os.getenv("ALGORITHM", "HS256")
+
+    expire_time = int(os.getenv("ACCESS_TOKEN_EXPIRE_TIME_MINUTES", "30"))
+
+    if not secret_key:
+        raise ValueError("Secret Key is missing from .env")
+    
+    expire = datetime.now(timezone.utc) + timedelta(minutes=expire_time)
+    to_encode.update({"exp": expire})
+
+    encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)
+    return encoded_jwt
