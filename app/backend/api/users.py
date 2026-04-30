@@ -9,7 +9,7 @@ from api.dependency import get_current_user
 router = APIRouter()
 
 # Endpoint to fetch all users and their details
-@router.get("", response_model=List[UserResponse])
+@router.get("/list", response_model=List[UserResponse])
 async def get_users():
     # Fetch all users from the database using the user service
     response = user_service.fetch_all_users()
