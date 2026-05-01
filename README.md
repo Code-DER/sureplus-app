@@ -15,7 +15,7 @@
   <p align="center">
     <strong>A web platform concept for Sureplus Philippines, focused on rescuing edible surplus food, supporting responsible inedible-food recycling, and tracking social impact.</strong>
     <br />
-    Version: v0.0.8
+    Version: v0.0.9
     <br />
     Status: design kickoff / early scaffold.
     <br />
@@ -125,7 +125,7 @@ The backend uses the local Supabase schema as its persistence layer, includes a 
 
 This repository is currently at the backend scaffold stage. The local Supabase project skeleton is committed under `app/supabase/` with the initial database migration and Row Level Security policies, and `app/backend/` now contains the FastAPI backend, dependency manifest, environment sample, authentication routes, user routes, product/safety routes, service modules, Pydantic models, and focused authentication regression tests. A committed frontend application is not yet present.
 
-Refer to `SUPABASE_SETUP.md` at the repository root for the local-development onboarding flow that runs Supabase entirely on Docker without requiring a hosted Supabase account. Detailed version documentation for the product-and-safety backend additions is available in `docs/version-0.0.8-docs.md`, and earlier version notes are tracked under the other `docs/version-*-docs.md` files and in `CHANGELOG.md`.
+Refer to `SUPABASE_SETUP.md` at the repository root for the local-development onboarding flow that runs Supabase entirely on Docker without requiring a hosted Supabase account. Detailed version documentation for the product-and-safety backend additions is available in `docs/version-0.0.8-docs.md`, with follow-up backend review notes summarized in `docs/version-0.0.9-docs.md` and the repository code-review documentation.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

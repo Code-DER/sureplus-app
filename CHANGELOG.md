@@ -2,6 +2,17 @@
 
 Status: design kickoff / early scaffold.
 
+## v0.0.9
+
+### Added or Changed
+- Added a backend code-review report for the issue #10 product-and-safety feature slice.
+- Documented remaining review findings around transactional relationship writes, service-role configuration, route/service test coverage, and product discovery defaults.
+- Updated the README version marker from `v0.0.8` to `v0.0.9`.
+- Added detailed version documentation at `docs/version-0.0.9-docs.md`.
+
+### For Deletion
+- None from this task context.
+
 ## v0.0.8
 
 ### Added or Changed
