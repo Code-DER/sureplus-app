@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from models.user import UserResponse, UserSignUp, UserLogin, Token
 from database import supabase
 from services import auth_service
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
 
@@ -16,9 +17,9 @@ async def signup(user_input: UserSignUp):
 
 # Endpoint for user login
 @router.post("/login", response_model=Token)
-async def login(user_input: UserLogin):
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     # Check if the email exists in the database
-    response = supabase.table("User").select("*").eq("emailAddress", user_input.emailAddress).execute()
+    response = supabase.table("User").select("*").eq("emailAddress", form_data.username).execute()
 
     # If the email does not exist, raise an error
     if not response.data:
@@ -28,7 +29,7 @@ async def login(user_input: UserLogin):
     user = response.data[0]
 
     # Verify the password through the auth service
-    if not auth_service.verify_password(user_input.password, user['password']):
+    if not auth_service.verify_password(form_data.password, user['password']):
         raise HTTPException(status_code=400, detail="Invalid password!")
     
     # Create a JWT access token for the logged in user
