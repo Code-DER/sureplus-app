@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
 
+# Base Models for the Users
+
 class UserResponse(BaseModel):
     userID: UUID
     firstName: str
@@ -17,8 +19,17 @@ class UserSignUp(BaseModel):
     lastName: str
     emailAddress: EmailStr
     password: str
-    role: str
+    phoneNumber: str
+    role: str = "buyer"
     street: str
     residentialName: str
     barangay: str
     city: str
+
+class UserLogin(BaseModel):
+    emailAddress: EmailStr
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
