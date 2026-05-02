@@ -23,3 +23,12 @@ async def mark_notification_as_read(notification_id: UUID, current_user: dict = 
         raise HTTPException(status_code=404, detail="Notification not found!")
     
     return {"message": "Notification is read!"}
+
+@router.patch("/read-all")
+async def mark_all_notifications_as_read(current_user: dict = Depends(get_current_user)):
+    response = supabase.table("Notifications").update({"isRead": True}).eq("userID", current_user["userID"]).execute()
+
+    if not response.data:
+        raise HTTPException(status_code=404, detail="No notifications foound!")
+    
+    return {"message": "All notifications are read!"}
