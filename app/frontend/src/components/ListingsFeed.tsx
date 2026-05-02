@@ -116,35 +116,41 @@ export default function ListingsFeed() {
   return (
     <div className="listings-page">
       {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-left">
-          <span className="brand">Sureplus</span>
-          <a href="#" className="nav-link active">Listings</a>
-          <a href="#" className="nav-link">History</a>
-        </div>
-        <div className="navbar-right">
-          <button className="icon-btn" aria-label="Notifications">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-            </svg>
-          </button>
-          <button className="icon-btn" aria-label="Cart">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-            </svg>
-          </button>
-          <div className="avatar" aria-label="User profile" />
-        </div>
-      </nav>
+      <div className="navbar-wrapper">
+        <nav className="navbar">
+          <div className="navbar-left">
+            <span className="brand">Sureplus</span>
+            <a href="#" className="nav-link active">Listings</a>
+            <a href="#" className="nav-link">History</a>
+          </div>
+          <div className="navbar-right">
+            <button className="icon-btn" aria-label="Notifications">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="#6B7280">
+                <path d="M2 17V15H4V8C4 6.61667 4.4167 5.3875 5.25 4.3125C6.0833 3.2375 7.1667 2.5333 8.5 2.2V1.5C8.5 1.0833 8.6458 0.7292 8.9375 0.4375C9.2292 0.1458 9.5833 0 10 0C10.4167 0 10.7708 0.1458 11.0625 0.4375C11.3542 0.7292 11.5 1.0833 11.5 1.5V2.2C12.8333 2.5333 13.9167 3.2375 14.75 4.3125C15.5833 5.3875 16 6.6167 16 8V15H18V17H2ZM10 20C9.45 20 8.9792 19.8042 8.5875 19.4125C8.1958 19.0208 8 18.55 8 18H12C12 18.55 11.8042 19.0208 11.4125 19.4125C11.0208 19.8042 10.55 20 10 20ZM6 15H14V8C14 6.9 13.6083 5.9583 12.825 5.175C12.0417 4.3917 11.1 4 10 4C8.9 4 7.9583 4.3917 7.175 5.175C6.3917 5.9583 6 6.9 6 8V15Z" />
+              </svg>
+            </button>
+            <button className="icon-btn" aria-label="Cart">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="#6B7280">
+                <circle cx="6" cy="20" r="2" />
+                <circle cx="16" cy="20" r="2" />
+                <path d="M5.15 4L7.55 9H14.55L17.3 4H5.15ZM4.2 2H18.95C19.3333 2 19.625 2.1708 19.8333 2.5125C20.0333 2.8542 20.0333 3.2 19.85 3.55L16.3 9.95C16.1167 10.2833 15.875 10.5417 15.5625 10.725C15.25 10.9083 14.9167 11 14.55 11H7.1L6 13H18V15H6C5.25 15 4.6833 14.6708 4.3 14.0125C3.9167 13.3542 3.9 12.7 4.25 12.05L5.6 9.6L2 2H0V0H3.25L4.2 2ZM7.55 9H14.55H7.55Z" />
+              </svg>
+            </button>
+            <div className="avatar" aria-label="User profile" />
+          </div>
+        </nav>
+      </div>
 
-      {/* Main content */}
+      {/* Main content container (Figma rounded card) */}
+      <div className="content-container">
       <div className="listings-content">
         {/* Left: Listings panel */}
         <div className="listings-panel">
-          <h1 className="listings-title">Listings</h1>
-          <p className="listings-subtitle">High-quality surplus food from local favorites at sustainable prices.</p>
+          {/* Header */}
+          <div className="listings-header">
+            <h1 className="listings-title">Listings</h1>
+            <p className="listings-subtitle">High-quality surplus food from local favorites at sustainable prices.</p>
+          </div>
 
           {/* Category filters */}
           <div className="category-filters">
@@ -182,15 +188,11 @@ export default function ListingsFeed() {
 
                   <div className="listing-meta">
                     <div className="meta-row">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-                      </svg>
+                      <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#707973' }} />
                       <span>Available: {listing.availableTime}</span>
                     </div>
                     <div className="meta-row expiry">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#e05c2a" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
-                      </svg>
+                      <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#BA1A1A' }} />
                       <span>Expiration: {listing.expiration}</span>
                     </div>
                   </div>
@@ -207,17 +209,12 @@ export default function ListingsFeed() {
         {/* Right: Order panel */}
         <div className="order-panel">
           <div className="order-header">
-            <div className="order-header-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-                <rect x="9" y="3" width="6" height="4" rx="1" />
-              </svg>
+            <div className="order-header-row">
+              <span className="icon-placeholder" style={{ width: 18, height: 20, background: 'white' }} />
+              <span className="order-title">My order</span>
             </div>
-            <div>
-              <div className="order-title">My order</div>
-              <div className="order-subtitle">
-                Rescuing from {new Set(orderItems.map(o => o.id)).size} store{orderItems.length !== 1 ? 's' : ''}
-              </div>
+            <div className="order-subtitle">
+              Rescuing from {new Set(orderItems.map(o => o.id)).size} store{orderItems.length !== 1 ? 's' : ''}
             </div>
           </div>
 
@@ -233,18 +230,13 @@ export default function ListingsFeed() {
                     <span className="order-item-name">{item.name}</span>
                     <span className="order-item-qty">Qty: {item.qty}</span>
                   </div>
-                  <span className="order-item-price">₱{item.price * item.qty}.00</span>
+                  <span className="order-item-price">₱{(item.price * item.qty).toFixed(2)}</span>
                   <button
                     className="remove-btn"
                     onClick={() => removeFromOrder(item.id)}
                     aria-label={`Remove ${item.name}`}
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6l-1 14H6L5 6" />
-                      <path d="M10 11v6M14 11v6" />
-                      <path d="M9 6V4h6v2" />
-                    </svg>
+                    <span className="icon-placeholder" style={{ width: 12, height: 14, background: '#707973' }} />
                   </button>
                 </div>
               ))
@@ -254,17 +246,17 @@ export default function ListingsFeed() {
           <div className="order-summary">
             <div className="summary-row">
               <span>Subtotal</span>
-              <span>{subtotal}.00</span>
+              <span>{subtotal.toFixed(2)}</span>
             </div>
             <div className="summary-row">
               <span>Delivery Fee</span>
-              <span>{DELIVERY_FEE}.00</span>
+              <span>{DELIVERY_FEE.toFixed(2)}</span>
             </div>
           </div>
 
           <div className="order-total">
-            <span>Total</span>
-            <span className="total-amount">₱{total}.00</span>
+            <span className="total-label">Total</span>
+            <span className="total-amount">₱{total.toFixed(2)}</span>
           </div>
 
           <div className="payment-row">
@@ -281,9 +273,11 @@ export default function ListingsFeed() {
           </div>
 
           <button className="confirm-btn">
-            Confirm Order →
+            <span>Confirm Order</span>
+            <span className="icon-placeholder" style={{ width: 13, height: 13, background: 'white' }} />
           </button>
         </div>
+      </div>
       </div>
     </div>
   )
