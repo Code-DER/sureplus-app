@@ -61,12 +61,6 @@ def create_user(user_data: dict):
 
         create_seller_profile(new_user_id, company_name, seller_type)
 
-        send_notification(
-            user_id=new_user_id,
-            title="Welcome to SurePlus!",
-            message="Thank you for signing up. Start selling food today!",
-        )
-
     send_notification(
         user_id=new_user_id,
         title="Welcome to SurePlus!",
