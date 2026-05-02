@@ -23,6 +23,7 @@ def create_seller_profile(user_id: UUID, company_name: str, seller_type: str):
     # Insert the seller information into Seller table
     response = supabase.table("Seller").insert(seller_data).execute()
 
+    # Send notification to the user when their seller profile is created
     send_notification(
         user_id=user_id,
         title="Seller Profile Created!",
