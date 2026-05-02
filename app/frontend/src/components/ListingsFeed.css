@@ -617,6 +617,39 @@
   transform: scale(0.98);
 }
 
+/* ====== Pickup Locations ====== */
+.pickup-locations {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid #E1E3DF;
+  margin-top: 8px;
+}
+
+.pickup-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pickup-label {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  color: #0F5238;
+}
+
+.pickup-address {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  color: #707973;
+  padding-left: 18px;
+}
+
 /* ====== Responsive ====== */
 @media (max-width: 1024px) {
   .listings-grid {
