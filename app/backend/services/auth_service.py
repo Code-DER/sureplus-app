@@ -5,6 +5,7 @@ import jwt
 import os
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
+from services.user_service import create_seller_profile
 
 load_dotenv()
 
@@ -30,12 +31,16 @@ def create_user(user_data: dict):
     if existing.data:
         raise HTTPException(status_code=400, detail="Email already registered!")
     
+    become_seller = user_data.pop("becomeSeller", False)
+    seller_info = user_data.pop("sellerInfo", None)
+
+    # Set role based on user's choice
+    user_data['role'] = "seller" if become_seller else "buyer"
     # Hash password
     user_data['password'] = hash_password(user_data['password'])
 
     # Insert user into User Table
     user_response = supabase.table("User").insert(user_data).execute()
-
     # Check if user creation was successful
     if not user_response.data:
         raise HTTPException(status_code=500, detail="Failed to create user!")
@@ -44,16 +49,16 @@ def create_user(user_data: dict):
     new_user = user_response.data[0]
     new_user_id = new_user['userID']
 
-    # Create an entry on the Buyer Table if the user is a buyer
-    if new_user.get('role') == 'buyer':
-        buyer_data = {
-            "userID": new_user_id,
-            "points": 0
-        }
-        buyer_response = supabase.table("Buyer").insert(buyer_data).execute()
+    buyer_data = {"userID": new_user_id, "points": 0}
+    buyer_response = supabase.table("Buyer").insert(buyer_data).execute()
+    if not buyer_response.data:
+        raise HTTPException(status_code=500, detail="Failed to create buyer!")
 
-        if not buyer_response.data:
-            raise HTTPException(status_code=500, detail="Failed to create buyer!")
+    if become_seller and seller_info:
+        company_name = seller_info.get('companyName')
+        seller_type = seller_info.get('sellerType')
+
+        create_seller_profile(new_user_id, company_name, seller_type)
 
     return new_user
 

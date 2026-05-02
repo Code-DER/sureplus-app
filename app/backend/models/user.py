@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
+from typing import Optional
 
 # Base Models for the Users
 
@@ -14,17 +15,22 @@ class UserResponse(BaseModel):
     barangay: str
     city: str
 
+class SellerSignUp(BaseModel):
+    sellerType: Optional[str] = None
+    companyName: Optional[str] = None
+
 class UserSignUp(BaseModel):
     firstName: str
     lastName: str
     emailAddress: EmailStr
     password: str
     phoneNumber: str
-    role: str = "buyer"
     street: str
     residentialName: str
     barangay: str
     city: str
+    becomeSeller: bool = False
+    sellerInfo: Optional[SellerSignUp] = None
 
 class UserLogin(BaseModel):
     emailAddress: EmailStr

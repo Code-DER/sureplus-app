@@ -3,8 +3,9 @@ from database import supabase
 from typing import List
 from uuid import UUID
 from services import user_service
-from models.user import UserResponse
+from models.user import UserResponse, SellerSignUp
 from api.dependency import get_current_user
+from services.user_service import create_seller_profile
 
 router = APIRouter()
 
@@ -54,3 +55,18 @@ async def get_user_by_id(user_id: UUID, current_user: dict = Depends(get_current
         # Raise an error if user is not found
         raise HTTPException(status_code=500, detail="User not found!")
     
+@router.post("/upgrade")
+async def upgrade_to_seller(seller_input: SellerSignUp, current_user: dict = Depends(get_current_user)):
+    existing = supabase.table("Seller").select("userID").eq("userID", current_user["userID"]).execute()
+    if existing.data:
+        raise HTTPException(status_code=400, detail="User is already a seller!")
+    
+    create_seller_profile(
+        user_id=current_user["userID"],
+        company_name=seller_input.companyName,
+        seller_type=seller_input.sellerType
+    )
+
+    supabase.table("User").update({"role": "seller"}).eq("userID", current_user["userID"]).execute()
+
+    return {"message": "Successfully upgraded to seller!"}
