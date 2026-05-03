@@ -24,3 +24,12 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except jwt.PyJWTError:
         # Raise an error if there is an error in decoding the token
         raise HTTPException(status_code=401, detail="Could not validate credentials!")
+
+# A dependency that checks if the current user has one of the allowed roles.
+# If the user does not have an allowed role, it raises an HTTP 403 Forbidden error.
+def require_role(*allowed_roles: str):
+    def checker(current_user: dict = Depends(get_current_user)):
+        if current_user["role"] not in allowed_roles:
+            raise HTTPException(status_code=403, detail="Forbidden")
+        return current_user
+    return checker
