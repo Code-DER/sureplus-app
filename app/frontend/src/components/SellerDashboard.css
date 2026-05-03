@@ -1,0 +1,602 @@
+/* ========================================
+   SELLER DASHBOARD
+   ======================================== */
+
+/* === Page Layout === */
+.seller-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #F2F4F0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === TOP HEADER === */
+.seller-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 48px;
+  margin: 16px 48px 0;
+  background: #FFFDFD;
+  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.08);
+  border-radius: 24px;
+}
+
+.seller-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.seller-header-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #2D6A4F;
+  letter-spacing: -0.6px;
+}
+
+.seller-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.seller-icon-btn {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.seller-icon-btn:hover {
+  background: #F2F4F0;
+}
+
+.seller-avatar {
+  width: 33px;
+  height: 33px;
+  border-radius: 50%;
+  background: #2D6A4F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+  cursor: pointer;
+}
+
+.seller-avatar span {
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* === BODY LAYOUT === */
+.seller-body {
+  display: flex;
+  flex: 1;
+  padding: 16px 48px 32px;
+  gap: 24px;
+}
+
+
+/* === SIDEBAR === */
+.seller-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: white;
+  border-right: 1px solid #F3F4F6;
+  border-radius: 0 24px 24px 0;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  background: #0F5238;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-logo-letter {
+  color: white;
+  font-size: 20px;
+  font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.sidebar-brand-text h2 {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: #065F46;
+}
+
+.sidebar-brand-text span {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12px;
+  color: #71717A;
+}
+
+.btn-add-listing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #A04100;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-add-listing:hover {
+  background: #8B3800;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #52525B;
+  cursor: pointer;
+  border-radius: 0;
+  text-align: left;
+  border-right: 4px solid transparent;
+}
+
+.sidebar-link:hover {
+  background: #FAFAFA;
+}
+
+.sidebar-link.active {
+  background: #FFF7ED;
+  color: #EA580C;
+  border-right-color: #F97316;
+}
+
+.sidebar-link-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #52525B;
+}
+
+.sidebar-link.active .sidebar-link-icon {
+  color: #EA580C;
+}
+
+
+/* === MAIN CONTENT === */
+.seller-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: #FFFDFD;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.06);
+}
+
+
+/* === STATS GRID === */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #E1E3DF;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 160px;
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.stat-card-label {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  color: #71717A;
+}
+
+.stat-card-icon {
+  width: 38px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-card-icon.green-bg { background: #ECFDF5; }
+.stat-card-icon.orange-bg { background: #FFF7ED; }
+.stat-card-icon.neutral-bg { background: #FAFAFA; }
+
+.stat-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-card-value {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: #191C1A;
+}
+
+.stat-card-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12px;
+}
+
+.stat-card-trend.up {
+  color: #059669;
+}
+
+.stat-card-trend.warning {
+  color: #A04100;
+}
+
+.stat-card-trend.neutral {
+  color: #71717A;
+}
+
+
+/* === BOTTOM GRID (Table + Side Cards) === */
+.seller-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  flex: 1;
+}
+
+
+/* === LISTINGS TABLE === */
+.listings-table-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #191C1A;
+}
+
+.btn-see-all {
+  background: transparent;
+  border: none;
+  color: #0F5238;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-see-all:hover {
+  text-decoration: underline;
+}
+
+.listings-table-card {
+  background: white;
+  border: 1px solid #E1E3DF;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.listings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.listings-table thead {
+  background: #F2F4F0;
+}
+
+.listings-table thead th {
+  padding: 16px 24px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #71717A;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  text-align: left;
+  border-bottom: 1px solid #E1E3DF;
+}
+
+.listings-table tbody tr {
+  border-top: 1px solid #E1E3DF;
+}
+
+.listings-table tbody tr:first-child {
+  border-top: none;
+}
+
+.listings-table tbody td {
+  padding: 20px 24px;
+  vertical-align: middle;
+}
+
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.product-thumb {
+  width: 40px;
+  height: 40px;
+  background: #E1E3DF;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.product-cell span {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #191C1A;
+}
+
+.qty-cell {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  color: #52525B;
+}
+
+.price-cell {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0F5238;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.status-badge.active {
+  background: #ECFDF5;
+  color: #047857;
+}
+
+.status-badge.expiring {
+  background: #FFF7ED;
+  color: #A04100;
+}
+
+.status-badge.sold-out {
+  background: #F4F4F5;
+  color: #71717A;
+}
+
+
+/* === SIDE CARDS === */
+.seller-side-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+
+/* Impact Tracker */
+.impact-tracker-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.side-section-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #191C1A;
+}
+
+.impact-tracker-card {
+  background: #0F5238;
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.impact-tracker-decoration {
+  position: absolute;
+  right: -16px;
+  bottom: -16px;
+  width: 75px;
+  height: 83px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 50%;
+}
+
+.impact-tracker-card h4 {
+  margin: 0 0 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.impact-tracker-card p {
+  margin: 0 0 20px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.impact-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 9999px;
+  margin-bottom: 8px;
+}
+
+.impact-progress-bar {
+  height: 100%;
+  background: #A04100;
+  border-radius: 9999px;
+}
+
+.impact-progress-label {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* Live Feed */
+.live-feed-section {
+  background: white;
+  border: 1px solid #E1E3DF;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feed-heading {
+  margin: 0;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #71717A;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feed-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.feed-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feed-dot.sale { background: #ECFDF5; }
+.feed-dot.expiring { background: #FFF7ED; }
+.feed-dot.info { background: #FAFAFA; }
+
+.feed-dot::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.feed-dot.sale::after { background: #059669; }
+.feed-dot.expiring::after { background: #EA580C; }
+.feed-dot.info::after { background: #A1A1AA; }
+
+.feed-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feed-main {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #191C1A;
+}
+
+.feed-time {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12px;
+  color: #A1A1AA;
+}

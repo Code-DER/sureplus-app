@@ -1,0 +1,146 @@
+.role-selector-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0F5238 0%, #2D6A4F 50%, #1B4332 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.role-selector-card {
+  background: white;
+  border-radius: 24px;
+  padding: 48px 56px;
+  max-width: 720px;
+  width: 100%;
+  box-shadow: 0px 20px 60px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.role-brand {
+  margin-bottom: 32px;
+}
+
+.role-logo-icon {
+  width: 56px;
+  height: 56px;
+  background: #0F5238;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.logo-letter {
+  color: white;
+  font-size: 28px;
+  font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.role-brand h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: #0F5238;
+  margin: 0;
+}
+
+.role-tagline {
+  color: #71717A;
+  font-size: 14px;
+  margin: 4px 0 0;
+}
+
+.role-prompt {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #191C1A;
+  margin-bottom: 32px;
+}
+
+.role-options {
+  display: flex;
+  gap: 24px;
+}
+
+.role-option {
+  flex: 1;
+  background: white;
+  border: 2px solid #E1E3DF;
+  border-radius: 16px;
+  padding: 32px 24px;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.role-option:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+}
+
+.role-option.buyer-option:hover {
+  border-color: #2D6A4F;
+}
+
+.role-option.seller-option:hover {
+  border-color: #A04100;
+}
+
+.role-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.buyer-icon-bg {
+  background: #2D6A4F;
+}
+
+.seller-icon-bg {
+  background: #A04100;
+}
+
+.role-option h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #191C1A;
+  margin: 0;
+}
+
+.role-option p {
+  font-size: 14px;
+  color: #71717A;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.role-cta {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F5238;
+}
+
+.seller-option .role-cta {
+  color: #A04100;
+}
+
+.role-footer {
+  margin-top: 32px;
+  font-size: 12px;
+  color: #A1A1AA;
+}
