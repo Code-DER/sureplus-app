@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import './SellerDashboard.css';
+import CreateNewListing from './CreateNewListing';
+import ManageListings from './ManageListings';
+import MysteryBox from './MysteryBox';
+import SalesAnalytics from './SalesAnalytics';
 
 interface SellerDashboardProps {
   onSwitchRole: () => void;
 }
 
-type SidebarTab = 'dashboard' | 'manage-listings' | 'create-new' | 'mystery-box' | 'sales-reports' | 'reviews' | 'support';
+type SidebarTab = 'dashboard' | 'manage-listings' | 'create-new' | 'mystery-box' | 'sales-reports' | 'reviews';
 
 const SIDEBAR_ICONS: Record<SidebarTab, React.ReactNode> = {
   'dashboard': (
@@ -26,9 +30,6 @@ const SIDEBAR_ICONS: Record<SidebarTab, React.ReactNode> = {
   'reviews': (
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M7.6 15.317l2.15-1.567 2.4 1.567-.9-2.75 2.25-2H11.45L10 7.6l-1.45 2.967H6.35l2.15 2H4.825L6.15 13.067l-1.1 5.6L10 15.967l5.175 2.7-1.35-5.6 4.35-3.4H13.6L12 4.667l-2.4 8H5l-1.85 3.4-2.15 4.25L10 16z" fill="currentColor"/></svg>
   ),
-  'support': (
-    <svg width="20" height="18" viewBox="0 0 20 18" fill="none"><path d="M9 18v-2h8v-1.433c0-.2-.05-.383-.15-.55a1.06 1.06 0 00-.4-.383C15.183 12.778 13.95 12.167 12.712 11.75c-1.237-.417-2.487-.625-3.75-.625H9c1.95 0 3.396-.538 4.338-1.613C14.279 8.437 14.75 7.05 14.75 5.35V4c0-.45-.112-.87-.337-1.263A2.454 2.454 0 0013.5 1.8a4.98 4.98 0 00-.263-.708 7.063 7.063 0 00-1.2-1.667A5.936 5.936 0 0010.05-1.625 5.4 5.4 0 008-.2c-1.45 0-2.75.4-3.9 1.2S2.05 3.1 2 5v5.667c0 .183.025.367.075.55.05.183.108.342.175.475V18H1c-.55 0-1.02-.196-1.413-.587A1.926 1.926 0 01-1 16v-2c0-.333.088-.65.263-.95.175-.3.43-.525.738-.675L0 8.6c.133-1.117.463-2.15.988-3.1A8.18 8.18 0 012.95 3.275a8.04 8.04 0 012.688-1.5A8.553 8.553 0 018.6-.075c.5-.183.967-.15 1.4.1.433.25.775.608 1.025 1.075S11.4 2.15 11.4 2.85v3.15c0 .817-.196 1.583-.588 2.3a3.807 3.807 0 01-1.575 1.6 9.12 9.12 0 014.088 1.3c1.258.65 2.125 1.308 2.6 1.975.475.667.737 1.383.787 2.15L16.75 16c0 .55-.196 1.02-.587 1.413A1.926 1.926 0 0115 18H9zM5 8c-.283 0-.52-.096-.713-.288A.968.968 0 014 7c0-.283.096-.52.288-.713A.968.968 0 015 6c.283 0 .52.096.713.288.191.191.287.429.287.712 0 .283-.096.52-.288.713A.968.968 0 015 8zm6 0c-.283 0-.52-.096-.713-.288A.968.968 0 0110 7c0-.283.096-.52.288-.713A.968.968 0 0111 6c.283 0 .52.096.713.288.191.191.287.429.287.712 0 .283-.096.52-.288.713A.968.968 0 0111 8zM4.025 6.45c-.092-1.817.442-3.333 1.6-4.55C6.808.683 8.283 0 10.05 0c1.517 0 2.837.47 3.963 1.412 1.125.942 1.804 2.146 2.037 3.613-1.517-.017-2.913-.425-4.188-1.225C10.588 2.6 9.608 1.517 8.925.15a8.3 8.3 0 01-.862 3.113A7.55 7.55 0 016.025 5.45l-2 1z" fill="currentColor"/></svg>
-  ),
 };
 
 const SIDEBAR_ITEMS: { id: SidebarTab; label: string }[] = [
@@ -38,7 +39,6 @@ const SIDEBAR_ITEMS: { id: SidebarTab; label: string }[] = [
   { id: 'mystery-box', label: 'Mystery Box' },
   { id: 'sales-reports', label: 'Sales Reports' },
   { id: 'reviews', label: 'Reviews' },
-  { id: 'support', label: 'Support' },
 ];
 
 const MOCK_LISTINGS = [
@@ -117,7 +117,7 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
             </div>
           </div>
 
-          <button className="btn-add-listing">
+          <button className="btn-add-listing" onClick={() => setActiveTab('create-new')}>
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M8.5 1v15M1 8.5h15" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
             Post Surplus Food
           </button>
@@ -138,6 +138,16 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
 
         {/* ===== MAIN CONTENT ===== */}
         <main className="seller-main">
+          {activeTab === 'create-new' ? (
+            <CreateNewListing onBack={() => setActiveTab('dashboard')} />
+          ) : activeTab === 'manage-listings' ? (
+            <ManageListings onBack={() => setActiveTab('dashboard')} />
+          ) : activeTab === 'mystery-box' ? (
+            <MysteryBox onBack={() => setActiveTab('dashboard')} />
+          ) : activeTab === 'sales-reports' ? (
+            <SalesAnalytics onBack={() => setActiveTab('dashboard')} />
+          ) : (
+          <>
           {/* Statistics Bento Grid */}
           <section className="stats-grid">
             <div className="stat-card">
@@ -262,6 +272,8 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
               </section>
             </div>
           </div>
+          </>
+          )}
         </main>
       </div>
     </div>

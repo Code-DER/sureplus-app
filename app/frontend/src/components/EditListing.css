@@ -1,0 +1,771 @@
+/* ============================= */
+/* Edit Listing Page             */
+/* ============================= */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap');
+
+.el-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+/* === Header === */
+.el-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.el-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.el-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #0F5238;
+  padding: 0;
+  transition: opacity 0.15s;
+}
+
+.el-back-btn:hover {
+  opacity: 0.7;
+}
+
+.el-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 48px;
+  color: #474947;
+  margin: 4px 0 0 0;
+}
+
+.el-subtitle {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #707973;
+  margin: 0;
+}
+
+.el-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.el-btn-discard {
+  box-sizing: border-box;
+  padding: 8px 24px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid #707973;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #191C1A;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.el-btn-discard:hover {
+  background: #F2F4F0;
+}
+
+.el-btn-save {
+  padding: 8px 24px;
+  height: 34px;
+  background: #FE6B00;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.el-btn-save:hover {
+  background: #e55f00;
+}
+
+/* === Two Column Layout === */
+.el-columns {
+  display: grid;
+  grid-template-columns: 1fr 304px;
+  gap: 24px;
+}
+
+.el-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.el-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* === Card Base === */
+.el-card {
+  box-sizing: border-box;
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+/* === Item Details Card === */
+.el-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.el-card-heading span {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 34px;
+  color: #191C1A;
+}
+
+.el-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.el-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.el-field-label {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.275px;
+  text-transform: uppercase;
+  color: #707973;
+}
+
+.el-field-label-sm {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  color: #707973;
+}
+
+.el-field-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 16px;
+  height: 50px;
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.el-field-input:focus {
+  border-color: #0F5238;
+}
+
+.el-field-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 16px;
+  min-height: 122px;
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+
+.el-field-textarea:focus {
+  border-color: #0F5238;
+}
+
+.el-field-row {
+  display: flex;
+  gap: 16px;
+}
+
+.el-field-half {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Select */
+.el-select-wrapper {
+  position: relative;
+}
+
+.el-field-select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 16px;
+  padding-right: 36px;
+  height: 50px;
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s;
+}
+
+.el-field-select:focus {
+  border-color: #0F5238;
+}
+
+.el-select-chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Status Badge */
+.el-status-badge {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  height: 50px;
+  background: #B1F0CE;
+  border: 1px solid #95D4B3;
+  border-radius: 8px;
+}
+
+.el-status-badge span {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #002114;
+}
+
+/* === Quantity & Impact Row === */
+.el-qty-impact-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.el-section-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 34px;
+  color: #191C1A;
+  margin: 0 0 16px 0;
+}
+
+/* Quantity Card */
+.el-qty-control-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: #F2F4F0;
+  border-radius: 12px;
+}
+
+.el-qty-btn {
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: box-shadow 0.15s;
+}
+
+.el-qty-btn:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.el-qty-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5px;
+}
+
+.el-qty-number {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 36px;
+  color: #191C1A;
+}
+
+.el-qty-label {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  color: #707973;
+}
+
+/* Impact Card */
+.el-impact-card {
+  border-left: 4px solid #BFC9C1 !important;
+}
+
+.el-impact-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.el-impact-heading span {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 34px;
+  color: #191C1A;
+}
+
+.el-impact-text {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #404943;
+  margin: 0 0 8px 0;
+}
+
+.el-impact-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: #F2F4F0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.el-impact-bar-fill {
+  height: 100%;
+  background: #006A6A;
+  border-radius: 9999px;
+}
+
+/* === Allergen Card === */
+.el-allergen-hint {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #707973;
+  margin: -8px 0 16px 0;
+}
+
+.el-allergen-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.el-allergen-chip {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.el-allergen-chip:hover {
+  border-color: #0F5238;
+}
+
+.el-allergen-chip.selected {
+  background: #B1F0CE;
+  border: 2px solid #0F5238;
+  font-weight: 500;
+  color: #002114;
+}
+
+/* === Media Card === */
+.el-media-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.el-media-image {
+  width: 100%;
+  height: 192px;
+  position: relative;
+  overflow: hidden;
+}
+
+.el-media-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.el-media-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.el-media-image:hover .el-media-overlay {
+  opacity: 1;
+}
+
+.el-media-overlay span {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #FFFFFF;
+}
+
+/* Pricing Section */
+.el-pricing-section {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.el-pricing-title {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #191C1A;
+  margin: 0 0 8px 0;
+}
+
+.el-pricing-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.el-pricing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.el-pricing-label {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #707973;
+}
+
+.el-pricing-original {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #404943;
+  text-decoration: line-through;
+}
+
+.el-pricing-rescue-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 219, 204, 0.3);
+  border-radius: 8px;
+}
+
+.el-pricing-rescue-label {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #7A3000;
+}
+
+.el-pricing-rescue-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.el-pricing-currency {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #A04100;
+}
+
+.el-pricing-value-input {
+  width: 60px;
+  border: none;
+  background: transparent;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  color: #A04100;
+  text-align: right;
+  outline: none;
+}
+
+.el-pricing-savings {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #A04100;
+  text-align: center;
+  padding-top: 8px;
+}
+
+/* === Scheduling Card === */
+.el-schedule-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.el-schedule-heading span {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #191C1A;
+}
+
+.el-schedule-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.el-schedule-date {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  height: 42px;
+  background: #F2F4F0;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+}
+
+.el-schedule-date span {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+}
+
+.el-schedule-times {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.el-time-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  height: 39px;
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #191C1A;
+  outline: none;
+}
+
+/* === Listing Health Card === */
+.el-health-card {
+  box-sizing: border-box;
+  padding: 24px;
+  background: #2D6A4F;
+  border-radius: 12px;
+  box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.el-health-title {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #A8E7C5;
+  margin: 0;
+}
+
+.el-health-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.el-health-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: rgba(168, 231, 197, 0.2);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.el-health-bar-fill {
+  height: 100%;
+  background: #8AE9E8;
+  border-radius: 9999px;
+}
+
+.el-health-score {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 16px;
+  color: #A8E7C5;
+}
+
+.el-health-text {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #A8E7C5;
+  opacity: 0.9;
+  margin: 0;
+  padding: 8px 0;
+}
+
+.el-boost-btn {
+  width: 100%;
+  padding: 8px 0;
+  background: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  color: #0F5238;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+}
+
+.el-boost-btn:hover {
+  background: #F0FDF4;
+}
+
+/* === Responsive === */
+@media (max-width: 900px) {
+  .el-columns {
+    grid-template-columns: 1fr;
+  }
+  .el-qty-impact-row {
+    grid-template-columns: 1fr;
+  }
+  .el-field-row {
+    flex-direction: column;
+  }
+  .el-header {
+    flex-direction: column;
+  }
+  .el-header-right {
+    margin-top: 0;
+  }
+  .el-title {
+    font-size: 32px;
+    line-height: 40px;
+  }
+}
