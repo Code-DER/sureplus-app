@@ -1,0 +1,197 @@
+/* ====== Backdrop ====== */
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ====== Modal Card ====== */
+.success-modal {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  width: 448px;
+  max-width: 90vw;
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  box-shadow: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-radius: 16px;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ====== Icon Circle ====== */
+.success-icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 9999px;
+  background: rgba(45, 106, 79, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.success-leaf-icon {
+  width: 34px;
+  height: 34px;
+  fill: #0F5238;
+}
+
+/* ====== Heading ====== */
+.success-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 18px;
+  text-align: center;
+  color: #191C1A;
+  margin: 0 0 4px 0;
+}
+
+.success-subtext {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  color: #404943;
+  margin: 0 0 32px 0;
+}
+
+/* ====== Stats Grid ====== */
+.success-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+/* Single stat row */
+.stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.stat-label-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-label-left .icon-placeholder {
+  flex-shrink: 0;
+}
+
+.stat-label-text {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+}
+
+.stat-value {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #0F5238;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.stat-value.visible {
+  opacity: 1;
+}
+
+/* Progress bar */
+.stat-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: #ECEEEA;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  background: #0F5238;
+  border-radius: 9999px;
+  width: 0%;
+  transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ====== OK Button ====== */
+.success-ok-btn {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 48.67px;
+  padding: 16px 0;
+  background: #FE6B00;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.success-ok-btn:hover {
+  background: #e55f00;
+}
+
+.success-ok-btn:active {
+  transform: scale(0.98);
+}
+
+.success-ok-btn span {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #FFFFFF;
+}
+
+.success-ok-btn svg {
+  width: 16.67px;
+  height: 16.67px;
+  fill: white;
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 500px) {
+  .success-modal {
+    width: calc(100vw - 32px);
+    padding: 24px;
+  }
+  .success-heading {
+    font-size: 24px;
+  }
+}
