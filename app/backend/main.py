@@ -3,6 +3,7 @@ from api.users import router as users_router
 from api.auth import router as auth_router
 from api.notifications import router as notifications_router
 from api.purchases import router as purchases_router
+from api.ratings import router as ratings_router
 
 app = FastAPI(title="SurePlus API")
 
@@ -11,6 +12,7 @@ app.include_router(users_router, prefix="/users", tags=["Users"])
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
 app.incldue_router(purchases_router, prefix="/purchases", tags=["Purchases"])
+app.include_router(ratings_router, prefix="/ratings", tags=["Ratings"])
 
 # Root endpoint
 @app.get("/")
