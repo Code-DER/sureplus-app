@@ -1,0 +1,359 @@
+/* ====== Product Detail Panel ====== */
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* --- Header (same style as listings) --- */
+.detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 56px;
+  line-height: 56px;
+  color: #0F5238;
+  margin: 0;
+}
+
+.detail-subtitle {
+  font-family: 'Work Sans', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  color: #707973;
+  margin: 0;
+}
+
+/* --- Two-column body --- */
+.detail-body {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* Large image */
+.detail-image {
+  width: 323px;
+  height: 475px;
+  flex-shrink: 0;
+  background: #f5f5f5;
+  border: 1px solid #E9ECEF;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.detail-image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #bbb;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Quick info panel */
+.detail-info-panel {
+  box-sizing: border-box;
+  width: 346px;
+  flex-shrink: 0;
+  background: #FFFFFF;
+  border: 1px solid #E9ECEF;
+  border-radius: 12px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Product name */
+.detail-product-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 30px;
+  color: #191C1A;
+  margin: 0 0 12px 0;
+}
+
+/* Description */
+.detail-product-desc {
+  font-family: 'Work Sans', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #404943;
+  margin: 0 0 16px 0;
+}
+
+/* Allergens section */
+.detail-allergens-label {
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+  margin: 0 0 8px 0;
+}
+
+.detail-allergen-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.allergen-tag {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #F2F4F0;
+  border: 1px solid #BA1A1A;
+  border-radius: 8px;
+}
+
+.allergen-tag .icon-placeholder {
+  flex-shrink: 0;
+}
+
+.allergen-tag span {
+  font-family: 'Work Sans', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  color: #191C1A;
+}
+
+/* Price + Quantity row */
+.detail-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #F3F4F6;
+  margin-top: 16px;
+}
+
+.detail-price-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-price-label {
+  font-family: 'Work Sans', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  color: #707973;
+}
+
+.detail-price-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 30px;
+  color: #A04100;
+}
+
+/* Quantity selector */
+.qty-selector {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border: 1px solid #707973;
+  border-radius: 12px;
+  gap: 0;
+}
+
+.qty-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.qty-btn:hover {
+  background: #f0f2f0;
+}
+
+.qty-btn .icon-placeholder {
+  flex-shrink: 0;
+}
+
+.qty-value {
+  width: 48px;
+  text-align: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 34px;
+  color: #191C1A;
+}
+
+/* Add to Order (detail) */
+.detail-add-btn {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 0;
+  height: 52px;
+  margin-top: 16px;
+  background: #FE6B00;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.detail-add-btn:hover {
+  background: #e55f00;
+}
+
+.detail-add-btn:active {
+  transform: scale(0.98);
+}
+
+.detail-add-btn .icon-placeholder {
+  flex-shrink: 0;
+}
+
+.detail-add-btn span {
+  font-family: 'Work Sans', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #FFFFFF;
+}
+
+/* --- Info cards row --- */
+.detail-info-cards {
+  display: flex;
+  gap: 16px;
+}
+
+.info-card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 16px;
+  background: #FFFFFF;
+  border: 1px solid #E9ECEF;
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.info-card-icon {
+  width: 44px;
+  height: 43px;
+  background: #E7E9E5;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-card-label {
+  font-family: 'Work Sans', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  color: #707973;
+}
+
+.info-card-value {
+  font-family: 'Work Sans', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+}
+
+.info-card-value.small {
+  font-size: 13px;
+}
+
+/* --- Back button --- */
+.detail-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #0F5238;
+  padding: 0;
+  margin-bottom: -16px;
+  transition: opacity 0.15s;
+}
+
+.detail-back-btn:hover {
+  opacity: 0.7;
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 768px) {
+  .detail-body {
+    flex-direction: column;
+  }
+  .detail-image {
+    width: 100%;
+    height: 300px;
+  }
+  .detail-info-panel {
+    width: 100%;
+  }
+  .detail-info-cards {
+    flex-direction: column;
+  }
+  .detail-title {
+    font-size: 36px;
+    line-height: 40px;
+  }
+}
