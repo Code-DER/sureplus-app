@@ -6,4 +6,4 @@ router = APIRouter()
 
 @router.post("/purchase")
 def create(data: PurchaseCreate):
-    return create_purchase(data.dict())
+    return create_purchase(data.model_dump())
