@@ -1,4 +1,4 @@
-﻿/* ===================== */
+/* ===================== */
 /* Global reset / tokens */
 /* ===================== */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap');
@@ -18,7 +18,7 @@
   padding: 12px 32px;
 }
 
-/* Icon placeholder ΓÇö swap with your own SVG/icon later */
+/* Icon placeholder — swap with your own SVG/icon later */
 .icon-placeholder {
   display: inline-block;
   border-radius: 2px;
@@ -100,7 +100,7 @@
   height: 32px;
   border-radius: 50%;
   background: #eceeea;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
   cursor: pointer;
 }
 
@@ -220,7 +220,7 @@
 }
 
 .listing-card:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
@@ -655,6 +655,7 @@
   .listings-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .content-container {
     padding: 28px 24px;
   }
@@ -679,6 +680,7 @@
   .listings-grid {
     grid-template-columns: 1fr;
   }
+
   .listings-title {
     font-size: 36px;
     line-height: 40px;

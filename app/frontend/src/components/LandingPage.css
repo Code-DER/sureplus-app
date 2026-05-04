@@ -1,0 +1,374 @@
+/* ================================== */
+/* Landing Page (Role Selection)      */
+/* ================================== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Work+Sans:wght@400;600&display=swap');
+
+.landing-page {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  gap: 32px;
+  box-sizing: border-box;
+}
+
+.landing-container {
+  position: relative;
+  width: 100%;
+  max-width: 1209px;
+  background: #FFFDFD;
+  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Pill */
+.landing-header-pill {
+  width: 100%;
+  max-width: 1209px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  padding: 0 47px;
+  box-sizing: border-box;
+  background: #FFFDFD;
+  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.15);
+  border-radius: 24px;
+}
+
+.header-logo {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.6px;
+  color: #2D6A4F;
+  margin-right: 31px;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-link {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #6B7280;
+  text-decoration: none;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.nav-link:hover {
+  background: #F3F4F6;
+}
+
+.nav-link.active {
+  font-weight: 700;
+  color: #2D6A4F;
+  padding: 0; /* Aligning exactly with Figma spec */
+  background: transparent;
+}
+.nav-link.active:hover {
+  background: transparent;
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.header-icon-btn:hover {
+  background: #F3F4F6;
+}
+
+/* Main Content Area */
+.landing-main {
+  display: flex;
+  flex-direction: row;
+  padding: 57px 33px 57px 33px; /* Approximate padding based on layout */
+  min-height: 700px;
+}
+
+/* Left Column */
+.landing-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-right: 40px;
+}
+
+.hero-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+.hero-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 56px;
+  line-height: 56px;
+  letter-spacing: -1.4px;
+  margin: 0;
+}
+
+.text-green { color: #0F5238; }
+.text-orange { color: #FE6B00; }
+
+.hero-subtext {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  color: #707973;
+  max-width: 448px;
+  margin: 0;
+}
+
+/* Role Selection Section */
+.role-selection-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.role-section-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 44px;
+  color: #0F5238;
+  margin: 0;
+}
+
+.role-cards-container {
+  display: flex;
+  gap: 24px;
+}
+
+.role-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 8px;
+  flex: 1;
+  background: #FFFFFF;
+  border: 1px solid #E9ECEF;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.role-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.selected-seller {
+  border: 2px solid #0F5238;
+}
+
+.selected-buyer {
+  border: 2px solid #FE6B00;
+}
+
+.role-card-icon-bg {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+  transition: background 0.2s;
+}
+
+.bg-seller-inactive { background: #B1F0CE; }
+.bg-seller-active { background: #0F5238; }
+
+.bg-buyer-inactive { background: #FFEDD5; }
+.bg-buyer-active { background: #FE6B00; }
+
+.role-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.role-card-content h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 34px;
+  color: #191C1A;
+  margin: 0;
+}
+
+.role-card-content p {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #707973;
+  margin: 0;
+}
+
+/* Sign Up Action */
+.signup-action-area {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.btn-signup-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 48px;
+  width: 166.8px;
+  height: 48px;
+  background: #FE6B00;
+  border-radius: 9999px;
+  border: none;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.1);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-signup-main:hover {
+  background: #E85A00;
+}
+
+.btn-signup-main:active {
+  transform: scale(0.98);
+}
+
+.btn-signup-main:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Right Column */
+.landing-right {
+  flex: 0 0 45%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.hero-image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 550px;
+  height: 100%;
+  max-height: 600px;
+  background: rgba(255, 255, 255, 0.002);
+  border: 1px solid #BFC9C1;
+  box-shadow: 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  background-image: url('https://placehold.co/1000x800/E9ECEF/A1A1AA?text=Produce+Placeholder'); 
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-image-fallback {
+  display: none; /* Hide if background image loads */
+}
+
+.hero-image-gradient {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 50%;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+.floating-impact-card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  position: absolute;
+  left: 25px;
+  right: 25px;
+  bottom: 25px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+}
+
+.floating-icon {
+  width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-text {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+}
+
+/* Responsive constraints */
+@media (max-width: 1024px) {
+  .landing-main {
+    flex-direction: column;
+  }
+  .landing-right {
+    margin-top: 40px;
+    justify-content: center;
+  }
+  .role-cards-container {
+    flex-direction: column;
+  }
+}
