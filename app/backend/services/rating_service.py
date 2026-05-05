@@ -4,12 +4,15 @@ def create_rating(data):
 
     # Creates a rating ONLY if:
     #   - purchase belongs to buyer
-    #   - purchase is complted
+    #   - purchase is completed
     #   - buyer hasn't already rated this buyer (purchase)
 
     purchase_id = data["purchaseID"]
-    buyer_id = data["buyerID"]
-    seller_id = data["sellerID"]
+    rating_value = data["rating"]
+
+    # Check rating range
+    if rating_value < 1 or rating_value > 5:
+        raise Exception("Rating Mus be between 1 and 5")
 
     # Check if purchase exist and belongs to buyer
     purchase_res = supabase.table("Purchase") \
@@ -22,9 +25,7 @@ def create_rating(data):
         raise Exception("Purchase not found")
     
     purchase = purchase_res.data
-
-    if purchase["userID"] != buyer_id:
-        raise Exception("You cannot rate a purchase you did not make")
+    buyer_id = purchase["userID"]
     
     # Check if purchase is completed
     if purchase["status"] != "completed":
@@ -40,18 +41,35 @@ def create_rating(data):
     if existing_rating.data:
         raise Exception("You already rated this purchase")
     
-    # Rating validation
-    rating_value = data["rating"]
+    # Get sellerID from PurchaseItems
+    purchase_items = supabase.table("PurchaseItems") \
+        .select("foodID") \
+        .eq("purchaseID", purchase_id) \
+        .execute()
+    
+    if not purchase_items.data:
+        raise Exception("No items found for this purchase")
+    
+    # Assuming one seller per purchase
+    food_id = purchase_items.data[0]["foodID"]
 
-    if rating_value < 1 or rating_value > 5:
-        raise Exception("Rating Mus be between 1 and 5")
+    food_res = supabase.table("Food") \
+        .select("userID") \
+        .eq("foodID", food_id) \
+        .single() \
+        .execute()
+
+    if not food_res.data:
+        raise Exception("Food not found")
+
+    seller_id = food_res.data["userID"]
     
     # Insert rating into the database
     result = supabase.table("Rating").insert({
-        "purchaseID": data["purchaseID"],
-        "buyerID": data["buyerID"],
-        "sellerID": data["sellerID"],
-        "rating": data["rating"],
+        "purchaseID": purchase_id,
+        "buyerID": buyer_id,
+        "sellerID": seller_id,
+        "rating": rating_value,
         "comment": data.get("comment")
     }).execute()
 
