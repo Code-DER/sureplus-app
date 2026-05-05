@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ListingsFeed from './components/ListingsFeed'
 import SellerDashboard from './components/SellerDashboard'
 import Login from './components/Login'
@@ -9,6 +9,13 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
   const [view, setView] = useState<'buyer' | 'seller'>('buyer')
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:8000/")
+    .then(res => res.json())
+    .then(data => setMessage(data.message));
+  }, []);
 
   if (!isAuthenticated) {
     if (authView === 'signup') {
@@ -33,6 +40,7 @@ function App() {
 
   return (
     <>
+      <div>{message}</div>
       <ListingsFeed />
       {/* Temporary developer button to toggle views since accounts are unified */}
       <button 

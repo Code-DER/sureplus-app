@@ -11,10 +11,41 @@ export default function Login({ onLogin, onSwitchToSignup }: LoginProps) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [error, setError] = useState('');
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate a successful login immediately as per previous discussions
-    onLogin();
+    setError('');
+    
+    try {
+      // Use form-data format for OAuth2PasswordRequestForm
+      const formData = new URLSearchParams();
+      formData.append('username', email); // OAuth2 uses 'username' for email
+      formData.append('password', password);
+
+      const response = await fetch('http://localhost:8000/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString(),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Login Success:', data);
+        // Store both token and type
+        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('token_type', data.token_type);
+        onLogin();
+      } else {
+        setError(data.detail || 'Login failed');
+        console.log('Login Failed:', data.detail);
+      }
+
+    } catch (error) {
+      setError('Connection error. Please try again.');
+      console.error('Connection error:', error);
+    }
   };
 
   return (
@@ -90,6 +121,7 @@ export default function Login({ onLogin, onSwitchToSignup }: LoginProps) {
                 </div>
               </div>
 
+              {error && <div className="error-message" style={{color: 'red', marginTop: '10px'}}>{error}</div>}
               <button type="submit" className="btn-login-submit">Login</button>
             </form>
 
