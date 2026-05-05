@@ -180,7 +180,12 @@ export default function ProfileView() {
 
         {/* Logout Row */}
         <div className="profile-logout-row">
-          <button className="btn-logout">
+          <button className="btn-logout" 
+            onClick={() => {
+              localStorage.clear();
+              window.location.href = '/';
+            }}
+          >
             <span className="icon-placeholder logout-icon"></span>
             Logout Account
           </button>

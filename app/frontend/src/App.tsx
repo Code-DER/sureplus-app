@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import ListingsFeed from './components/ListingsFeed'
 import SellerDashboard from './components/SellerDashboard'
 import Login from './components/Login'
@@ -15,8 +15,6 @@ function App() {
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
   const [view, setView] = useState<'buyer' | 'seller'>('buyer')
   const [message, setMessage] = useState("");
-  // const [isLoading, setIsLoading] = useState(true);
-  // const [user, setUser] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:8000/")
