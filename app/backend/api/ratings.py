@@ -8,6 +8,6 @@ router = APIRouter()
 def rate(data: RatingCreate):
     return create_rating(data.model_dump())
 
-@router.pos("/rating/seller/{seller_id}")
+@router.post("/rating/seller/{seller_id}")
 def seller_ratings(seller_id: str):
     return get_seller_rating_list(seller_id)
