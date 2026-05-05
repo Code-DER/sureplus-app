@@ -11,7 +11,7 @@ app = FastAPI(title="SurePlus API")
 app.include_router(users_router, prefix="/users", tags=["Users"])
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
-app.incldue_router(purchases_router, prefix="/purchases", tags=["Purchases"])
+app.include_router(purchases_router, prefix="/purchases", tags=["Purchases"])
 app.include_router(ratings_router, prefix="/ratings", tags=["Ratings"])
 
 # Root endpoint

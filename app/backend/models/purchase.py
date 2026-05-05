@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List
 
 class PurchasrItemsInput(BaseModel):
-    foordID: str
+    foodID: str
     quantity: int
 
 class PurchaseCreate(BaseModel):
