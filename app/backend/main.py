@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from api.users import router as users_router
 from api.auth import router as auth_router
 from api.products import router as products_router
@@ -10,6 +11,14 @@ from api.charity_posts import router as charity_posts_router
 from api.social_impact import router as social_impact_router
 
 app = FastAPI(title="SurePlus API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 # Routers for the app
 app.include_router(users_router, prefix="/users", tags=["Users"])
