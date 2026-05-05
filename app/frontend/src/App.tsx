@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import ListingsFeed from './components/ListingsFeed'
 import SellerDashboard from './components/SellerDashboard'
 import Login from './components/Login'
@@ -6,10 +6,17 @@ import Signup from './components/Signup'
 import './index.css'
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !!localStorage.getItem('token');
+    }
+    return false;
+  });
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
   const [view, setView] = useState<'buyer' | 'seller'>('buyer')
   const [message, setMessage] = useState("");
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [user, setUser] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:8000/")
