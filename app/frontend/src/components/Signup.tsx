@@ -8,10 +8,14 @@ interface SignupProps {
 
 export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     phoneNumber: '',
     email: '',
-    deliveryAddress: '',
+    street: '',
+    residentialName: '',
+    barangay: '',
+    city: '',
     password: '',
     confirmPassword: ''
   });
@@ -28,6 +32,8 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
   });
 
   const [waiverAgreed, setWaiverAgreed] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,15 +44,63 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
     setAllergens(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     if (!waiverAgreed) {
-      alert("Please agree to the Buyer Waiver and Terms of Service.");
+      setError('Please agree to the Buyer Waiver and Terms of Service');
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Password do not match.');
       return;
     }
-    // Simulate signup success
-    onSignup();
-  };
+
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+    
+    setLoading(true);
+
+    try {
+      const signupData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        emailAddress: formData.email,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber,
+        street: formData.street,
+        residentialName: formData.residentialName,
+        barangay: formData.barangay,
+        city: formData.city,
+        becomeSeller: false,
+      };
+
+      const response = await fetch('http://localhost:8000/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signupData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // After successful signup, auto-login the user
+        // For now, just switch to login view
+        alert('Account created successfully! Please log in.');
+        onSwitchToLogin();
+      } else {
+        setError(data.detail || 'Signup failed. Please try again.');
+      }
+    } catch (err) {
+      setError('Connection error. Please try again.');
+      console.error('Signup error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="signup-page">
@@ -60,6 +114,7 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
         <div className="signup-content">
           {/* Left Column: Forms */}
           <div className="signup-left">
+            {error && <div className="error-message" style={{color: '#D32F2F', marginBottom: '20px', padding: '12px', backgroundColor: '#FFEBEE', borderRadius: '8px'}}>{error}</div>}
             <form id="signup-form" onSubmit={handleSignup}>
               
               {/* Personal Information */}
@@ -67,30 +122,55 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
                 <h2>Personal Information</h2>
                 <div className="form-grid">
                   <div className="form-group">
-                    <label>Full Name</label>
+                    <label>First Name</label>
                     <div className="input-wrapper">
-                      <input type="text" name="fullName" placeholder="Dana Jill" value={formData.fullName} onChange={handleInputChange} required />
+                      <input type="text" name="firstName" placeholder="Dana Jill" value={formData.firstName} onChange={handleInputChange} required />
                     </div>
                   </div>
                   <div className="form-group">
+                    <label>Last Name</label>
+                    <div className="input-wrapper">
+                      <input type="text" name="lastName" placeholder="Santiago" value={formData.lastName} onChange={handleInputChange} required />
+                    </div>
+                  </div>
+                  <div className='form-group'>
                     <label>Phone Number</label>
                     <div className="input-wrapper">
-                      <input type="tel" name="phoneNumber" placeholder="+63 981 xxx xxxx" value={formData.phoneNumber} onChange={handleInputChange} required />
+                      <input type="tel" name="phoneNumber" placeholder="0981 xxx xxxx" value={formData.phoneNumber} onChange={handleInputChange} required />
                     </div>
                   </div>
-                  <div className="form-group full-width">
+                  <div className="form-group">
                     <label>Email Address</label>
                     <div className="input-wrapper">
-                      <input type="email" name="email" placeholder="imissu@example.com" value={formData.email} onChange={handleInputChange} required />
+                      <input type="email" name="email" placeholder="danajill@example.com" value={formData.email} onChange={handleInputChange} required />
                     </div>
                   </div>
-                  <div className="form-group full-width">
+                  
                     <label>Delivery Address</label>
-                    <div className="input-wrapper address-wrapper">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#707973" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                      <input type="text" name="deliveryAddress" placeholder="Start typing your address..." value={formData.deliveryAddress} onChange={handleInputChange} required />
+                    <div className='form-group full-width'>
+                      <label>Street</label>
+                      <div className='input-wrapper'>
+                        <input type="text" name="street" placeholder="Diamond St." value={formData.street} onChange={handleInputChange} required/>
+                      </div>
                     </div>
-                  </div>
+                    <div className='form-group'>
+                      <label>Residential Name</label>
+                      <div className='input-wrapper'>
+                        <input type="text" name="residentialName" placeholder="Pearl Village" value={formData.residentialName} onChange={handleInputChange} required/>
+                      </div>
+                    </div>
+                    <div className='form-group'>
+                      <label>Barangay</label>
+                      <div className='input-wrapper'>
+                        <input type="text" name="barangay" placeholder="Mintal" value={formData.barangay} onChange={handleInputChange} required/>
+                      </div>
+                    </div>
+                    <div className='form-group full-width'>
+                      <label>City</label>
+                      <div className='input-wrapper'>
+                        <input type="text" name="city" placeholder="Davao City" value={formData.city} onChange={handleInputChange} required/>
+                      </div>
+                    </div>
                   <div className="form-group">
                     <label>Password</label>
                     <div className="input-wrapper">
@@ -184,7 +264,9 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
 
         {/* Footer actions */}
         <div className="signup-footer">
-          <button type="submit" form="signup-form" className="btn-create-account-main">Create Account</button>
+            {loading ? 'Creating Account...' : 'Create Account'}
+          
+          <button type="submit" form="signup-form" className="btn-create-account-main" disabled={loading}>{loading ? 'Creating account...' : 'Create Account'}</button>
           <p className="login-prompt">
             Already have an account? <button type="button" className="btn-link" onClick={onSwitchToLogin}>Log In</button>
           </p>
