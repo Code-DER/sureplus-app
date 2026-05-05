@@ -74,3 +74,11 @@ def create_rating(data):
     }).execute()
 
     return result.data[0]
+
+def get_seller_rating_list(seller_id):
+    res = supabase.table("Rating") \
+        .select("*") \
+        .eq("sellerID", seller_id) \
+        .execute()
+    
+    return res.data
