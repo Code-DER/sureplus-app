@@ -40,7 +40,6 @@ function App() {
 
   return (
     <>
-      <div>{message}</div>
       <ListingsFeed />
       {/* Temporary developer button to toggle views since accounts are unified */}
       <button 

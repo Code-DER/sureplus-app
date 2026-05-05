@@ -26,7 +26,7 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
 
     # Fetch the user's profile from the database
     user = supabase.table("User")\
-        .select("firstName, lastName, role, emailAddress, street, residentialName, barangay, city")\
+        .select("firstName, lastName, role, emailAddress, phoneNumber, street, residentialName, barangay, city")\
         .eq("userID", user_id)\
         .single()\
         .execute()
