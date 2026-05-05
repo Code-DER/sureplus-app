@@ -1,5 +1,10 @@
+"""
+Authentication service for managing user login and signup.
+"""
 from passlib.context import CryptContext
 from database import supabase
+
+
 from fastapi import HTTPException
 import jwt
 import os
