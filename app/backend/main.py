@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from api.users import router as users_router
 from api.auth import router as auth_router
+from api.products import router as products_router
+from api.safety import router as safety_router
 from api.notifications import router as notifications_router
 from api.charity_applications import router as charity_applications_router
 from api.charities import router as charities_router
@@ -12,6 +14,8 @@ app = FastAPI(title="SurePlus API")
 # Routers for the app
 app.include_router(users_router, prefix="/users", tags=["Users"])
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(products_router, prefix="/products", tags=["Products"])
+app.include_router(safety_router, prefix="/safety", tags=["Safety"])
 app.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
 app.include_router(charity_applications_router, prefix="/charity-applications", tags=["Charity Applications"])
 app.include_router(charities_router, prefix="/charities", tags=["Charities"])
