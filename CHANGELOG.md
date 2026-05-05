@@ -1,6 +1,23 @@
 # Changelog
 
-Status: design kickoff / early scaffold.
+Status: early full-stack scaffold.
+
+## v0.0.10
+
+### Added or Changed
+- Fixed backend auth login wiring so the FastAPI login route imports its dependencies correctly and resolves users through the auth service.
+- Fixed auth, seller-profile, and notification service operations to use the server-side Supabase client where backend-owned writes are required.
+- Made backend Supabase configuration fail fast when required database environment values are missing, including the service-role key.
+- Added transaction-backed product-safety RPC functions for food creation, food-allergen replacement, and user-allergy replacement.
+- Updated product-safety service methods to call the new RPC functions instead of splitting safety relationship replacement across multiple database requests.
+- Added focused backend regression tests for missing service-role configuration and the product-safety RPC call paths.
+- Updated the issue #10 backend review document with the completed debugging diagnosis, fixes, validation results, and remaining live-environment follow-up.
+- Updated the README version marker from `v0.0.9` to `v0.0.10`.
+- Added detailed version documentation at `docs/version-0.0.10-docs.md`.
+- Added `THIRD-PARTY-NOTICES.md` as the repository baseline for dependency and notice tracking.
+
+### For Deletion
+- Local generated Python bytecode cache artifacts were observed after validation; keep them out of commits and remove them locally when convenient.
 
 ## v0.0.9
 

@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException
-from models.user import UserResponse, UserSignUp, UserLogin, Token
+from fastapi import APIRouter, Depends, HTTPException
+from models.user import UserResponse, UserSignUp, Token
 from services import auth_service
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -18,8 +18,7 @@ async def signup(user_input: UserSignUp):
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     # Check if the email exists in the database
-    response = supabase.table("User").select("*").eq("emailAddress", form_data.username).execute()
-    response = auth_service.fetch_user_by_email(user_input.emailAddress)
+    response = auth_service.fetch_user_by_email(form_data.username)
 
     # If the email does not exist, raise an error
     if not response.data:

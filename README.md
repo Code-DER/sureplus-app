@@ -15,9 +15,9 @@
   <p align="center">
     <strong>A web platform concept for Sureplus Philippines, focused on rescuing edible surplus food, supporting responsible inedible-food recycling, and tracking social impact.</strong>
     <br />
-    Version: v0.0.9
+    Version: v0.0.10
     <br />
-    Status: design kickoff / early scaffold.
+    Status: early full-stack scaffold.
     <br />
     <a href="https://github.com/Code-DER/sureplus-app"><strong>Explore the repository</strong></a>
     <br />
@@ -117,15 +117,17 @@ The backend scaffold under `app/backend/` now includes FastAPI routes and servic
 - current-user allergy profile reads and updates,
 - allergy-aware product responses that expose matched allergens and safe-for-current-user status.
 
-The backend uses the local Supabase schema as its persistence layer, includes a service-role client for server-side database operations, and signs application JWTs with a backend-only secret rather than the Supabase anon key. Focused regression tests cover forged-token rejection and database-role mismatch rejection in the authentication dependency.
+The backend uses the local Supabase schema as its persistence layer, requires a service-role key for server-side database operations, and signs application JWTs with a backend-only secret rather than the Supabase anon key. Product-safety relationship writes now go through database RPC functions so food-allergen and user-allergy replacement can be handled atomically after the latest migrations are applied.
+
+Focused regression tests cover forged-token rejection, database-role mismatch rejection, service-role configuration failure, and the product-safety service paths that call the atomic RPC functions.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Current Repository State
 
-This repository is currently at the backend scaffold stage. The local Supabase project skeleton is committed under `app/supabase/` with the initial database migration and Row Level Security policies, and `app/backend/` now contains the FastAPI backend, dependency manifest, environment sample, authentication routes, user routes, product/safety routes, service modules, Pydantic models, and focused authentication regression tests. A committed frontend application is not yet present.
+This repository is currently at the early full-stack scaffold stage. The local Supabase project skeleton is committed under `app/supabase/` with schema migrations, Row Level Security policies, and product-safety RPC functions. `app/backend/` contains the FastAPI backend, dependency manifest, environment sample, authentication routes, user routes, product/safety routes, service modules, Pydantic models, and focused backend regression tests. `app/frontend/` contains the current React/Vite frontend scaffold and application components.
 
-Refer to `SUPABASE_SETUP.md` at the repository root for the local-development onboarding flow that runs Supabase entirely on Docker without requiring a hosted Supabase account. Detailed version documentation for the product-and-safety backend additions is available in `docs/version-0.0.8-docs.md`, with follow-up backend review notes summarized in `docs/version-0.0.9-docs.md` and the repository code-review documentation.
+Refer to `SUPABASE_SETUP.md` at the repository root for the local-development onboarding flow that runs Supabase entirely on Docker without requiring a hosted Supabase account. Detailed version documentation for the product-and-safety backend additions is available in `docs/version-0.0.8-docs.md`, with follow-up backend review notes summarized in `docs/version-0.0.9-docs.md` and backend debugging/hardening details summarized in `docs/version-0.0.10-docs.md`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -191,12 +193,13 @@ code .
 - [ ] Commit the initial frontend application scaffold.
 - [x] Add the initial FastAPI backend scaffold with authentication, user, product, allergen, and user-allergy routes.
 - [ ] Complete role-based onboarding and profile management beyond the current authentication and user-profile baseline.
-- [ ] Complete seller food-listing workflows with transactional allergen updates, inventory workflows, expiration behavior, and product formats.
+- [x] Add transactional database functions for product-safety relationship writes.
+- [ ] Complete seller food-listing workflows beyond the current backend baseline, including inventory workflows, expiration behavior, and product formats.
 - [ ] Implement buyer discovery, purchase, receipt, points, and rating flows.
 - [ ] Implement charity, innovator, composter, and admin workflows.
 - [ ] Add notification, messaging, social-impact, analytics, and leaderboard outputs.
 - [x] Commit the initial Supabase database migration with Row Level Security policies for the 17 baseline tables.
-- [ ] Add additional database migrations, transactional safety operations, broader tests, deployment notes, and operations guidance.
+- [ ] Add broader route tests, live database validation, deployment notes, and operations guidance.
 
 See the [open issues](https://github.com/Code-DER/sureplus-app/issues) for proposed features and known gaps.
 

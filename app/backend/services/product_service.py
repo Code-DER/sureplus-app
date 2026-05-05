@@ -153,7 +153,10 @@ def create_food(seller_id: str, food_data: dict) -> dict:
     food_data["userID"] = seller_id
 
     response = _execute(
-        supabase_admin.table("Food").insert(food_data),
+        supabase_admin.rpc(
+            "create_food_with_allergens",
+            {"food_data": food_data, "allergen_ids": allergen_ids},
+        ),
         "Failed to create food listing",
     )
 
@@ -161,16 +164,6 @@ def create_food(seller_id: str, food_data: dict) -> dict:
         raise HTTPException(status_code=500, detail="Failed to create food listing.")
 
     food = response.data[0]
-    if allergen_ids:
-        rows = [
-            {"foodID": food["foodID"], "allergenID": allergen_id}
-            for allergen_id in allergen_ids
-        ]
-        _execute(
-            supabase_admin.table("FoodAllergen").insert(rows),
-            "Failed to attach food allergens",
-        )
-
     return get_food(food["foodID"], user_id=seller_id)
 
 
@@ -196,18 +189,12 @@ def update_food(seller_id: str, food_id: str, food_data: dict) -> dict:
     if allergen_ids is not None:
         validated_allergen_ids = _validate_allergen_ids(allergen_ids)
         _execute(
-            supabase_admin.table("FoodAllergen").delete().eq("foodID", food_id),
+            supabase_admin.rpc(
+                "replace_food_allergens",
+                {"target_food_id": food_id, "allergen_ids": validated_allergen_ids},
+            ),
             "Failed to replace food allergens",
         )
-        if validated_allergen_ids:
-            rows = [
-                {"foodID": food_id, "allergenID": allergen_id}
-                for allergen_id in validated_allergen_ids
-            ]
-            _execute(
-                supabase_admin.table("FoodAllergen").insert(rows),
-                "Failed to attach food allergens",
-            )
 
     return get_food(food_id, user_id=seller_id)
 
@@ -260,16 +247,12 @@ def replace_user_allergies(user_id: str, allergen_ids: Iterable) -> dict:
     ids = _validate_allergen_ids(allergen_ids)
 
     _execute(
-        supabase_admin.table("UserAllergies").delete().eq("userID", user_id),
+        supabase_admin.rpc(
+            "replace_user_allergies",
+            {"target_user_id": user_id, "allergen_ids": ids},
+        ),
         "Failed to replace user allergies",
     )
-
-    if ids:
-        rows = [{"userID": user_id, "allergenID": allergen_id} for allergen_id in ids]
-        _execute(
-            supabase_admin.table("UserAllergies").insert(rows),
-            "Failed to save user allergies",
-        )
 
     return get_user_allergies(user_id)
 

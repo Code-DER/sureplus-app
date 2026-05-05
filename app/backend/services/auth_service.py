@@ -2,7 +2,7 @@
 Authentication service for managing user login and signup.
 """
 from passlib.context import CryptContext
-from database import supabase
+from database import supabase_admin
 
 
 from fastapi import HTTPException
@@ -55,7 +55,7 @@ def create_user(user_data: dict):
     user_data['password'] = hash_password(user_data['password'])
 
     # Insert user into User Table
-    user_response = supabase.table("User").insert(user_data).execute()
+    user_response = supabase_admin.table("User").insert(user_data).execute()
     # Check if user creation was successful
     if not user_response.data:
         raise HTTPException(status_code=500, detail="Failed to create user!")
@@ -65,7 +65,7 @@ def create_user(user_data: dict):
     new_user_id = new_user['userID']
 
     buyer_data = {"userID": new_user_id, "points": 0}
-    buyer_response = supabase.table("Buyer").insert(buyer_data).execute()
+    buyer_response = supabase_admin.table("Buyer").insert(buyer_data).execute()
     if not buyer_response.data:
         raise HTTPException(status_code=500, detail="Failed to create buyer!")
 
