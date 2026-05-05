@@ -1,0 +1,681 @@
+/* ============================= */
+/* Create New Listing Page       */
+/* ============================= */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap');
+
+.cnl-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+}
+
+/* === Header Section === */
+.cnl-header-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cnl-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cnl-breadcrumb-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  color: #707973;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.cnl-breadcrumb-link:hover {
+  color: #0F5238;
+}
+
+.cnl-breadcrumb-sep {
+  flex-shrink: 0;
+}
+
+.cnl-breadcrumb-current {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+  color: #191C1A;
+}
+
+.cnl-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 48px;
+  color: #0F5238;
+  margin: 8px 0 0 0;
+}
+
+.cnl-subtitle {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  color: #404943;
+  margin: 0;
+  max-width: 672px;
+}
+
+/* === Bento Grid === */
+.cnl-bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+}
+
+/* === Card Base === */
+.cnl-card {
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.cnl-card-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 36px;
+  color: #0F5238;
+  margin: 0 0 24px 0;
+}
+
+.cnl-card-subtitle {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 34px;
+  color: #0F5238;
+  margin: 0 0 24px 0;
+}
+
+/* === Fields === */
+.cnl-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cnl-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cnl-label {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #707973;
+}
+
+.cnl-label-with-pad {
+  padding-bottom: 8px;
+}
+
+.cnl-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px 12px;
+  height: 50px;
+  background: #F2F4F0;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+  color: #191C1A;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.cnl-input::placeholder {
+  color: #6B7280;
+}
+
+.cnl-input:focus {
+  border-color: #0F5238;
+}
+
+.cnl-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  min-height: 146px;
+  background: #F2F4F0;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+
+.cnl-textarea::placeholder {
+  color: #6B7280;
+}
+
+.cnl-textarea:focus {
+  border-color: #0F5238;
+}
+
+/* Category + Date Row */
+.cnl-field-row {
+  display: flex;
+  gap: 16px;
+}
+
+.cnl-field-half {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Select */
+.cnl-select-wrapper {
+  position: relative;
+}
+
+.cnl-select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  padding-right: 36px;
+  height: 50px;
+  background: #F2F4F0;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s;
+}
+
+.cnl-select:focus {
+  border-color: #0F5238;
+}
+
+.cnl-select-chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* === Media Upload Card === */
+.cnl-media-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.cnl-media-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.cnl-camera-icon-circle {
+  width: 64px;
+  height: 64px;
+  background: #ECEEEA;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cnl-media-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 34px;
+  color: #191C1A;
+  margin: 0;
+}
+
+.cnl-media-desc {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #404943;
+  margin: 0 0 24px 0;
+  max-width: 214px;
+}
+
+.cnl-upload-zone {
+  width: 100%;
+}
+
+.cnl-upload-dashed {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 128px;
+  background: #F2F4F0;
+  border: 2px dashed #BFC9C1;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.cnl-upload-dashed:hover {
+  border-color: #0F5238;
+  background: #ECF0EA;
+}
+
+.cnl-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+}
+
+.cnl-upload-text {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: #707973;
+}
+
+.cnl-upload-hint {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 11px;
+  color: #A0A8A2;
+}
+
+/* === Inventory Card === */
+.cnl-inventory-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cnl-quantity-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background: #F2F4F0;
+  border: 1px solid #BFC9C1;
+  border-radius: 9999px;
+  height: 58px;
+  box-sizing: border-box;
+}
+
+.cnl-qty-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+
+.cnl-qty-btn:active {
+  transform: scale(0.95);
+}
+
+.cnl-qty-minus {
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+}
+
+.cnl-qty-minus:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.cnl-qty-plus {
+  background: #0F5238;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.cnl-qty-plus:hover {
+  background: #0a3f2c;
+}
+
+.cnl-qty-value {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  color: #191C1A;
+  min-width: 40px;
+  text-align: center;
+}
+
+.cnl-qty-unit {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  color: #404943;
+  text-align: center;
+  display: block;
+  margin-top: 4px;
+}
+
+/* Listing Type Toggle */
+.cnl-type-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.cnl-type-btn {
+  box-sizing: border-box;
+  flex: 1;
+  height: 50px;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.cnl-type-btn.active {
+  background: #FFDBCC;
+  border: 1px solid #A04100;
+  font-weight: 500;
+}
+
+.cnl-type-btn:hover:not(.active) {
+  border-color: #707973;
+}
+
+/* === Allergens Card === */
+.cnl-allergens {
+  grid-column: 2 / 3;
+}
+
+.cnl-allergens-hint {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #404943;
+  margin: -16px 0 20px 0;
+}
+
+.cnl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cnl-chip {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  height: 42px;
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  border-radius: 9999px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #191C1A;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.cnl-chip:hover {
+  border-color: #0F5238;
+  background: #F8FAF6;
+}
+
+.cnl-chip.selected {
+  background: #ECFDF5;
+  border-color: #059669;
+  color: #064E3B;
+}
+
+.cnl-chip-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* === Impact Bar === */
+.cnl-impact-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  padding: 32px;
+  gap: 32px;
+  background: #ECFDF5;
+  border: 1px solid #D1FAE5;
+  border-radius: 12px;
+}
+
+.cnl-impact-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cnl-impact-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 34px;
+  color: #064E3B;
+  margin: 0;
+}
+
+.cnl-impact-desc {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #065F46;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.cnl-impact-price {
+  width: 192px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cnl-price-label {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #065F46;
+  padding-bottom: 4px;
+}
+
+.cnl-price-input-wrapper {
+  box-sizing: border-box;
+  position: relative;
+  width: 192px;
+  height: 50px;
+  background: #FFFFFF;
+  border: 1px solid #A7F3D0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.cnl-currency-symbol {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #064E3B;
+  padding-left: 12px;
+}
+
+.cnl-price-input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 14px 12px 14px 4px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: #191C1A;
+  outline: none;
+}
+
+.cnl-price-input::placeholder {
+  color: #6B7280;
+}
+
+.cnl-price-hint {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #047857;
+  margin-top: 4px;
+}
+
+/* === Action Buttons === */
+.cnl-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.cnl-btn-draft {
+  box-sizing: border-box;
+  padding: 12px 32px;
+  height: 42px;
+  background: transparent;
+  border: 1px solid #191C1A;
+  border-radius: 12px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #191C1A;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cnl-btn-draft:hover {
+  background: #F2F4F0;
+}
+
+.cnl-btn-post {
+  padding: 12px 40px;
+  height: 42px;
+  background: #FE6B00;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0px 10px 15px -3px rgba(254, 107, 0, 0.2), 0px 4px 6px -4px rgba(254, 107, 0, 0.2);
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.cnl-btn-post:hover {
+  background: #e55f00;
+}
+
+.cnl-btn-post:active {
+  transform: scale(0.98);
+}
+
+/* === Responsive === */
+@media (max-width: 900px) {
+  .cnl-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .cnl-allergens {
+    grid-column: 1;
+  }
+  .cnl-impact-bar {
+    grid-column: 1;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cnl-impact-price {
+    width: 100%;
+  }
+  .cnl-price-input-wrapper {
+    width: 100%;
+  }
+  .cnl-title {
+    font-size: 32px;
+    line-height: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .cnl-field-row {
+    flex-direction: column;
+  }
+  .cnl-actions {
+    flex-direction: column;
+  }
+  .cnl-btn-draft,
+  .cnl-btn-post {
+    width: 100%;
+  }
+}

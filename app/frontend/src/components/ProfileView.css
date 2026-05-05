@@ -1,0 +1,362 @@
+/* ====== Profile View Container ====== */
+.profile-view {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+}
+
+/* ====== LEFT COLUMN ====== */
+.profile-left-col {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-user-card {
+  background: white;
+  border: 1px solid #E9ECEF;
+  border-radius: 12px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  margin-bottom: 8px;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #2D6A4F;
+  background-image: url('https://placehold.co/128x128/2D6A4F/FFF?text=TM');
+  background-size: cover;
+  border: 4px solid #B1F0CE;
+  box-sizing: border-box;
+}
+
+.avatar-check-badge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  height: 24px;
+  background: #FE6B00;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+.check-icon {
+  width: 12px;
+  height: 12px;
+  background: white;
+}
+
+.user-name-large {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #191C1A;
+}
+
+.user-badges-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.role-pill {
+  background: #B1F0CE;
+  color: #0F5238;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rating-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #A04100;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.star-icon {
+  font-size: 18px;
+}
+
+.btn-edit-profile {
+  width: 100%;
+  background: #FE6B00;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-edit-profile:hover {
+  background: #E05D00;
+}
+
+.rescuer-impact-card {
+  background: #2D6A4F;
+  border-radius: 50px;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.impact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.impact-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.impact-value {
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.leaf-icon {
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+
+/* ====== RIGHT COLUMN ====== */
+.profile-right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account-details-card {
+  background: white;
+  border: 1px solid #E9ECEF;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 1px solid #E9ECEF;
+}
+
+.account-header h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #191C1A;
+}
+
+.settings-icon {
+  width: 20px;
+  height: 20px;
+  background: #707973;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 32px;
+  column-gap: 32px;
+  padding: 32px;
+}
+
+.account-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-field label,
+.account-full-row label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #707973;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.account-field p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #191C1A;
+}
+
+.account-full-row {
+  padding: 0 32px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.address-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pin-icon {
+  width: 16px;
+  height: 20px;
+  background: #0F5238;
+}
+
+.address-value p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #191C1A;
+}
+
+/* Stats Row */
+.profile-stats-row {
+  display: flex;
+  gap: 16px;
+}
+
+/* Uses same stat-box class, but styling is refined */
+.stat-box {
+  background: #ECEEEA;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #404943;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.stat-value.orange {
+  color: #FE6B00;
+}
+
+.stat-value.green {
+  color: #0F5238;
+}
+
+.stat-value.teal {
+  color: #005050;
+}
+
+/* Settings Row */
+.profile-settings-row {
+  display: flex;
+  gap: 16px;
+}
+
+.settings-box {
+  flex: 1;
+  background: white;
+  border: 1px solid #E9ECEF;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.settings-icon-bg {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #ECEEEA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bell-icon-green,
+.shield-icon-green {
+  width: 20px;
+  height: 20px;
+  background: #0F5238;
+}
+
+.settings-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #191C1A;
+}
+
+.settings-info p {
+  margin: 0;
+  font-size: 11px;
+  color: #707973;
+}
+
+/* Logout Row */
+.profile-logout-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.btn-logout {
+  background: transparent;
+  color: #BA1A1A;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.btn-logout:hover {
+  background: rgba(186, 26, 26, 0.05);
+}
+
+.logout-icon {
+  width: 18px;
+  height: 18px;
+  background: #BA1A1A;
+}
