@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Signup.css';
 
 interface SignupProps {
   onSignup: () => void;
   onSwitchToLogin: () => void;
+}
+
+interface Allergen {
+  allergenID: string;
+  name: string;
 }
 
 export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
@@ -20,28 +25,50 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
     confirmPassword: ''
   });
 
-  const [allergens, setAllergens] = useState({
-    gluten: false,
-    dairy: false,
-    nuts: false,
-    soy: false,
-    eggs: false,
-    shellfish: false,
-    vegan: false,
-    siAno: false
-  });
+  // const [allergens, setAllergens] = useState({
+  //   milk: false,
+  //   eggs: false,
+  //   seafood: false,
+  //   nuts: false,
+  //   wheat: false,
+  //   soy: false,
+  //   sesame: false
+  // });
+
+  const [allergenList, setAllergenList] = useState<Allergen[]>([]);
+  const [allergens, setAllergens] = useState<Record<string, boolean>>({});
 
   const [waiverAgreed, setWaiverAgreed] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAllergens = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/safety/allergens');
+        const data = await response.json();
+        if (response.ok && Array.isArray(data)) {
+          setAllergenList(data);
+          const allergenMap: Record<string, boolean> = {};
+          data.forEach((allergen: Allergen) => {
+            allergenMap[allergen.allergenID] = false;
+          });
+          setAllergens(allergenMap);
+        }
+      } catch (error) {
+        console.error('Failed to fetch allergens:', error);
+      }
+    };
+    fetchAllergens();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAllergenChange = (name: keyof typeof allergens) => {
-    setAllergens(prev => ({ ...prev, [name]: !prev[name] }));
+  const handleAllergenChange = (allergenId: string) => {
+    setAllergens(prev => ({ ...prev, [allergenId]: !prev[allergenId] }));
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -78,22 +105,57 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
         becomeSeller: false,
       };
 
-      const response = await fetch('http://localhost:8000/auth/signup', {
+      // Sign up user
+      const signupResponse = await fetch('http://localhost:8000/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(signupData),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // After successful signup, auto-login the user
-        // For now, just switch to login view
-        alert('Account created successfully! Please log in.');
-        onSwitchToLogin();
-      } else {
+      if (!signupResponse.ok) {
+        const data = await signupResponse.json();
         setError(data.detail || 'Signup failed. Please try again.');
       }
+
+      // Auto login after signup
+      const loginFormData = new URLSearchParams();
+      loginFormData.append('username', formData.email);
+      loginFormData.append('password', formData.password);
+
+      const loginResponse = await fetch('http://localhost:8000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded' 
+        },
+        body: loginFormData.toString(),
+      });
+
+      const loginData = await loginResponse.json();
+
+      if (!loginResponse.ok) {
+        setError('Account created but login failed. Please log in manually.');
+        onSwitchToLogin();
+        return;
+      }
+
+      localStorage.setItem('token', loginData.access_token);
+      localStorage.setItem('token_type', loginData.token_type);
+      
+      // Save selected allergens
+      const selectedAllergenIds = Object.keys(allergens).filter(id => allergens[id]);
+      for (const allergenId of selectedAllergenIds) {
+        const allergyResponse = await fetch(`http://localhost:8000/safety/me/allergies/${allergenId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${loginData.access_token}`
+          },
+        });
+        if (!allergyResponse.ok) {
+          console.warn(`Failed to save allergen ${allergenId}, but account was created.`);
+        }
+      }
+
+      onSignup();
     } catch (err) {
       setError('Connection error. Please try again.');
       console.error('Signup error:', err);
@@ -191,22 +253,21 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
                 <h2>Buyer Allergen Selection</h2>
                 <p className="card-subtitle">Please select any food allergies or dietary requirements you have. This helps us flag items in your local marketplace.</p>
                 <div className="allergen-grid">
-                  {Object.keys(allergens).map((key) => {
-                    const typedKey = key as keyof typeof allergens;
-                    const label = key === 'siAno' ? 'Si Ano' : key.charAt(0).toUpperCase() + key.slice(1);
-                    return (
-                      <label key={key} className="allergen-checkbox">
+                  {allergenList.map((allergen) => (
+                      <label key={allergen.allergenID} className="allergen-checkbox">
                         <input 
                           type="checkbox" 
-                          checked={allergens[typedKey]}
-                          onChange={() => handleAllergenChange(typedKey)} 
+                          checked={allergens[allergen.allergenID] || false}
+                          onChange={() => handleAllergenChange(allergen.allergenID)} 
                         />
                         <span className="checkbox-custom"></span>
-                        <span className="allergen-label">{label}</span>
+                        <span className="allergen-label">{allergen.name.charAt(0).toUpperCase() + allergen.name.slice(1)}</span>
                       </label>
-                    );
-                  })}
+                  ))}
                 </div>
+                {allergenList.length === 0 && (
+                  <p style={{ color: '#999', fontSize: '14px' }}>Loading allergens...</p>
+                )}
               </div>
 
               {/* Buyer Waiver */}
