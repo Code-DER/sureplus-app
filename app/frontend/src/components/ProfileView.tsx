@@ -85,7 +85,8 @@ export default function ProfileView() {
             </span>
           </div>
           
-          <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>Edit Profile</button>
+          {/* NO ENDPOINT YET */}
+          {/* <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>Edit Profile</button> */}
         </div>
 
         {/* Rescuer Impact Card */}
@@ -155,8 +156,9 @@ export default function ProfileView() {
           </div>
         </div>
 
+        {/* NO ENDPOINT YET */}
         {/* Settings Row */}
-        <div className="profile-settings-row">
+        {/* <div className="profile-settings-row">
           <div className="settings-box">
             <div className="settings-icon-bg">
               <span className="icon-placeholder bell-icon-green"></span>
@@ -176,7 +178,7 @@ export default function ProfileView() {
               <p>Password and data</p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Logout Row */}
         <div className="profile-logout-row">
