@@ -1,6 +1,9 @@
 from database import supabase
 
 def create_purchase(data):
+    if not data["items"]:
+        raise Exception("Purchase must have at least one item")
+
     total = 0
     items = []
 
@@ -98,3 +101,34 @@ def complete_purchase(purchase_id):
         "message": "Purchase completed",
         "pointsEarned": points_earned
     }
+
+def get_seller_purchase_list(seller_id):
+    # Get seller's food
+    foods_res = supabase.table("Food") \
+        .select("foodID") \
+        .eq("userID", seller_id) \
+        .execute()
+    
+    food_ids = [f["foodID"] for f in foods_res.data]
+
+    if not food_ids:
+        return []
+    
+    # Get purchase items
+    items_res = supabase.table("PurchaseItems") \
+        .select("purchaseID") \
+        .in_("foodID", food_ids) \
+        .execute()
+    
+    purchase_ids = list(set([i["purchaseID"] for i in items_res.data]))
+
+    if not purchase_ids:
+        return []
+    
+    # Get purchases
+    purchases_res = supabase.table("Purchase") \
+        .select("*") \
+        .in_("purchaseID", purchase_ids) \
+        .execute()
+
+    return purchases_res.data
