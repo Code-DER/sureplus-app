@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
 });
 
-// Add token to all requests
+// Add token to all  requests
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -26,5 +26,13 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+// User API functions
+export const userAPI = {
+    getMyProfile: () => api.get('/users/myprofile'),
+    getMyBuyerProfile: () => api.get('/buyers/me'),
+    getMySellerProfile: () => api.get('/sellers/me'),
+    getMyImpactSummary: () => api.get('/social-impact/summary'),
+};
 
 export default api;

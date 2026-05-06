@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import './ProfileView.css';
 import EditProfileView from './EditProfileView';
+import { userAPI } from '../api/apis';
+
 
 interface UserProfile {
   userID: string;
@@ -15,13 +17,35 @@ interface UserProfile {
   city: string;
 }
 
+interface BuyerProfile {
+  userID: string;
+  points: number;
+}
+
+interface SellerProfile {
+  userID: string;
+  sellerType: string;
+  isVerified: boolean;
+  companyName: string;
+}
+
+interface SocialImpactSummary {
+  totalCarbonOffset: number;
+  totalRescuedKilos: number;
+  totalPeopleFed: number;
+  purchaseCount: number;
+}
+
 export default function ProfileView() {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [buyerProfile, setBuyerProfile] = useState<BuyerProfile | null>(null);
+  const [sellerProfile, setSellerProfile] = useState<SellerProfile | null>(null);
+  const [impactSummary, setImpactSummary] = useState<SocialImpactSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfileData = async () => {
       const token = localStorage.getItem('token');
 
       if (!token) {
@@ -30,29 +54,46 @@ export default function ProfileView() {
       }
 
       try {
-        const response = await fetch('http://localhost:8000/users/myprofile', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        // Fetch basic user profile
+        const profileResponse = await userAPI.getMyProfile();
+        const userData = profileResponse.data;
+        setProfile(userData);
 
-        if (response.ok) {
-          const result = await response.json();
-          setProfile(result);
-        } else {
-          const errorPayload = await response.json().catch(() => null);
-          console.error('Failed to fetch profile.', errorPayload?.detail || response.statusText);
+        // Fetch role-specific data based on user role
+        const fetchPromises = [];
+
+        if (userData.role === 'buyer') {
+          fetchPromises.push(
+            userAPI.getMyBuyerProfile()
+              .then(response => setBuyerProfile(response.data))
+              .catch(error => console.log('Buyer profile not found:', error))
+          );
+        } else if (userData.role === 'seller') {
+          fetchPromises.push(
+            userAPI.getMySellerProfile()
+              .then(response => setSellerProfile(response.data))
+              .catch(error => console.log('Seller profile not found:', error))
+          );
         }
+
+        // Always fetch impact summary
+        fetchPromises.push(
+          userAPI.getMyImpactSummary()
+            .then(response => setImpactSummary(response.data))
+            .catch(error => console.log('Impact summary not found:', error))
+        );
+
+        // Wait for all role-specific fetches to complete
+        await Promise.all(fetchPromises);
+
       } catch (error) {
-        console.error('Error connecting to backend:', error);
+        console.error('Error fetching profile data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
+    fetchProfileData();
   }, []);
 
   if (loading) return <p>Loading profile...</p>
@@ -93,12 +134,42 @@ export default function ProfileView() {
         <div className="rescuer-impact-card">
           <div className="impact-info">
             <span className="impact-label">Total Food Rescued</span>
-            <span className="impact-value">124 kg</span>
+            <span className="impact-value">{impactSummary ? `${impactSummary.totalRescuedKilos} kg` : '0 kg'}</span>
           </div>
           <div className="impact-icon-wrapper">
             <span className="icon-placeholder leaf-icon"></span>
           </div>
         </div>
+
+        {/* Role-specific information */}
+        {profile.role === 'buyer' && buyerProfile && (
+          <div className="buyer-info-card">
+            <div className="impact-info">
+              <span className="impact-label">Points</span>
+              <span className="impact-value">{buyerProfile.points}</span>
+            </div>
+            <div className="impact-icon-wrapper">
+              <span className="icon-placeholder points-icon">💰</span>
+            </div>
+          </div>
+        )}
+
+        {profile.role === 'seller' && sellerProfile && (
+          <div className="seller-info-card">
+            <div className="seller-header">
+              <h4>{sellerProfile.companyName}</h4>
+              <div className="seller-badges">
+                <span className="seller-type-badge">{sellerProfile.sellerType}</span>
+                {sellerProfile.isVerified && (
+                  <span className="verified-badge">
+                    <span className="icon-placeholder check-icon">✓</span>
+                    Verified
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
 
@@ -143,16 +214,22 @@ export default function ProfileView() {
         {/* Stats Row */}
         <div className="profile-stats-row">
           <div className="stat-box">
-            <span className="stat-label">Points</span>
-            <span className="stat-value orange">1,250</span>
+            <span className="stat-label">Carbon Offset</span>
+            <span className="stat-value orange">
+              {impactSummary ? `${impactSummary.totalCarbonOffset} ` : '0'}
+            </span>
           </div>
           <div className="stat-box">
-            <span className="stat-label">Items Rescued</span>
-            <span className="stat-value green">42</span>
+            <span className="stat-label">People Fed</span>
+            <span className="stat-value green">
+              {impactSummary ? `${impactSummary.totalPeopleFed} kg` : '0'}
+            </span>
           </div>
           <div className="stat-box">
-            <span className="stat-label">CO₂ Saved</span>
-            <span className="stat-value teal">12.5kg</span>
+            <span className="stat-label">Purchase Count</span>
+            <span className="stat-value teal">
+              {impactSummary ? `${impactSummary.purchaseCount} purchases` : '0 purchases'}
+            </span>
           </div>
         </div>
 

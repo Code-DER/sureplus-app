@@ -266,9 +266,11 @@
 }
 
 .stat-value {
+  display: block;
   font-size: 22px;
   font-weight: 600;
   margin-top: 4px;
+  opacity: 1 !important;
 }
 
 .stat-value.orange {
@@ -359,4 +361,90 @@
   width: 18px;
   height: 18px;
   background: #BA1A1A;
+}
+
+.buyer-info-card {
+  background: #FE6B00;
+  border-radius: 50px;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buyer-info-card .impact-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.buyer-info-card .impact-value {
+  color: white;
+}
+
+.points-icon {
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.seller-info-card {
+  background: white;
+  border: 1px solid #E9ECEF;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.seller-header h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #191C1A;
+}
+
+.seller-badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.seller-type-badge {
+  background: #B1F0CE;
+  color: #0F5238;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.verified-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #E8F5E8;
+  color: #2E7D32;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.verified-badge .check-icon {
+  width: 12px;
+  height: 12px;
+  background: #2E7D32;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
 }

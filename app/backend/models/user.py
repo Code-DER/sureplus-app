@@ -41,7 +41,7 @@ class Token(BaseModel):
     token_type: str
 
 class SellerRead(BaseModel):
-    useriD: UUID
+    userID: UUID
     sellerType: str
     isVerified: bool = False
     companyName: str
