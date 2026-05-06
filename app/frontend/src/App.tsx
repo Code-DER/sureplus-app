@@ -68,20 +68,26 @@ function App() {
     <>
       <ListingsFeed />
       {/* Temporary developer button to toggle views since accounts are unified */}
-      {isSeller ? (<button 
-        onClick={() => setView('seller')}
-        style={{
-          position: 'fixed', bottom: 20, right: 20, zIndex: 9999, 
-          background: '#0F5238', color: 'white', border: 'none', 
-          padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
-          fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-        }}
-      >
-        Open Seller Dashboard
-      </button>) : (
+      {isSeller ? (
+        <button 
+          onClick={() => setView('seller')}
+          style={{
+            position: 'fixed', bottom: 20, right: 20, zIndex: 9999, 
+            background: '#0F5238', color: 'white', border: 'none', 
+            padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
+            fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          }}
+        >
+          Open Seller Dashboard
+        </button>) : (
         <button
-          onClick={() => alert("Redirecting to Upgrade Form")}
-          style={{ position: 'fixed', bottom: 20, right: 20, background: '#ccc' }}
+          onClick={() => alert("Function unavailable...")}
+          style={{ 
+            position: 'fixed', bottom: 20, right: 20, zIndex: 9999, 
+            background: '#0F5238', color: 'white', border: 'none', 
+            padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
+            fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
+          }}
         >
           Become a Seller
         </button>
