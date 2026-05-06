@@ -39,3 +39,19 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class SellerRead(BaseModel):
+    useriD: UUID
+    sellerType: str
+    isVerified: bool = False
+    companyName: str
+
+    class Config:
+        from_attributes = True
+
+class BuyerRead(BaseModel):
+    userID: UUID
+    points: int
+
+    class Config:
+        from_attributes = True

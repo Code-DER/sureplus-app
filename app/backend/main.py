@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.users import router as users_router
+from api.sellers import router as sellers_router
+from api.buyers import router as buyers_router
 from api.auth import router as auth_router
 from api.products import router as products_router
 from api.safety import router as safety_router
@@ -27,6 +29,8 @@ app.add_middleware(
 
 # Routers for the app
 app.include_router(users_router, prefix="/users", tags=["Users"])
+app.include_router(buyers_router, prefix="/buyers", tags=["Buyers"])
+app.include_router(sellers_router, prefix="/sellers", tags=["Sellers"])
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(products_router, prefix="/products", tags=["Products"])
 app.include_router(safety_router, prefix="/safety", tags=["Safety"])
