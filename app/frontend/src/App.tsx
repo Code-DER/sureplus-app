@@ -1,26 +1,47 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import ListingsFeed from './components/ListingsFeed'
 import SellerDashboard from './components/SellerDashboard'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import './index.css'
+import { jwtDecode, type JwtPayload } from 'jwt-decode'
+
+interface SureplusJwtPayload extends JwtPayload {
+  userID: string;
+  role: string;
+}
+
+export const getAuthUser = () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const decoded = jwtDecode<SureplusJwtPayload>(token);
+    return decoded;
+  } catch (error) {
+    return null;
+  }
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return !!localStorage.getItem('token');
-    }
-    return false;
+    return !!localStorage.getItem('token');
   });
+
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
   const [view, setView] = useState<'buyer' | 'seller'>('buyer')
-  const [message, setMessage] = useState("");
+  // const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    fetch("http://localhost:8000/")
-    .then(res => res.json())
-    .then(data => setMessage(data.message));
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://localhost:8000/")
+  //   .then(res => res.json())
+  //   .then(data => setMessage(data.message));
+  // }, []);
+
+  const user = getAuthUser();
+  const isSeller = user?.role === 'seller';
 
   if (!isAuthenticated) {
     if (authView === 'signup') {
@@ -39,7 +60,7 @@ function App() {
     );
   }
 
-  if (view === 'seller') {
+  if (view === 'seller' && isSeller) {
     return <SellerDashboard onSwitchRole={() => setView('buyer')} />
   }
 
@@ -47,7 +68,7 @@ function App() {
     <>
       <ListingsFeed />
       {/* Temporary developer button to toggle views since accounts are unified */}
-      <button 
+      {isSeller ? (<button 
         onClick={() => setView('seller')}
         style={{
           position: 'fixed', bottom: 20, right: 20, zIndex: 9999, 
@@ -56,8 +77,15 @@ function App() {
           fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
         }}
       >
-        View as Seller
-      </button>
+        Open Seller Dashboard
+      </button>) : (
+        <button
+          onClick={() => alert("Redirecting to Upgrade Form")}
+          style={{ position: 'fixed', bottom: 20, right: 20, background: '#ccc' }}
+        >
+          Become a Seller
+        </button>
+      )}
     </>
   )
 }
