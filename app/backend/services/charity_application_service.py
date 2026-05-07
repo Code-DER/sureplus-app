@@ -1,11 +1,16 @@
 """
 Service for handling charity applications.
 """
+import logging
+
 from database import supabase
 
 from uuid import UUID
 from typing import Optional
+from services import admin_activity_service
 from services.notification_service import send_notification
+
+logger = logging.getLogger(__name__)
 
 def submit_application(user_id: str, data: dict):
     # Check for existing pending or approved application
@@ -39,35 +44,47 @@ def fetch_all_pending():
         .eq("status", "pending") \
         .execute()
 
-def review_application(application_id: str, status: str, org_name: Optional[str] = None):
-    # 1. Update CharityApplication.status
+def review_application(application_id: str, status: str, org_name: Optional[str] = None, admin_id: Optional[str] = None):
+    # 1. Fetch and validate the application before making any changes
+    application_response = supabase.table("CharityApplication") \
+        .select("*") \
+        .eq("applicationID", application_id) \
+        .execute()
+    
+    if not application_response.data:
+        raise Exception("Application not found.")
+
+    application = application_response.data[0]
+    if application["status"] != "pending":
+        raise Exception("Only pending applications can be reviewed.")
+
+    if status == "approved" and not org_name:
+        raise Exception("Organization name is required for approval.")
+
+    user_id = application["userID"]
+
+    # 2. Update CharityApplication.status
     response = supabase.table("CharityApplication") \
         .update({"status": status}) \
         .eq("applicationID", application_id) \
         .execute()
     
     if not response.data:
-        raise Exception("Application not found.")
-
-    application = response.data[0]
-    user_id = application["userID"]
+        raise Exception("Failed to update application status.")
 
     if status == "approved":
-        if not org_name:
-            raise Exception("Organization name is required for approval.")
-
-        # 2. Update User.role = 'charity'
+        # 3. Update User.role = 'charity'
         supabase.table("User") \
             .update({"role": "charity"}) \
             .eq("userID", user_id) \
             .execute()
 
-        # 3. Insert into Charity table
+        # 4. Insert into Charity table
         supabase.table("Charity") \
             .insert({"userID": user_id, "organizationName": org_name}) \
             .execute()
 
-        # 4. Notify the user
+        # 5. Notify the user
         send_notification(
             user_id=user_id,
             title="Charity Application Approved!",
@@ -76,7 +93,7 @@ def review_application(application_id: str, status: str, org_name: Optional[str]
             link="/profile"
         )
     elif status == "rejected":
-        # Notify the user of rejection
+        # 3. Notify the user of rejection
         send_notification(
             user_id=user_id,
             title="Charity Application Update",
@@ -84,5 +101,28 @@ def review_application(application_id: str, status: str, org_name: Optional[str]
             type="system",
             link="/profile"
         )
+
+    # 6. Record admin activity (if admin_id provided)
+    try:
+        if admin_id:
+            action = "approve" if status == "approved" else "reject"
+            description = (
+                f"CharityApplication {application_id} {action} by admin {admin_id}."
+            )
+            if status == "approved":
+                description = (
+                    f"CharityApplication {application_id} approved by admin {admin_id} for organization '{org_name}'."
+                )
+
+            admin_activity_service.record_admin_activity(
+                admin_id=admin_id,
+                action_type=action,
+                description=description,
+                target_id=application_id,
+                target_entity="CharityApplication",
+            )
+    except Exception as e:
+        # logging failure to write admin activity should not block the main flow
+        logger.exception("Failed to record admin activity for charity application review: %s", e)
 
     return response

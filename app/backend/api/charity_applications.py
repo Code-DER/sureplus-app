@@ -38,7 +38,8 @@ async def review_application(
         response = charity_application_service.review_application(
             application_id=str(application_id),
             status=review.status,
-            org_name=review.organizationName
+            org_name=review.organizationName,
+            admin_id=current_user["userID"]
         )
         return {"message": f"Application {review.status} successfully."}
     except Exception as e:

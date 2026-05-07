@@ -1,6 +1,52 @@
 # Changelog
 
-Status: design kickoff / early scaffold.
+Status: early full-stack scaffold.
+
+## v0.0.10
+
+### Added or Changed
+- Fixed backend auth login wiring so the FastAPI login route imports its dependencies correctly and resolves users through the auth service.
+- Fixed auth, seller-profile, and notification service operations to use the server-side Supabase client where backend-owned writes are required.
+- Made backend Supabase configuration fail fast when required database environment values are missing, including the service-role key.
+- Added transaction-backed product-safety RPC functions for food creation, food-allergen replacement, and user-allergy replacement.
+- Updated product-safety service methods to call the new RPC functions instead of splitting safety relationship replacement across multiple database requests.
+- Added focused backend regression tests for missing service-role configuration and the product-safety RPC call paths.
+- Updated the issue #10 backend review document with the completed debugging diagnosis, fixes, validation results, and remaining live-environment follow-up.
+- Updated the README version marker from `v0.0.9` to `v0.0.10`.
+- Added detailed version documentation at `docs/version-0.0.10-docs.md`.
+- Added `THIRD-PARTY-NOTICES.md` as the repository baseline for dependency and notice tracking.
+
+### For Deletion
+- Local generated Python bytecode cache artifacts were observed after validation; keep them out of commits and remove them locally when convenient.
+
+## v0.0.9
+
+### Added or Changed
+- Added a backend code-review report for the issue #10 product-and-safety feature slice.
+- Documented remaining review findings around transactional relationship writes, service-role configuration, route/service test coverage, and product discovery defaults.
+- Updated the README version marker from `v0.0.8` to `v0.0.9`.
+- Added detailed version documentation at `docs/version-0.0.9-docs.md`.
+
+### For Deletion
+- None from this task context.
+
+## v0.0.8
+
+### Added or Changed
+- Added the initial FastAPI product-and-safety backend feature slice under `app/backend/`.
+- Added product routes for listing food, fetching food details, and seller-owned create, update, and delete operations.
+- Added safety routes for allergen catalog reads, admin-owned allergen creation, and current-user allergy profile management.
+- Added product, allergen, and user-allergy Pydantic models.
+- Added a product service layer for allergen validation, safe-for-current-user matching, seller ownership checks, and stable client-facing database error messages.
+- Hardened backend JWT handling by using a backend-only `JWT_SECRET_KEY` and revalidating token role claims against the current database user role.
+- Added backend authentication regression tests for forged-token rejection and role-mismatch rejection.
+- Updated the backend environment sample with Supabase and JWT settings.
+- Updated the README version marker from `v0.0.7` to `v0.0.8`.
+- Updated README setup, current-state, backend API, and roadmap sections for the committed backend API scaffold.
+- Added detailed version documentation at `docs/version-0.0.8-docs.md`.
+
+### For Deletion
+- None from this task context.
 
 ## v0.0.7
 
