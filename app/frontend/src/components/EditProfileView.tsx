@@ -328,7 +328,8 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
             </div>
           </div>
 
-          <div className="impact-progress-card">
+          {/* DECIDE ON WHAT ENDPOINT TO PLACE HERE */}
+          {/* <div className="impact-progress-card">
             <div className="impact-header">
               <span className="icon-placeholder leaf-icon-orange"></span>
               <h3>Rescue Impact</h3>
@@ -341,7 +342,7 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
               <div className="impact-progress-fill" style={{ width: '82%' }}></div>
             </div>
             <p className="impact-goal-text">Next goal: 150 kg for the Eco Warrior badge.</p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
