@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import './SellerDashboard.css';
 import CreateNewListing from './CreateNewListing';
 import ManageListings from './ManageListings';
@@ -11,7 +11,7 @@ interface SellerDashboardProps {
 
 type SidebarTab = 'dashboard' | 'manage-listings' | 'create-new' | 'mystery-box' | 'sales-reports' | 'reviews';
 
-const SIDEBAR_ICONS: Record<SidebarTab, React.ReactNode> = {
+const SIDEBAR_ICONS: Record<SidebarTab, ReactNode> = {
   'dashboard': (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="0" y="0" width="8" height="6" rx="1" fill="currentColor"/><rect x="10" y="0" width="8" height="8" rx="1" fill="currentColor"/><rect x="0" y="8" width="8" height="10" rx="1" fill="currentColor"/><rect x="10" y="10" width="8" height="8" rx="1" fill="currentColor"/></svg>
   ),

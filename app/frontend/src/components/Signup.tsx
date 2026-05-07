@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import './Signup.css';
+import type { User } from '../types/user';
 
 interface SignupProps {
-  onSignup: () => void;
+  onSignup: (user: User) => void;
   onSwitchToLogin: () => void;
 }
 
@@ -28,8 +29,10 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
   });
 
   const [waiverAgreed, setWaiverAgreed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -38,14 +41,70 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
     setAllergens(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: FormEvent) => {
     e.preventDefault();
     if (!waiverAgreed) {
       alert("Please agree to the Buyer Waiver and Terms of Service.");
       return;
     }
-    // Simulate signup success
-    onSignup();
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const nameParts = formData.fullName.trim().split(/\s+/);
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || 'Unknown';
+
+      const signupData = {
+        firstName,
+        lastName,
+        emailAddress: formData.email,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber,
+        street: formData.deliveryAddress,
+        residentialName: formData.deliveryAddress, // fallback
+        barangay: 'Not Specified',
+        city: 'Not Specified',
+        becomeSeller: false
+      };
+
+      // 1. Signup
+      const res = await fetch("http://localhost:8000/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(signupData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || "Signup failed");
+      }
+
+      // 2. Auto-login
+      const loginRes = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailAddress: formData.email, password: formData.password }),
+      });
+
+      if (!loginRes.ok) {
+        throw new Error("Signup succeeded but auto-login failed. Please log in manually.");
+      }
+
+      const loginData = await loginRes.json();
+      localStorage.setItem("token", loginData.access_token);
+      localStorage.setItem("user", JSON.stringify(loginData.user));
+      onSignup(loginData.user);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -65,6 +124,7 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
               {/* Personal Information */}
               <div className="signup-card">
                 <h2>Personal Information</h2>
+                {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
                 <div className="form-grid">
                   <div className="form-group">
                     <label>Full Name</label>
@@ -184,7 +244,9 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
 
         {/* Footer actions */}
         <div className="signup-footer">
-          <button type="submit" form="signup-form" className="btn-create-account-main">Create Account</button>
+          <button type="submit" form="signup-form" className="btn-create-account-main" disabled={isLoading}>
+            {isLoading ? "Creating Account..." : "Create Account"}
+          </button>
           <p className="login-prompt">
             Already have an account? <button type="button" className="btn-link" onClick={onSwitchToLogin}>Log In</button>
           </p>

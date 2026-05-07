@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models.user import UserResponse, UserSignUp, Token
+from models.user import UserResponse, UserSignUp, TokenResponse, UserLogin
 from services import auth_service
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -15,10 +15,10 @@ async def signup(user_input: UserSignUp):
     return auth_service.create_user(user_dict)
 
 # Endpoint for user login
-@router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+@router.post("/login", response_model=TokenResponse)
+async def login(login_data: UserLogin):
     # Check if the email exists in the database
-    response = auth_service.fetch_user_by_email(form_data.username)
+    response = auth_service.fetch_user_by_email(login_data.emailAddress)
 
     # If the email does not exist, raise an error
     if not response.data:
@@ -28,11 +28,15 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = response.data[0]
 
     # Verify the password through the auth service
-    if not auth_service.verify_password(form_data.password, user['password']):
+    if not auth_service.verify_password(login_data.password, user['password']):
         raise HTTPException(status_code=400, detail="Invalid password!")
     
     # Create a JWT access token for the logged in user
     access_token = auth_service.create_access_token(data={"sub": str(user['userID']), "role": user['role']})
 
-    # Return the access token and its type
-    return {"access_token": access_token, "token_type": "bearer"}
+    # Return the access token, its type, and the user data
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer",
+        "user": user
+    }

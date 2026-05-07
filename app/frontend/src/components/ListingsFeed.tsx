@@ -5,6 +5,10 @@ import OrderSuccessModal, { type ImpactStats } from './OrderSuccessModal'
 import NotificationDropdown from './NotificationDropdown'
 import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
+import CharitiesListView from './CharitiesListView'
+import CharityDetailView from './CharityDetailView'
+import CharityApplicationForm from './CharityApplicationForm'
+import type { User } from '../types/user'
 
 interface FoodListing {
   id: number
@@ -110,14 +114,16 @@ const INITIAL_ORDER: OrderItem[] = [
 
 
 
-export default function ListingsFeed() {
+export default function ListingsFeed({ user }: { user: User | null }) {
   const [activeCategory, setActiveCategory] = useState('All Items')
   const [orderItems, setOrderItems] = useState<OrderItem[]>(INITIAL_ORDER)
   const [paymentMethod, setPaymentMethod] = useState('GCash')
   const [selectedListing, setSelectedListing] = useState<FoodListing | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNotifs, setShowNotifs] = useState(false)
-  const [activeTab, setActiveTab] = useState<'listings' | 'history' | 'profile'>('profile')
+  const [activeTab, setActiveTab] = useState<'listings' | 'history' | 'profile' | 'charities'>('listings')
+  const [selectedCharityId, setSelectedCharityId] = useState<string | null>(null)
+  const [showApplyForm, setShowApplyForm] = useState(false)
 
   // Mock impact stats — will be replaced by backend data
   const [impactStats] = useState<ImpactStats>({
@@ -175,6 +181,7 @@ export default function ListingsFeed() {
           <div className="navbar-left">
             <span className="brand">Sureplus</span>
             <a href="#" className={`nav-link ${activeTab === 'listings' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('listings') }}>Listings</a>
+            <a href="#" className={`nav-link ${activeTab === 'charities' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('charities') }}>Charities</a>
             <a href="#" className={`nav-link ${activeTab === 'history' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('history') }}>History</a>
             <a href="#" className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('profile') }}>Profile</a>
           </div>
@@ -202,9 +209,24 @@ export default function ListingsFeed() {
       {/* Main content container (Figma rounded card) */}
       <div className="content-container">
         {activeTab === 'profile' ? (
-          <ProfileView />
+          <ProfileView user={user} />
         ) : activeTab === 'history' ? (
           <HistoryView />
+        ) : activeTab === 'charities' ? (
+          showApplyForm ? (
+            <CharityApplicationForm onBack={() => setShowApplyForm(false)} />
+          ) : selectedCharityId ? (
+            <CharityDetailView 
+              charityUserId={selectedCharityId} 
+              user={user}
+              onBack={() => setSelectedCharityId(null)} 
+            />
+          ) : (
+            <CharitiesListView 
+              onViewCharity={(id) => setSelectedCharityId(id)} 
+              onBecomeCharity={() => setShowApplyForm(true)} 
+            />
+          )
         ) : (
           <div className="listings-content">
             {selectedListing ? (

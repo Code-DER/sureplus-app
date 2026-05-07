@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import './Login.css';
+import type { User } from '../types/user';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (user: User) => void;
   onSwitchToSignup: () => void;
 }
 
@@ -10,11 +11,35 @@ export default function Login({ onLogin, onSwitchToSignup }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    // Simulate a successful login immediately as per previous discussions
-    onLogin();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailAddress: email, password }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || "Login failed");
+      }
+
+      const data = await res.json();
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      onLogin(data.user);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -38,6 +63,7 @@ export default function Login({ onLogin, onSwitchToSignup }: LoginProps) {
             <div className="login-header">
               <h2>Sign In</h2>
               <p>Enter your details to access your account</p>
+              {error && <div className="login-error" style={{ color: '#ba1a1a', fontSize: '0.875rem', marginTop: '0.5rem', textAlign: 'center' }}>{error}</div>}
             </div>
             
             <form className="login-form" onSubmit={handleLogin}>
@@ -90,7 +116,9 @@ export default function Login({ onLogin, onSwitchToSignup }: LoginProps) {
                 </div>
               </div>
 
-              <button type="submit" className="btn-login-submit">Login</button>
+              <button type="submit" className="btn-login-submit" disabled={isLoading}>
+                {isLoading ? 'Signing in...' : 'Login'}
+              </button>
             </form>
 
             <div className="login-divider">

@@ -1,0 +1,265 @@
+.charity-detail-container {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.charity-detail-header-nav {
+  margin-bottom: 24px;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #0F5238;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.btn-back:hover {
+  transform: translateX(-4px);
+}
+
+.charity-profile-hero {
+  display: flex;
+  gap: 32px;
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 40px;
+  align-items: center;
+}
+
+.charity-avatar-large {
+  width: 120px;
+  height: 120px;
+  background: #0F5238;
+  color: white;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.charity-info h1 {
+  margin: 0 0 8px 0;
+  color: #1A1C1A;
+  font-size: 32px;
+}
+
+.charity-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #707973;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.charity-bio {
+  color: #404943;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 16px;
+  max-width: 600px;
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-size: 24px;
+  margin: 0 0 4px 0;
+  color: #1A1C1A;
+}
+
+.section-header p {
+  color: #707973;
+  margin: 0;
+}
+
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.post-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #E1E3E0;
+}
+
+.post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.post-card-body {
+  padding: 24px;
+  flex-grow: 1;
+}
+
+.post-title {
+  font-size: 20px;
+  margin: 0 0 12px 0;
+  color: #1A1C1A;
+}
+
+.post-description {
+  font-size: 14px;
+  color: #404943;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.post-progress-area {
+  margin-top: auto;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: #707973;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-bar-container {
+  height: 10px;
+  background: #E1E3E0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: #0F5238;
+  border-radius: 5px;
+  transition: width 0.5s ease-out;
+}
+
+.progress-bar-fill.goal-reached {
+  background: #006D3A;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #707973;
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1A1C1A;
+}
+
+.post-card-footer {
+  padding: 16px 24px 24px;
+}
+
+.btn-donate-action {
+  width: 100%;
+  padding: 12px;
+  background: #0F5238;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-donate-action:hover:not(:disabled) {
+  background: #0A3D29;
+}
+
+.btn-donate-action:disabled {
+  background: #E1E3E0;
+  color: #707973;
+  cursor: not-allowed;
+}
+
+.btn-goal-reached {
+  background: #E1E3E0;
+}
+
+.charity-detail-loading, .charity-detail-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 24px;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #E1E3E0;
+  border-top: 4px solid #0F5238;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.no-posts-container {
+  background: #F9FAF9;
+  border: 2px dashed #E1E3E0;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+}
+
+.no-posts {
+  color: #707973;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .charity-profile-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+  
+  .charity-bio {
+    margin: 0 auto;
+  }
+}

@@ -1,4 +1,3 @@
-import React from 'react';
 import './RoleSelector.css';
 
 interface RoleSelectorProps {
