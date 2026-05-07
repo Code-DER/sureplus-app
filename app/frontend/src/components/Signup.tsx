@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+
 import './Signup.css';
 
 interface SignupProps {
@@ -194,3 +195,4 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
     </div>
   );
 }
+

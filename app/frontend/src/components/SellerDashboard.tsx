@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+
 import './SellerDashboard.css';
 import CreateNewListing from './CreateNewListing';
 import ManageListings from './ManageListings';
@@ -282,3 +283,4 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
     </div>
   );
 }
+

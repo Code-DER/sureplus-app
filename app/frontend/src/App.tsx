@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ListingsFeed from './components/ListingsFeed'
 import SellerDashboard from './components/SellerDashboard'
+import AdminDashboard from './components/AdminDashboard'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import './index.css'
@@ -8,7 +9,7 @@ import './index.css'
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
-  const [view, setView] = useState<'buyer' | 'seller'>('buyer')
+  const [view, setView] = useState<'buyer' | 'seller' | 'admin'>('buyer')
 
   if (!isAuthenticated) {
     if (authView === 'signup') {
@@ -31,9 +32,13 @@ function App() {
     return <SellerDashboard onSwitchRole={() => setView('buyer')} />
   }
 
+  if (view === 'admin') {
+    return <AdminDashboard onSwitchRole={() => setView('buyer')} />
+  }
+
   return (
     <>
-      <ListingsFeed />
+      <ListingsFeed onSwitchRole={setView} />
       {/* Temporary developer button to toggle views since accounts are unified */}
       <button 
         onClick={() => setView('seller')}

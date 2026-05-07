@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+
 import './EditListing.css';
 
 interface EditListingProps {
@@ -270,3 +271,4 @@ export default function EditListing({ item, onBack }: EditListingProps) {
     </div>
   );
 }
+

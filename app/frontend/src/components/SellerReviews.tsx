@@ -1,4 +1,4 @@
-import React from 'react';
+
 import './SellerReviews.css';
 
 interface SellerReviewsProps {
