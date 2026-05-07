@@ -71,6 +71,9 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
             throw new Error('Please fill in all password fields to change your password.');
           }
 
+          if (newPassword.length < 8) {
+            throw new Error('Password must be at least 8 characters long.');
+          }
           if (newPassword !== confirmNewPassword) {
             throw new Error('New password and confirmation do not match.');
           }
