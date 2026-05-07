@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from uuid import UUID
 from typing import Optional
 
@@ -75,3 +75,7 @@ class SellerUpdate(BaseModel):
 
     class Config:
         from_attributes = True
+
+class PasswordChange(BaseModel):
+    currentPassword: str
+    newPassword: str =  Field(..., min_length=8)
