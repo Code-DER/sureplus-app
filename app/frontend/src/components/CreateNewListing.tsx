@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+
 import './CreateNewListing.css';
 
 const ALLERGEN_OPTIONS = [
@@ -240,3 +241,4 @@ export default function CreateNewListing({ onBack }: CreateNewListingProps) {
     </div>
   );
 }
+
