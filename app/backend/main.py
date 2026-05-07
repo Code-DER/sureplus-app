@@ -11,6 +11,7 @@ from api.charity_applications import router as charity_applications_router
 from api.charities import router as charities_router
 from api.charity_posts import router as charity_posts_router
 from api.social_impact import router as social_impact_router
+from api.admin_activity import router as admin_activity_router
 
 app = FastAPI(title="SurePlus API")
 
@@ -39,6 +40,7 @@ app.include_router(charity_applications_router, prefix="/charity-applications", 
 app.include_router(charities_router, prefix="/charities", tags=["Charities"])
 app.include_router(charity_posts_router, prefix="/charity-posts", tags=["Charity Posts"])
 app.include_router(social_impact_router, prefix="/social-impact", tags=["Social Impact"])
+app.include_router(admin_activity_router, prefix="/admin-activity", tags=["Admin Activity"])
 
 # Root endpoint
 @app.get("/")

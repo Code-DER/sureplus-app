@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+
 import './ManageListings.css';
 import EditListing from './EditListing';
 
@@ -252,3 +253,4 @@ export default function ManageListings({ onBack }: ManageListingsProps) {
     </div>
   );
 }
+

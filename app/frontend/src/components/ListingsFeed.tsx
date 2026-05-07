@@ -110,7 +110,11 @@ const INITIAL_ORDER: OrderItem[] = [
 
 
 
-export default function ListingsFeed() {
+interface ListingsFeedProps {
+  onSwitchRole: (role: 'buyer' | 'seller' | 'admin') => void;
+}
+
+export default function ListingsFeed({ onSwitchRole }: ListingsFeedProps) {
   const [activeCategory, setActiveCategory] = useState('All Items')
   const [orderItems, setOrderItems] = useState<OrderItem[]>(INITIAL_ORDER)
   const [paymentMethod, setPaymentMethod] = useState('GCash')
@@ -202,7 +206,7 @@ export default function ListingsFeed() {
       {/* Main content container (Figma rounded card) */}
       <div className="content-container">
         {activeTab === 'profile' ? (
-          <ProfileView />
+          <ProfileView onSwitchRole={onSwitchRole} />
         ) : activeTab === 'history' ? (
           <HistoryView />
         ) : (

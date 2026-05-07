@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+
 import './SellerDashboard.css';
 import CreateNewListing from './CreateNewListing';
 import ManageListings from './ManageListings';
 import MysteryBox from './MysteryBox';
 import SalesAnalytics from './SalesAnalytics';
+import SellerReviews from './SellerReviews';
 
 interface SellerDashboardProps {
   onSwitchRole: () => void;
@@ -146,6 +148,8 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
             <MysteryBox onBack={() => setActiveTab('dashboard')} />
           ) : activeTab === 'sales-reports' ? (
             <SalesAnalytics onBack={() => setActiveTab('dashboard')} />
+          ) : activeTab === 'reviews' ? (
+            <SellerReviews onBack={() => setActiveTab('dashboard')} />
           ) : (
           <>
           {/* Statistics Bento Grid */}
@@ -279,3 +283,4 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
     </div>
   );
 }
+

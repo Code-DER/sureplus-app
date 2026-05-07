@@ -337,3 +337,4 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
     </div>
   );
 }
+

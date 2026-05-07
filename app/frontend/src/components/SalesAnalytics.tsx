@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+
 import './SalesAnalytics.css';
 
 interface SalesAnalyticsProps {
@@ -214,3 +215,4 @@ export default function SalesAnalytics({ onBack }: SalesAnalyticsProps) {
     </div>
   );
 }
+

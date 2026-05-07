@@ -36,7 +36,11 @@ interface SocialImpactSummary {
   purchaseCount: number;
 }
 
-export default function ProfileView() {
+interface ProfileViewProps {
+  onSwitchRole: (role: 'buyer' | 'seller' | 'admin') => void;
+}
+
+export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [buyerProfile, setBuyerProfile] = useState<BuyerProfile | null>(null);
@@ -149,6 +153,9 @@ export default function ProfileView() {
           
           {/* NO ENDPOINT YET */}
           <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>Edit Profile</button>
+          <button className="btn-edit-profile" style={{marginTop: '8px', background: '#F0F2F5', color: '#191C1A', border: '1px solid #E9ECEF'}} onClick={() => onSwitchRole('admin')}>
+            View as Admin
+          </button>
         </div>
 
         {/* Rescuer Impact Card */}
@@ -295,3 +302,4 @@ export default function ProfileView() {
     </div>
   );
 }
+

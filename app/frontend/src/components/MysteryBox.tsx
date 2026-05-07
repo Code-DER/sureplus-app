@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+
 import './MysteryBox.css';
 
 interface MysteryBoxProps {
@@ -206,3 +207,4 @@ export default function MysteryBox({ onBack }: MysteryBoxProps) {
     </div>
   );
 }
+
