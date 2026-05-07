@@ -42,6 +42,10 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
   });
   const [companyName, setCompanyName] = useState(sellerProfile?.companyName || '');
   const [sellerType, setSellerType] = useState(sellerProfile?.sellerType || '');
+  const [isPasswordExpanded, setIsPasswordExpanded] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -59,6 +63,25 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
     setErrorMessage(null);
 
     try {
+      if (isPasswordExpanded) {
+        const hasPasswordInput = currentPassword || newPassword || confirmNewPassword;
+
+        if (hasPasswordInput) {
+          if (!currentPassword || !newPassword || !confirmNewPassword) {
+            throw new Error('Please fill in all password fields to change your password.');
+          }
+
+          if (newPassword !== confirmNewPassword) {
+            throw new Error('New password and confirmation do not match.');
+          }
+
+          await userAPI.changeMyPassword({
+            currentPassword,
+            newPassword,
+          });
+        }
+      }
+
       const userUpdatePayload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -82,9 +105,9 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
       }
 
       await onSave();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving profile:', error);
-      setErrorMessage('Failed to update profile. Please try again.');
+      setErrorMessage(error?.response?.data?.detail || error?.message || 'Failed to update profile. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -254,7 +277,55 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
             </div>
             <h2>Account Security</h2>
             <p>Manage your account preferences and password in one place.</p>
-            <button className="btn-manage-password" type="button">Manage Password</button>
+            <button
+              className="btn-manage-password"
+              type="button"
+              onClick={() => setIsPasswordExpanded((current) => !current)}
+            >
+              {isPasswordExpanded ? 'Hide Password Fields' : 'Manage Password'}
+            </button>
+            <div>
+              {isPasswordExpanded && (
+              <div>
+                <hr className="divider" />
+                <h2>Change Password</h2>
+                <p>Fill up the fields to change your password.</p>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label style={{ color: "white"}}>Current Password</label>
+                    <input
+                      type="password"
+                      name="currentPassword"
+                      value={currentPassword}
+                      onChange={(event) => setCurrentPassword(event.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label style={{ color: "white"}}>New Password</label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      value={newPassword}
+                      onChange={(event) => setNewPassword(event.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className='form-row'>
+                  <div className="form-group">
+                    <label style={{ color: "white"}}>Confirm New Password</label>
+                    <input
+                      type="password"
+                      name="confirmNewPassword"
+                      value={confirmNewPassword}
+                      onChange={(event) => setConfirmNewPassword(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+            </div>
           </div>
 
           <div className="impact-progress-card">

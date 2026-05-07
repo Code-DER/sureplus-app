@@ -35,6 +35,7 @@ export const userAPI = {
     getMyImpactSummary: () => api.get('/social-impact/summary'),
     updateMyProfile: (profileData: Record<string, any>) => api.patch('/users/update', profileData),
     updateMySellerProfile: (sellerData: Record<string, any>) => api.patch('/sellers/update', sellerData),
+    changeMyPassword: (passwordData: Record<string, any>) => api.post('/users/change-password', passwordData),
 };
 
 export default api;
