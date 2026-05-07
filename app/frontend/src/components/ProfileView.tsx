@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import './ProfileView.css';
 import EditProfileView from './EditProfileView';
 import { userAPI } from '../api/apis';
@@ -44,63 +44,84 @@ export default function ProfileView() {
   const [impactSummary, setImpactSummary] = useState<SocialImpactSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      const token = localStorage.getItem('token');
+  const fetchProfileData = useCallback(async () => {
+    const token = localStorage.getItem('token');
 
-      if (!token) {
-        console.error('No token found, redirecting to login...');
-        return;
-      }
+    if (!token) {
+      console.error('No token found, redirecting to login...');
+      return;
+    }
 
-      try {
-        // Fetch basic user profile
-        const profileResponse = await userAPI.getMyProfile();
-        const userData = profileResponse.data;
-        setProfile(userData);
+    try {
+      setLoading(true);
+      const profileResponse = await userAPI.getMyProfile();
+      const userData = profileResponse.data;
+      setProfile(userData);
 
-        // Fetch role-specific data based on user role
-        const fetchPromises = [];
+      const fetchPromises = [];
 
-        if (userData.role === 'buyer') {
-          fetchPromises.push(
-            userAPI.getMyBuyerProfile()
-              .then(response => setBuyerProfile(response.data))
-              .catch(error => console.log('Buyer profile not found:', error))
-          );
-        } else if (userData.role === 'seller') {
-          fetchPromises.push(
-            userAPI.getMySellerProfile()
-              .then(response => setSellerProfile(response.data))
-              .catch(error => console.log('Seller profile not found:', error))
-          );
-        }
-
-        // Always fetch impact summary
+      if (userData.role === 'buyer') {
         fetchPromises.push(
-          userAPI.getMyImpactSummary()
-            .then(response => setImpactSummary(response.data))
-            .catch(error => console.log('Impact summary not found:', error))
+          userAPI.getMyBuyerProfile()
+            .then(response => setBuyerProfile(response.data))
+            .catch(error => {
+              console.log('Buyer profile not found:', error);
+              setBuyerProfile(null);
+            })
         );
-
-        // Wait for all role-specific fetches to complete
-        await Promise.all(fetchPromises);
-
-      } catch (error) {
-        console.error('Error fetching profile data:', error);
-      } finally {
-        setLoading(false);
+      } else if (userData.role === 'seller') {
+        fetchPromises.push(
+          userAPI.getMySellerProfile()
+            .then(response => setSellerProfile(response.data))
+            .catch(error => {
+              console.log('Seller profile not found:', error);
+              setSellerProfile(null);
+            })
+        );
+      } else {
+        setBuyerProfile(null);
+        setSellerProfile(null);
       }
-    };
 
-    fetchProfileData();
+      fetchPromises.push(
+        userAPI.getMyImpactSummary()
+          .then(response => setImpactSummary(response.data))
+          .catch(error => {
+            console.log('Impact summary not found:', error);
+            setImpactSummary(null);
+          })
+      );
+
+      await Promise.all(fetchPromises);
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchProfileData();
+  }, [fetchProfileData]);
+
+  const handleProfileSaved = async () => {
+    await fetchProfileData();
+    setIsEditing(false);
+  };
 
   if (loading) return <p>Loading profile...</p>
   if (!profile) return <p>Please log in.</p>
   
   if (isEditing) {
-    return <EditProfileView onBack={() => setIsEditing(false)} onSave={() => setIsEditing(false)} />;
+    return (
+      <EditProfileView
+        profile={profile}
+        sellerProfile={sellerProfile}
+        role={profile.role}
+        onBack={() => setIsEditing(false)}
+        onSave={handleProfileSaved}
+      />
+    );
   }
 
   return (
@@ -127,7 +148,7 @@ export default function ProfileView() {
           </div>
           
           {/* NO ENDPOINT YET */}
-          {/* <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>Edit Profile</button> */}
+          <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>Edit Profile</button>
         </div>
 
         {/* Rescuer Impact Card */}

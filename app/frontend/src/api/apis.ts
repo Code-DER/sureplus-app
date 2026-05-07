@@ -33,6 +33,8 @@ export const userAPI = {
     getMyBuyerProfile: () => api.get('/buyers/me'),
     getMySellerProfile: () => api.get('/sellers/me'),
     getMyImpactSummary: () => api.get('/social-impact/summary'),
+    updateMyProfile: (profileData: Record<string, any>) => api.patch('/users/update', profileData),
+    updateMySellerProfile: (sellerData: Record<string, any>) => api.patch('/sellers/update', sellerData),
 };
 
 export default api;
