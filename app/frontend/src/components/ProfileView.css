@@ -393,12 +393,19 @@
 
 .seller-info-card {
   background: white;
-  border: 1px solid #E9ECEF;
+  border: 1px solid #F1F3F5;
   border-radius: 12px;
-  padding: 24px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+}
+
+.seller-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
 }
 
 .seller-header h4 {
@@ -410,8 +417,9 @@
 
 .seller-badges {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
 }
 
 .seller-type-badge {
@@ -425,7 +433,7 @@
 }
 
 .verified-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
   background: #E8F5E8;
