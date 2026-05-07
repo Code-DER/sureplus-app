@@ -55,3 +55,23 @@ class BuyerRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserUpdate(BaseModel):
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    phoneNumber: Optional[str] = None
+    street: Optional[str] = None
+    residentialName: Optional[str] = None
+    barangay: Optional[str] = None
+    city: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class SellerUpdate(BaseModel):
+    sellerType: Optional[str] = None
+    companyName: Optional[str] = None
+
+    class Config:
+        from_attributes = True

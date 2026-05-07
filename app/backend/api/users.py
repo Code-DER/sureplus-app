@@ -3,7 +3,7 @@ from database import supabase
 from typing import List
 from uuid import UUID
 from services import user_service
-from models.user import UserResponse, SellerSignUp
+from models.user import UserResponse, SellerSignUp, UserUpdate
 from api.dependency import get_current_user
 from services.user_service import create_seller_profile
 
@@ -70,3 +70,16 @@ async def upgrade_to_seller(seller_input: SellerSignUp, current_user: dict = Dep
     supabase.table("User").update({"role": "seller"}).eq("userID", current_user["userID"]).execute()
 
     return {"message": "Successfully upgraded to seller!"}
+
+@router.patch("/update")
+async def update_user_profile(update_data: UserUpdate, current_user: dict = Depends(get_current_user)):
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+
+    if not update_dict:
+        raise HTTPException(status_code=400, detail="No fields provided for update!")
+    
+    response = supabase.table("User").update(update_dict).eq("userID", current_user["userID"]).execute()
+
+    return {"message": "User profile updated successfully!", "Data": response.data}
+
+
