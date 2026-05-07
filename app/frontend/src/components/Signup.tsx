@@ -1,5 +1,4 @@
-import { useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
 import './Signup.css';
 
 interface SignupProps {
@@ -7,47 +6,163 @@ interface SignupProps {
   onSwitchToLogin: () => void;
 }
 
+interface Allergen {
+  allergenID: string;
+  name: string;
+}
+
 export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     phoneNumber: '',
     email: '',
-    deliveryAddress: '',
+    street: '',
+    residentialName: '',
+    barangay: '',
+    city: '',
     password: '',
     confirmPassword: ''
   });
 
-  const [allergens, setAllergens] = useState({
-    gluten: false,
-    dairy: false,
-    nuts: false,
-    soy: false,
-    eggs: false,
-    shellfish: false,
-    vegan: false,
-    siAno: false
-  });
+  // const [allergens, setAllergens] = useState({
+  //   milk: false,
+  //   eggs: false,
+  //   seafood: false,
+  //   nuts: false,
+  //   wheat: false,
+  //   soy: false,
+  //   sesame: false
+  // });
+
+  const [allergenList, setAllergenList] = useState<Allergen[]>([]);
+  const [allergens, setAllergens] = useState<Record<string, boolean>>({});
 
   const [waiverAgreed, setWaiverAgreed] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAllergens = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/safety/allergens');
+        const data = await response.json();
+        if (response.ok && Array.isArray(data)) {
+          setAllergenList(data);
+          const allergenMap: Record<string, boolean> = {};
+          data.forEach((allergen: Allergen) => {
+            allergenMap[allergen.allergenID] = false;
+          });
+          setAllergens(allergenMap);
+        }
+      } catch (error) {
+        console.error('Failed to fetch allergens:', error);
+      }
+    };
+    fetchAllergens();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleAllergenChange = (name: keyof typeof allergens) => {
-    setAllergens(prev => ({ ...prev, [name]: !prev[name] }));
+  const handleAllergenChange = (allergenId: string) => {
+    setAllergens(prev => ({ ...prev, [allergenId]: !prev[allergenId] }));
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     if (!waiverAgreed) {
-      alert("Please agree to the Buyer Waiver and Terms of Service.");
+      setError('Please agree to the Buyer Waiver and Terms of Service');
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Password do not match.');
       return;
     }
-    // Simulate signup success
-    onSignup();
-  };
+
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+    
+    setLoading(true);
+
+    try {
+      const signupData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        emailAddress: formData.email,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber,
+        street: formData.street,
+        residentialName: formData.residentialName,
+        barangay: formData.barangay,
+        city: formData.city,
+        becomeSeller: false,
+      };
+
+      // Sign up user
+      const signupResponse = await fetch('http://localhost:8000/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signupData),
+      });
+
+      if (!signupResponse.ok) {
+        const data = await signupResponse.json();
+        setError(data.detail || 'Signup failed. Please try again.');
+      }
+
+      // Auto login after signup
+      const loginFormData = new URLSearchParams();
+      loginFormData.append('username', formData.email);
+      loginFormData.append('password', formData.password);
+
+      const loginResponse = await fetch('http://localhost:8000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded' 
+        },
+        body: loginFormData.toString(),
+      });
+
+      const loginData = await loginResponse.json();
+
+      if (!loginResponse.ok) {
+        setError('Account created but login failed. Please log in manually.');
+        onSwitchToLogin();
+        return;
+      }
+
+      localStorage.setItem('token', loginData.access_token);
+      localStorage.setItem('token_type', loginData.token_type);
+      
+      // Save selected allergens
+      const selectedAllergenIds = Object.keys(allergens).filter(id => allergens[id]);
+      for (const allergenId of selectedAllergenIds) {
+        const allergyResponse = await fetch(`http://localhost:8000/safety/me/allergies/${allergenId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${loginData.access_token}`
+          },
+        });
+        if (!allergyResponse.ok) {
+          console.warn(`Failed to save allergen ${allergenId}, but account was created.`);
+        }
+      }
+
+      onSignup();
+    } catch (err) {
+      setError('Connection error. Please try again.');
+      console.error('Signup error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="signup-page">
@@ -61,6 +176,7 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
         <div className="signup-content">
           {/* Left Column: Forms */}
           <div className="signup-left">
+            {error && <div className="error-message" style={{color: '#D32F2F', marginBottom: '20px', padding: '12px', backgroundColor: '#FFEBEE', borderRadius: '8px'}}>{error}</div>}
             <form id="signup-form" onSubmit={handleSignup}>
               
               {/* Personal Information */}
@@ -68,30 +184,55 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
                 <h2>Personal Information</h2>
                 <div className="form-grid">
                   <div className="form-group">
-                    <label>Full Name</label>
+                    <label>First Name</label>
                     <div className="input-wrapper">
-                      <input type="text" name="fullName" placeholder="Dana Jill" value={formData.fullName} onChange={handleInputChange} required />
+                      <input type="text" name="firstName" placeholder="Dana Jill" value={formData.firstName} onChange={handleInputChange} required />
                     </div>
                   </div>
                   <div className="form-group">
+                    <label>Last Name</label>
+                    <div className="input-wrapper">
+                      <input type="text" name="lastName" placeholder="Santiago" value={formData.lastName} onChange={handleInputChange} required />
+                    </div>
+                  </div>
+                  <div className='form-group'>
                     <label>Phone Number</label>
                     <div className="input-wrapper">
-                      <input type="tel" name="phoneNumber" placeholder="+63 981 xxx xxxx" value={formData.phoneNumber} onChange={handleInputChange} required />
+                      <input type="tel" name="phoneNumber" placeholder="0981 xxx xxxx" value={formData.phoneNumber} onChange={handleInputChange} required />
                     </div>
                   </div>
-                  <div className="form-group full-width">
+                  <div className="form-group">
                     <label>Email Address</label>
                     <div className="input-wrapper">
-                      <input type="email" name="email" placeholder="imissu@example.com" value={formData.email} onChange={handleInputChange} required />
+                      <input type="email" name="email" placeholder="danajill@example.com" value={formData.email} onChange={handleInputChange} required />
                     </div>
                   </div>
-                  <div className="form-group full-width">
+                  
                     <label>Delivery Address</label>
-                    <div className="input-wrapper address-wrapper">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#707973" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                      <input type="text" name="deliveryAddress" placeholder="Start typing your address..." value={formData.deliveryAddress} onChange={handleInputChange} required />
+                    <div className='form-group full-width'>
+                      <label>Street</label>
+                      <div className='input-wrapper'>
+                        <input type="text" name="street" placeholder="Diamond St." value={formData.street} onChange={handleInputChange} required/>
+                      </div>
                     </div>
-                  </div>
+                    <div className='form-group'>
+                      <label>Residential Name</label>
+                      <div className='input-wrapper'>
+                        <input type="text" name="residentialName" placeholder="Pearl Village" value={formData.residentialName} onChange={handleInputChange} required/>
+                      </div>
+                    </div>
+                    <div className='form-group'>
+                      <label>Barangay</label>
+                      <div className='input-wrapper'>
+                        <input type="text" name="barangay" placeholder="Mintal" value={formData.barangay} onChange={handleInputChange} required/>
+                      </div>
+                    </div>
+                    <div className='form-group full-width'>
+                      <label>City</label>
+                      <div className='input-wrapper'>
+                        <input type="text" name="city" placeholder="Davao City" value={formData.city} onChange={handleInputChange} required/>
+                      </div>
+                    </div>
                   <div className="form-group">
                     <label>Password</label>
                     <div className="input-wrapper">
@@ -112,22 +253,21 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
                 <h2>Buyer Allergen Selection</h2>
                 <p className="card-subtitle">Please select any food allergies or dietary requirements you have. This helps us flag items in your local marketplace.</p>
                 <div className="allergen-grid">
-                  {Object.keys(allergens).map((key) => {
-                    const typedKey = key as keyof typeof allergens;
-                    const label = key === 'siAno' ? 'Si Ano' : key.charAt(0).toUpperCase() + key.slice(1);
-                    return (
-                      <label key={key} className="allergen-checkbox">
+                  {allergenList.map((allergen) => (
+                      <label key={allergen.allergenID} className="allergen-checkbox">
                         <input 
                           type="checkbox" 
-                          checked={allergens[typedKey]}
-                          onChange={() => handleAllergenChange(typedKey)} 
+                          checked={allergens[allergen.allergenID] || false}
+                          onChange={() => handleAllergenChange(allergen.allergenID)} 
                         />
                         <span className="checkbox-custom"></span>
-                        <span className="allergen-label">{label}</span>
+                        <span className="allergen-label">{allergen.name.charAt(0).toUpperCase() + allergen.name.slice(1)}</span>
                       </label>
-                    );
-                  })}
+                  ))}
                 </div>
+                {allergenList.length === 0 && (
+                  <p style={{ color: '#999', fontSize: '14px' }}>Loading allergens...</p>
+                )}
               </div>
 
               {/* Buyer Waiver */}
@@ -185,7 +325,9 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
 
         {/* Footer actions */}
         <div className="signup-footer">
-          <button type="submit" form="signup-form" className="btn-create-account-main">Create Account</button>
+            {loading ? 'Creating Account...' : 'Create Account'}
+          
+          <button type="submit" form="signup-form" className="btn-create-account-main" disabled={loading}>{loading ? 'Creating account...' : 'Create Account'}</button>
           <p className="login-prompt">
             Already have an account? <button type="button" className="btn-link" onClick={onSwitchToLogin}>Log In</button>
           </p>

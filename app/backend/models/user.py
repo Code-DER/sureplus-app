@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from uuid import UUID
 from typing import Optional
 
@@ -39,3 +39,43 @@ class UserLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class SellerRead(BaseModel):
+    userID: UUID
+    sellerType: str
+    isVerified: bool = False
+    companyName: str
+
+    class Config:
+        from_attributes = True
+
+class BuyerRead(BaseModel):
+    userID: UUID
+    points: int
+
+    class Config:
+        from_attributes = True
+
+class UserUpdate(BaseModel):
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    phoneNumber: Optional[str] = None
+    street: Optional[str] = None
+    residentialName: Optional[str] = None
+    barangay: Optional[str] = None
+    city: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class SellerUpdate(BaseModel):
+    sellerType: Optional[str] = None
+    companyName: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class PasswordChange(BaseModel):
+    currentPassword: str
+    newPassword: str =  Field(..., min_length=8)
