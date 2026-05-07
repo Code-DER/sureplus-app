@@ -1,12 +1,121 @@
-
+import { useState } from 'react';
 import './EditProfileView.css';
+import { userAPI } from '../api/apis';
 
-interface EditProfileViewProps {
-  onBack: () => void;
-  onSave: () => void;
+interface UserProfile {
+  userID: string;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  role: string;
+  phoneNumber: string;
+  street: string;
+  residentialName: string;
+  barangay: string;
+  city: string;
 }
 
-export default function EditProfileView({ onBack, onSave }: EditProfileViewProps) {
+interface SellerProfile {
+  userID: string;
+  sellerType: string;
+  isVerified: boolean;
+  companyName: string;
+}
+
+interface EditProfileViewProps {
+  profile: UserProfile
+  sellerProfile: SellerProfile | null;
+  role: string;
+  onBack: () => void;
+  onSave: () => Promise<void>;
+}
+
+export default function EditProfileView({ profile, sellerProfile, role, onBack, onSave }: EditProfileViewProps) {
+  const [formData, setFormData] = useState({
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    phoneNumber: profile.phoneNumber || '',
+    street: profile.street || '',
+    residentialName: profile.residentialName || '',
+    barangay: profile.barangay || '',
+    city: profile.city || '',
+  });
+  const [companyName, setCompanyName] = useState(sellerProfile?.companyName || '');
+  const [sellerType, setSellerType] = useState(sellerProfile?.sellerType || '');
+  const [isPasswordExpanded, setIsPasswordExpanded] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSaving(true);
+    setErrorMessage(null);
+
+    try {
+      if (isPasswordExpanded) {
+        const hasPasswordInput = currentPassword || newPassword || confirmNewPassword;
+
+        if (hasPasswordInput) {
+          if (!currentPassword || !newPassword || !confirmNewPassword) {
+            throw new Error('Please fill in all password fields to change your password.');
+          }
+
+          if (newPassword.length < 8) {
+            throw new Error('Password must be at least 8 characters long.');
+          }
+          if (newPassword !== confirmNewPassword) {
+            throw new Error('New password and confirmation do not match.');
+          }
+
+          await userAPI.changeMyPassword({
+            currentPassword,
+            newPassword,
+          });
+        }
+      }
+
+      const userUpdatePayload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        street: formData.street,
+        residentialName: formData.residentialName,
+        barangay: formData.barangay,
+        city: formData.city,
+      };
+
+      await userAPI.updateMyProfile(userUpdatePayload);
+
+      if (role === 'seller') {
+        const sellerUpdatePayload: Record<string, string> = {};
+        if (companyName !== sellerProfile?.companyName) sellerUpdatePayload.companyName = companyName;
+        if (sellerType !== sellerProfile?.sellerType) sellerUpdatePayload.sellerType = sellerType;
+
+        if (Object.keys(sellerUpdatePayload).length > 0) {
+          await userAPI.updateMySellerProfile(sellerUpdatePayload);
+        }
+      }
+
+      await onSave();
+    } catch (error: any) {
+      console.error('Error saving profile:', error);
+      setErrorMessage(error?.response?.data?.detail || error?.message || 'Failed to update profile. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="edit-profile-view">
       <button className="btn-back-profile" onClick={onBack}>
@@ -15,10 +124,9 @@ export default function EditProfileView({ onBack, onSave }: EditProfileViewProps
       </button>
 
       <div className="edit-profile-content">
-        {/* LEFT COLUMN: Edit Form */}
         <div className="edit-form-card">
           <h1>Edit Profile</h1>
-          
+
           <div className="photo-edit-section">
             <div className="photo-avatar-wrapper">
               <div className="photo-avatar-image"></div>
@@ -34,72 +142,210 @@ export default function EditProfileView({ onBack, onSave }: EditProfileViewProps
 
           <hr className="divider" />
 
-          <form className="edit-form" onSubmit={(e) => { e.preventDefault(); onSave(); }}>
+          <form className="edit-form" onSubmit={handleSubmit}>
             <div className="form-row two-cols">
               <div className="form-group">
-                <label>Full Name</label>
-                <input type="text" defaultValue="Tina Moran" />
+                <label>First Name</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
               <div className="form-group">
-                <label>Email Address</label>
-                <input type="email" defaultValue="tinamoranniano@sureplus.com" />
+                <label>Last Name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-group half-width">
+            <div className="form-row two-cols">
+              <div className="form-group">
+                <label>Email Address (cannot be edited)</label>
+                <input type="email" value={profile.emailAddress} disabled />
+              </div>
+              <div className="form-group">
                 <label>Phone Number</label>
-                <input type="tel" defaultValue="+63 933 123 4567" />
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
             </div>
 
-            <div className="form-row">
+            <div className="form-group">
+              <label>DELIVERY ADDRESS</label>
+            </div>
+            
+            <div className="form-row two-cols">
               <div className="form-group">
-                <label>Delivery Address</label>
-                <div className="input-with-icon">
-                  <input type="text" defaultValue="Kalye Otso, Purok 4, Sitio Basak, Mintal, Davao City, Philippines" />
-                  <span className="icon-placeholder input-pin-icon"></span>
-                </div>
+                <label>Street</label>
+                <input
+                  type="text"
+                  name="street"
+                  value={formData.street}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Residential / Village / Subdivision</label>
+                <input
+                  type="text"
+                  name="residentialName"
+                  value={formData.residentialName}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
             </div>
+
+            <div className="form-row two-cols">
+              <div className="form-group">
+                <label>Barangay</label>
+                <input
+                  type="text"
+                  name="barangay"
+                  value={formData.barangay}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group half-width">
+                <label>City</label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+            </div>
+
+            {role === 'seller' && (
+              <>
+                <hr className="divider" />
+                <h2>Seller Profile</h2>
+                <div className="form-row two-cols">
+                  <div className="form-group">
+                    <label>Company Name</label>
+                    <input
+                      type="text"
+                      name="companyName"
+                      value={companyName}
+                      onChange={(event) => setCompanyName(event.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Seller Type</label>
+                    <input
+                      type="text"
+                      name="sellerType"
+                      value={sellerType}
+                      onChange={(event) => setSellerType(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {errorMessage && <p className="form-error">{errorMessage}</p>}
 
             <div className="form-actions">
-              <button type="submit" className="btn-save-changes">Save Changes</button>
-              <button type="button" className="btn-cancel-changes" onClick={onBack}>Cancel</button>
+              <button type="submit" className="btn-save-changes" disabled={saving}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button type="button" className="btn-cancel-changes" onClick={onBack} disabled={saving}>
+                Cancel
+              </button>
             </div>
           </form>
         </div>
 
-        {/* RIGHT COLUMN: Side Cards */}
         <div className="edit-side-col">
-          {/* Account Security */}
           <div className="security-card">
             <div className="security-icon-wrapper">
               <span className="icon-placeholder shield-icon-white"></span>
             </div>
             <h2>Account Security</h2>
-            <p>Your data is uhm huhu pls secure with kay idk pls lang, wag bobo.</p>
-            <button className="btn-manage-password">Manage Password</button>
+            <p>Manage your account preferences and password in one place.</p>
+            <button
+              className="btn-manage-password"
+              type="button"
+              onClick={() => setIsPasswordExpanded((current) => !current)}
+            >
+              {isPasswordExpanded ? 'Hide Password Fields' : 'Manage Password'}
+            </button>
+            <div>
+              {isPasswordExpanded && (
+              <div>
+                <hr className="divider" />
+                <h2>Change Password</h2>
+                <p>Fill up the fields to change your password.</p>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label style={{ color: "white"}}>Current Password</label>
+                    <input
+                      type="password"
+                      name="currentPassword"
+                      value={currentPassword}
+                      onChange={(event) => setCurrentPassword(event.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label style={{ color: "white"}}>New Password</label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      value={newPassword}
+                      onChange={(event) => setNewPassword(event.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className='form-row'>
+                  <div className="form-group">
+                    <label style={{ color: "white"}}>Confirm New Password</label>
+                    <input
+                      type="password"
+                      name="confirmNewPassword"
+                      value={confirmNewPassword}
+                      onChange={(event) => setConfirmNewPassword(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+            </div>
           </div>
 
-          {/* Rescue Impact */}
-          <div className="impact-progress-card">
+          {/* DECIDE ON WHAT ENDPOINT TO PLACE HERE */}
+          {/* <div className="impact-progress-card">
             <div className="impact-header">
               <span className="icon-placeholder leaf-icon-orange"></span>
               <h3>Rescue Impact</h3>
             </div>
-            
             <div className="impact-stats-row">
               <span className="impact-label-sm">Food Rescued</span>
               <span className="impact-value-sm">124 kg</span>
             </div>
-            
             <div className="impact-progress-bg">
               <div className="impact-progress-fill" style={{ width: '82%' }}></div>
             </div>
-            
-            <p className="impact-goal-text">Next goal: 150 kg for "Eco Warrior char" badge</p>
-          </div>
+            <p className="impact-goal-text">Next goal: 150 kg for the Eco Warrior badge.</p>
+          </div> */}
         </div>
       </div>
     </div>

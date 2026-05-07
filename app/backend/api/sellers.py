@@ -1,9 +1,38 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
-from api.dependency import get_current_user
-from models.user import SellerSignUp
-from services.user_service import create_seller_profile
 from database import supabase
+from models.user import SellerRead, SellerUpdate
+from api.dependency import get_current_user
+from services.seller_service import get_seller_by_id 
 
 router = APIRouter()
 
+@router.get("/me", response_model=SellerRead)
+async def get_my_seller_profile(current_user: dict = Depends(get_current_user)):
+    if current_user['role'] != 'seller':
+        raise HTTPException(status_code=403, detail="You do not have a seller profile.")
+    
+    seller = get_seller_by_id(current_user["userID"])
+    if not seller:
+        raise HTTPException(status_code=404, detail="Seller profile not found.")
+
+    return seller
+
+@router.get("/{seller_id}", response_model=SellerRead)
+async def get_seller_public_profile(seller_id: UUID):
+    seller = get_seller_by_id(seller_id)
+    if not seller:
+        raise HTTPException(status_code=404, detail="Seller not found.")
+    
+    return seller
+
+@router.patch("/update")
+async def update_seller_profile(update_data: SellerUpdate, current_user: dict = Depends(get_current_user)):
+    if current_user['role'] != 'seller':
+        raise HTTPException(status_code=403, detail="You do not have a seller profile.")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+
+    response = supabase.table("Seller").update(update_dict).eq("userID", current_user["userID"]).execute()
+
+    return {"message": "Seller profile updated successfully!", "Data": response.data}
