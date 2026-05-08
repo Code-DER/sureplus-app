@@ -131,7 +131,9 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
         sellerType: sellerForm.sellerType.toLowerCase(),
         companyName: sellerForm.companyName,
       });
+      await fetchProfileData();
       setSellerSuccess(true);
+      setSellerForm({ sellerType: '', companyName: '' });
     } catch (err: any) {
       setSellerError(err.response?.data?.detail || 'Failed to upgrade. Please try again.');
     } finally {
@@ -286,7 +288,12 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
         {/* Become a Seller Row */}
         {profile.role === 'buyer' && (
           <div className="profile-settings-row">
-            <div className="settings-box" style={{ cursor: 'pointer' }} onClick={() => { setShowSellerModal(true); setSellerError(''); setSellerSuccess(false); }}>
+            <div className="settings-box" style={{ cursor: 'pointer' }} onClick={() => {
+              setSellerForm({ sellerType: '', companyName: ''});
+              setShowSellerModal(true);
+              setSellerError('');
+              setSellerSuccess(false);
+            }}>
               <div className="settings-icon-bg" style={{ background: '#FFF3EA' }}>
                 <span className="icon-placeholder bell-icon-green" style={{ background: '#FE6B00' }}></span>
               </div>
@@ -301,7 +308,13 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
 
         {/* Seller Upgrade Modal */}
         {showSellerModal && (
-          <div className="seller-modal-overlay" onClick={() => !sellerSuccess && setShowSellerModal(false)}>
+          <div className="seller-modal-overlay" onClick={() => {
+            if (!sellerSuccess) {
+              setShowSellerModal(false);
+              setSellerForm({ sellerType: '', companyName: '' });
+              setSellerError('');
+            }
+          }}>
             <div className="seller-modal" onClick={(e) => e.stopPropagation()}>
               {sellerSuccess ? (
                 <>
@@ -356,7 +369,13 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
                   </div>
 
                   <div className="seller-modal-footer">
-                    <button className="btn-seller-cancel" onClick={() => setShowSellerModal(false)}>Cancel</button>
+                    <button className="btn-seller-cancel" onClick={() => {
+                      setShowSellerModal(false);
+                      setSellerForm({ sellerType: '', companyName: '' });
+                      setSellerError('');
+                    }}>
+                      Cancel
+                    </button>
                     <button className="btn-seller-submit" onClick={handleUpgradeToSeller} disabled={sellerSubmitting}>
                       {sellerSubmitting ? 'Submitting...' : 'Become a Seller'}
                     </button>
