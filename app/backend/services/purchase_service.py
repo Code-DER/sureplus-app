@@ -80,6 +80,9 @@ def complete_purchase(purchase_id):
         "status": "completed"
     }).eq("purchaseID", purchase_id).execute()
 
+    # Hook into Social Impact
+    social_impact_service.create_impact(purchase_id)
+
     # Compute points
     total = float(purchase["totalPrice"])
     points_earned = int(total // 10)
@@ -133,18 +136,3 @@ def get_seller_purchase_list(seller_id):
         .execute()
 
     return purchases_res.data
-
-def complete_purchase(purchase_id: str):
-    """
-    Mark a purchase as completed and trigger social impact calculation.
-    """
-    response = supabase_admin.table("Purchase") \
-        .update({"status": "completed"}) \
-        .eq("purchaseID", purchase_id) \
-        .execute()
-    
-    if response.data:
-        # Hook into Social Impact
-        social_impact_service.create_impact(purchase_id)
-    
-    return response
