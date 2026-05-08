@@ -1,0 +1,2 @@
+ALTER TABLE "PurchaseItems"
+ADD COLUMN "price" NUMERIC(10,2) NOT NULL;
