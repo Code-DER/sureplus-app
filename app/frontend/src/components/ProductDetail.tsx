@@ -1,30 +1,18 @@
 import { useState } from 'react'
+import { Food } from '../types/product'
 import './ProductDetail.css'
 
-export interface FoodListingFull {
-  id: number
-  name: string
-  price: number
-  description: string
-  fullDescription: string
-  category: string
-  availableTime: string
-  expiration: string
-  allergens: string[]
-  location: string
-}
-
 interface ProductDetailProps {
-  listing: FoodListingFull
+  listing: Food
   onBack: () => void
-  onAddToOrder: (listing: FoodListingFull, qty: number) => void
+  onAddToOrder: (listing: Food, qty: number) => void
 }
 
 export default function ProductDetail({ listing, onBack, onAddToOrder }: ProductDetailProps) {
   const [qty, setQty] = useState(1)
 
-  const today = new Date()
-  const formattedDate = today.toLocaleDateString('en-US', {
+  const expirationDate = listing.expirationDate ? new Date(listing.expirationDate) : new Date()
+  const formattedDate = expirationDate.toLocaleDateString('en-US', {
     month: 'long',
     day: '2-digit',
     year: 'numeric',
@@ -47,27 +35,35 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
       <div className="detail-body">
         {/* Large image */}
         <div className="detail-image">
-          <div className="detail-image-placeholder">
-            <span className="icon-placeholder" style={{ width: 48, height: 48, background: '#ddd', borderRadius: 8 }} />
-            <span>Product Photo</span>
-          </div>
+          {listing.picture ? (
+            <img src={listing.picture} alt={listing.foodName} className="detail-image-img" />
+          ) : (
+            <div className="detail-image-placeholder">
+              <span className="icon-placeholder" style={{ width: 48, height: 48, background: '#ddd', borderRadius: 8 }} />
+              <span>Product Photo</span>
+            </div>
+          )}
         </div>
 
         {/* Quick info panel */}
         <div className="detail-info-panel">
-          <h2 className="detail-product-name">{listing.name}</h2>
-          <p className="detail-product-desc">{listing.fullDescription}</p>
+          <h2 className="detail-product-name">{listing.foodName}</h2>
+          <p className="detail-product-desc">{listing.description}</p>
 
           {/* Allergens */}
-          <span className="detail-allergens-label">Allergens</span>
-          <div className="detail-allergen-tags">
-            {listing.allergens.map((allergen) => (
-              <div key={allergen} className="allergen-tag">
-                <span className="icon-placeholder" style={{ width: 12, height: 12, background: '#0F5238' }} />
-                <span>{allergen}</span>
+          {listing.allergens && listing.allergens.length > 0 && (
+            <>
+              <span className="detail-allergens-label">Allergens</span>
+              <div className="detail-allergen-tags">
+                {listing.allergens.map((allergen) => (
+                  <div key={allergen.allergenID} className="allergen-tag">
+                    <span className="icon-placeholder" style={{ width: 12, height: 12, background: '#0F5238' }} />
+                    <span>{allergen.name}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
 
           {/* Price + Quantity */}
           <div className="detail-price-row">
@@ -87,7 +83,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
               <span className="qty-value">{qty}</span>
               <button
                 className="qty-btn"
-                onClick={() => setQty((q) => q + 1)}
+                onClick={() => setQty((q) => Math.min(listing.stockQuantity, q + 1))}
                 aria-label="Increase quantity"
               >
                 <span className="icon-placeholder" style={{ width: 14, height: 14, background: '#191C1A' }} />
@@ -98,13 +94,14 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
           {/* Add to Order */}
           <button
             className="detail-add-btn"
+            disabled={listing.stockQuantity === 0}
             onClick={() => {
               onAddToOrder(listing, qty)
               onBack()
             }}
           >
             <span className="icon-placeholder" style={{ width: 20, height: 20, background: '#FFFFFF' }} />
-            <span>Add to Order</span>
+            <span>{listing.stockQuantity === 0 ? 'Out of Stock' : 'Add to Order'}</span>
           </button>
         </div>
       </div>
@@ -126,8 +123,8 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
             <span className="icon-placeholder" style={{ width: 16, height: 20, background: '#0F5238' }} />
           </div>
           <div className="info-card-content">
-            <span className="info-card-label">Location</span>
-            <span className="info-card-value small">{listing.location}</span>
+            <span className="info-card-label">Category</span>
+            <span className="info-card-value small">{listing.category}</span>
           </div>
         </div>
       </div>

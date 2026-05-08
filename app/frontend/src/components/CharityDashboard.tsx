@@ -53,6 +53,7 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
     e.preventDefault();
     if (!editOrgName.trim()) return;
     
+    setFormError(null);
     try {
       const updated = await apiPut<CharityProfile>('/charities/myprofile', {
         organizationName: editOrgName
@@ -61,7 +62,7 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
       setIsEditingProfile(false);
     } catch (err) {
       console.error('Failed to update profile:', err);
-      alert('Failed to update organization name.');
+      setFormError('Failed to update organization name.');
     }
   };
 
@@ -71,6 +72,7 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
     setPostDescription('');
     setPostAmountNeeded('');
     setShowPostForm(true);
+    setFormError(null);
   };
 
   const handleOpenEditForm = (post: CharityPost) => {
@@ -79,11 +81,13 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
     setPostDescription(post.description || '');
     setPostAmountNeeded(post.amountNeeded.toString());
     setShowPostForm(true);
+    setFormError(null);
   };
 
   const handleSubmitPost = async (e: React.FormEvent) => {
     e.preventDefault();
     setPostLoading(true);
+    setFormError(null);
     
     const postData = {
       title: postTitle,
@@ -102,21 +106,26 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
       setShowPostForm(false);
     } catch (err) {
       console.error('Failed to save post:', err);
-      alert('Failed to save fundraising post.');
+      setFormError('Failed to save fundraising post.');
     } finally {
       setPostLoading(false);
     }
   };
 
   const handleDeletePost = async (postId: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
+    if (deleteConfirmId !== postId) {
+      setDeleteConfirmId(postId);
+      return;
+    }
     
+    setFormError(null);
     try {
       await apiDelete(`/charity-posts/${postId}`);
       setPosts(prev => prev.filter(p => p.charityID !== postId));
+      setDeleteConfirmId(null);
     } catch (err) {
       console.error('Failed to delete post:', err);
-      alert('Failed to delete fundraising post.');
+      setFormError('Failed to delete fundraising post.');
     }
   };
 
@@ -139,6 +148,18 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
           View as Buyer
         </button>
       </header>
+
+      {formError && (
+        <div className="dashboard-error-banner">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>{formError}</span>
+          <button className="btn-close-error" onClick={() => setFormError(null)}>×</button>
+        </div>
+      )}
 
       <div className="dashboard-grid">
         {/* Profile Section */}
@@ -250,35 +271,40 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
                             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                           </svg>
                         </button>
-                        <button className="btn-icon delete" onClick={() => handleDeletePost(post.charityID)} aria-label="Delete">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                          </svg>
-                        </button>
+                        
+                        {deleteConfirmId === post.charityID ? (
+                          <div className="delete-confirm-actions">
+                            <button 
+                              className="btn-confirm-delete" 
+                              onClick={() => handleDeletePost(post.charityID)}
+                            >
+                              Confirm
+                            </button>
+                            <button 
+                              className="btn-cancel-delete" 
+                              onClick={() => setDeleteConfirmId(null)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button 
+                            className="btn-icon delete" 
+                            onClick={() => handleDeletePost(post.charityID)} 
+                            aria-label="Delete"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                            </svg>
+                          </button>
+                        )}
                       </div>
                     </div>
                     <p className="post-card-desc">{post.description}</p>
                     <div className="post-card-progress">
                       <div className="progress-bar-bg">
                         <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
-                      </div>
-                      <div className="progress-text">
-                        <span>₱{post.currentAmount.toLocaleString()} raised</span>
-                        <span>Goal: ₱{post.amountNeeded.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </section>
-      </div>
-    </div>
-  );
-}
-e={{ width: `${progress}%` }} />
                       </div>
                       <div className="progress-text">
                         <span>₱{post.currentAmount.toLocaleString()} raised</span>

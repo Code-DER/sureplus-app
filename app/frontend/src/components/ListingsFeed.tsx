@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { apiGet, apiPost } from '../api/client'
 import './ListingsFeed.css'
-import ProductDetail, { type FoodListingFull } from './ProductDetail'
-import OrderSuccessModal, { type ImpactStats } from './OrderSuccessModal'
+import ProductDetail from './ProductDetail'
+import OrderSuccessModal from './OrderSuccessModal'
 import NotificationDropdown from './NotificationDropdown'
 import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
@@ -9,168 +10,93 @@ import CharitiesListView from './CharitiesListView'
 import CharityDetailView from './CharityDetailView'
 import CharityApplicationForm from './CharityApplicationForm'
 import type { User } from '../types/user'
-
-interface FoodListing {
-  id: number
-  name: string
-  price: number
-  description: string
-  fullDescription: string
-  category: string
-  availableTime: string
-  expiration: string
-  allergens: string[]
-  location: string
-}
+import type { Food } from '../types/product'
+import { Purchase } from '../types/purchase'
 
 interface OrderItem {
-  id: number
+  foodID: string
   name: string
   price: number
   qty: number
 }
 
-const LISTINGS: FoodListing[] = [
-  {
-    id: 1,
-    name: 'Sourdough Bread Loaf',
-    price: 300,
-    description: 'Freshly baked, slight crust crack, perfect for toast or sandwiches...',
-    fullDescription: 'Freshly baked daily using a 5-year-old starter. This surplus loaf is perfectly crusty on the outside and airy on the inside. Great for morning toast, sandwiches, or pairing with soup.',
-    category: 'Bakery',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'Tomorrow',
-    allergens: ['Contains Gluten', 'Dairy'],
-    location: 'SM Ecoland, Matina Pangi Road, Davao City',
-  },
-  {
-    id: 2,
-    name: 'Mixed Vegetable Box',
-    price: 150,
-    description: 'Assorted greens, carrots, and tomatoes. Great for soups or stir-fry...',
-    fullDescription: 'A curated box of fresh assorted greens, carrots, tomatoes, and bell peppers sourced from local farms. Ideal for soups, stir-fry, or salads. Lightly surplus from a restaurant prep.',
-    category: 'Produce',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'Tomorrow',
-    allergens: ['None'],
-    location: 'Abreeza Mall, J.P. Laurel Avenue, Davao City',
-  },
-  {
-    id: 3,
-    name: 'Greek Yogurt (500g)',
-    price: 100,
-    description: 'Creamy, high-protein yogurt near best-by date. Still perfectly fresh...',
-    fullDescription: 'Creamy, high-protein Greek yogurt approaching its best-by date but still perfectly fresh and safe. Great for breakfast bowls, smoothies, or as a healthy snack with honey and granola.',
-    category: 'Dairy',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'Tomorrow',
-    allergens: ['Contains Dairy'],
-    location: 'SM Lanang Premier, Davao City',
-  },
-  {
-    id: 4,
-    name: 'Brown Rice (2kg)',
-    price: 200,
-    description: 'Whole grain brown rice, lightly surplus from a local restaurant batch...',
-    fullDescription: 'Whole grain brown rice, lightly surplus from a local restaurant batch order. Sealed and stored properly. Perfect for healthy meals, fried rice, or as a side dish.',
-    category: 'Pantry',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'In 3 Days',
-    allergens: ['None'],
-    location: 'Gaisano Mall, Davao City',
-  },
-  {
-    id: 5,
-    name: 'Banana Bunch (6 pcs)',
-    price: 80,
-    description: 'Ripe bananas, great for smoothies, banana bread, or eating fresh...',
-    fullDescription: 'A bunch of 6 ripe Cavendish bananas. Perfect ripeness for smoothies, banana bread baking, or just eating fresh. Rescued from a local fruit stand.',
-    category: 'Produce',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'Tomorrow',
-    allergens: ['None'],
-    location: 'Bankerohan Public Market, Davao City',
-  },
-  {
-    id: 6,
-    name: 'Cheddar Cheese Block',
-    price: 250,
-    description: 'Sharp cheddar, slightly past peak but excellent for cooking or melting...',
-    fullDescription: 'Premium sharp cheddar cheese block, slightly past its peak display date but excellent quality for cooking, melting on burgers, or grating over pasta. Properly refrigerated.',
-    category: 'Dairy',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'In 2 Days',
-    allergens: ['Contains Dairy'],
-    location: 'SM Ecoland, Matina Pangi Road, Davao City',
-  },
-]
-
 const CATEGORIES = ['All Items', 'Produce', 'Bakery', 'Dairy', 'Pantry']
 
-const INITIAL_ORDER: OrderItem[] = [
-  { id: 1, name: 'Sourdough Bread Loaf', price: 300, qty: 1 },
-  { id: 2, name: 'Mixed Vegetable Box', price: 150, qty: 1 },
-]
-
-
-
 export default function ListingsFeed({ user }: { user: User | null }) {
+  const [listings, setListings] = useState<Food[]>([])
   const [activeCategory, setActiveCategory] = useState('All Items')
-  const [orderItems, setOrderItems] = useState<OrderItem[]>(INITIAL_ORDER)
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [paymentMethod, setPaymentMethod] = useState('GCash')
-  const [selectedListing, setSelectedListing] = useState<FoodListing | null>(null)
+  const [selectedListing, setSelectedListing] = useState<Food | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [latestPurchaseID, setLatestPurchaseID] = useState<string | undefined>()
   const [showNotifs, setShowNotifs] = useState(false)
   const [activeTab, setActiveTab] = useState<'listings' | 'history' | 'profile' | 'charities'>('listings')
   const [selectedCharityId, setSelectedCharityId] = useState<string | null>(null)
   const [showApplyForm, setShowApplyForm] = useState(false)
+  const [confirming, setConfirming] = useState(false)
 
-  // Mock impact stats — will be replaced by backend data
-  const [impactStats] = useState<ImpactStats>({
-    foodSaved: 67,
-    carbonReduced: 32,
-    peopleFed: 40,
-    pointsEarned: 67,
-  })
+  useEffect(() => {
+    async function fetchListings() {
+      try {
+        const data = await apiGet<Food[]>('/products/')
+        setListings(data)
+      } catch (err) {
+        console.error('Failed to fetch listings:', err)
+      }
+    }
+    fetchListings()
+  }, [])
 
   const filtered =
     activeCategory === 'All Items'
-      ? LISTINGS
-      : LISTINGS.filter((l) => l.category === activeCategory)
+      ? listings
+      : listings.filter((l) => l.category === activeCategory)
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
   const total = subtotal
 
-  // Derive unique pickup locations from order items
-  const pickupLocations = Array.from(
-    new Set(
-      orderItems
-        .map((item) => {
-          const listing = LISTINGS.find((l) => l.id === item.id)
-          return listing?.location ?? ''
-        })
-        .filter(Boolean)
-    )
-  )
-
-  const addToOrder = (listing: { id: number; name: string; price: number }, qty = 1) => {
+  const addFromDetail = (listing: Food, qty = 1) => {
     setOrderItems((prev) => {
-      const existing = prev.find((o) => o.id === listing.id)
+      const existing = prev.find((o) => o.foodID === listing.foodID)
       if (existing) {
         return prev.map((o) =>
-          o.id === listing.id ? { ...o, qty: o.qty + qty } : o
+          o.foodID === listing.foodID ? { ...o, qty: o.qty + qty } : o
         )
       }
-      return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty }]
+      return [...prev, { foodID: listing.foodID, name: listing.foodName, price: listing.price, qty }]
     })
   }
 
-  const addFromDetail = (listing: FoodListingFull, qty: number) => {
-    addToOrder(listing, qty)
+  const removeFromOrder = (id: string) => {
+    setOrderItems((prev) => prev.filter((o) => o.foodID !== id))
   }
 
-  const removeFromOrder = (id: number) => {
-    setOrderItems((prev) => prev.filter((o) => o.id !== id))
+  const handleConfirmOrder = async () => {
+    if (orderItems.length === 0) return
+    
+    setConfirming(true)
+    try {
+      const purchaseData = {
+        paymentMethod,
+        totalPrice: total,
+        items: orderItems.map(item => ({
+          foodID: item.foodID,
+          quantity: item.qty,
+          totalPerItem: item.price * item.qty
+        }))
+      }
+      
+      const result = await apiPost<Purchase>('/purchases/', purchaseData)
+      setLatestPurchaseID(result.purchaseID)
+      setShowSuccess(true)
+      setOrderItems([])
+    } catch (err) {
+      console.error('Failed to confirm order:', err)
+      alert('Failed to place order. Please try again.')
+    } finally {
+      setConfirming(false)
+    }
   }
 
   return (
@@ -231,7 +157,7 @@ export default function ListingsFeed({ user }: { user: User | null }) {
           <div className="listings-content">
             {selectedListing ? (
               <ProductDetail
-                listing={selectedListing as FoodListingFull}
+                listing={selectedListing}
                 onBack={() => setSelectedListing(null)}
                 onAddToOrder={addFromDetail}
               />
@@ -258,39 +184,49 @@ export default function ListingsFeed({ user }: { user: User | null }) {
 
                 {/* Grid */}
                 <div className="listings-grid">
-                  {filtered.map((listing) => (
+                  {filtered.length === 0 ? (
+                    <p className="no-listings">No food listings found for this category.</p>
+                  ) : filtered.map((listing) => (
                     <div
-                      key={listing.id}
+                      key={listing.foodID}
                       className="listing-card"
                       onClick={() => setSelectedListing(listing)}
                       style={{ cursor: 'pointer' }}
                     >
                       {/* Placeholder image */}
-                      <div className="listing-img-placeholder" aria-label={`Image for ${listing.name}`}>
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
-                          <rect x="3" y="3" width="18" height="18" rx="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                        <span className="placeholder-label">Add photo</span>
+                      <div className="listing-img-placeholder" aria-label={`Image for ${listing.foodName}`}>
+                        {listing.picture ? (
+                          <img src={listing.picture} alt={listing.foodName} className="listing-img" />
+                        ) : (
+                          <>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
+                              <rect x="3" y="3" width="18" height="18" rx="2" />
+                              <circle cx="8.5" cy="8.5" r="1.5" />
+                              <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                            <span className="placeholder-label">No photo</span>
+                          </>
+                        )}
                       </div>
 
                       <div className="listing-info">
                         <div className="listing-header">
-                          <span className="listing-name">{listing.name}</span>
-                          <span className="listing-price">₱{listing.price}.00</span>
+                          <span className="listing-name">{listing.foodName}</span>
+                          <span className="listing-price">₱{listing.price.toFixed(2)}</span>
                         </div>
                         <p className="listing-desc">{listing.description}</p>
 
                         <div className="listing-meta">
                           <div className="meta-row">
                             <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#707973' }} />
-                            <span>Available: {listing.availableTime}</span>
+                            <span>Category: {listing.category}</span>
                           </div>
-                          <div className="meta-row expiry">
-                            <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#BA1A1A' }} />
-                            <span>Expiration: {listing.expiration}</span>
-                          </div>
+                          {listing.expirationDate && (
+                            <div className="meta-row expiry">
+                              <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#BA1A1A' }} />
+                              <span>Expiration: {new Date(listing.expirationDate).toLocaleDateString()}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -307,7 +243,7 @@ export default function ListingsFeed({ user }: { user: User | null }) {
                   <span className="order-title">My order</span>
                 </div>
                 <div className="order-subtitle">
-                  Rescuing from {new Set(orderItems.map(o => o.id)).size} store{orderItems.length !== 1 ? 's' : ''}
+                  {orderItems.length} item{orderItems.length !== 1 ? 's' : ''} in cart
                 </div>
               </div>
 
@@ -316,9 +252,8 @@ export default function ListingsFeed({ user }: { user: User | null }) {
                   <p className="order-empty">No items in your order yet.</p>
                 ) : (
                   orderItems.map((item) => (
-                    <div key={item.id} className="order-item">
-                      {/* Placeholder thumbnail */}
-                      <div className="order-item-img" aria-label={item.name} />
+                    <div key={item.foodID} className="order-item">
+                      <div className="order-item-img" />
                       <div className="order-item-info">
                         <span className="order-item-name">{item.name}</span>
                         <span className="order-item-qty">Qty: {item.qty}</span>
@@ -326,7 +261,7 @@ export default function ListingsFeed({ user }: { user: User | null }) {
                       <span className="order-item-price">₱{(item.price * item.qty).toFixed(2)}</span>
                       <button
                         className="remove-btn"
-                        onClick={() => removeFromOrder(item.id)}
+                        onClick={() => removeFromOrder(item.foodID)}
                         aria-label={`Remove ${item.name}`}
                       >
                         <span className="icon-placeholder" style={{ width: 12, height: 14, background: '#707973' }} />
@@ -339,19 +274,8 @@ export default function ListingsFeed({ user }: { user: User | null }) {
               <div className="order-summary">
                 <div className="summary-row">
                   <span>Subtotal</span>
-                  <span>{subtotal.toFixed(2)}</span>
+                  <span>₱{subtotal.toFixed(2)}</span>
                 </div>
-                {pickupLocations.length > 0 && (
-                  <div className="pickup-locations">
-                    <div className="pickup-label-row">
-                      <span className="icon-placeholder" style={{ width: 12, height: 14, background: '#0F5238' }} />
-                      <span className="pickup-label">Pickup Location{pickupLocations.length > 1 ? 's' : ''}</span>
-                    </div>
-                    {pickupLocations.map((loc) => (
-                      <span key={loc} className="pickup-address">{loc}</span>
-                    ))}
-                  </div>
-                )}
               </div>
 
               <div className="order-total">
@@ -374,11 +298,10 @@ export default function ListingsFeed({ user }: { user: User | null }) {
 
               <button
                 className="confirm-btn"
-                onClick={() => {
-                  setShowSuccess(true)
-                }}
+                disabled={orderItems.length === 0 || confirming}
+                onClick={handleConfirmOrder}
               >
-                <span>Confirm Order</span>
+                <span>{confirming ? 'Confirming...' : 'Confirm Order'}</span>
                 <span className="icon-placeholder" style={{ width: 13, height: 13, background: 'white' }} />
               </button>
             </div>
@@ -389,10 +312,10 @@ export default function ListingsFeed({ user }: { user: User | null }) {
       {/* Success Modal */}
       {showSuccess && (
         <OrderSuccessModal
-          stats={impactStats}
+          purchaseID={latestPurchaseID}
           onClose={() => {
             setShowSuccess(false)
-            setOrderItems([])
+            setLatestPurchaseID(undefined)
           }}
         />
       )}

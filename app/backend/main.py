@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from api.users import router as users_router
 from api.auth import router as auth_router
 from api.products import router as products_router
@@ -9,8 +10,19 @@ from api.charities import router as charities_router
 from api.charity_posts import router as charity_posts_router
 from api.social_impact import router as social_impact_router
 from api.admin_activity import router as admin_activity_router
+from api.purchases import router as purchases_router
+from api.ratings import router as ratings_router
 
 app = FastAPI(title="SurePlus API")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Routers for the app
 app.include_router(users_router, prefix="/users", tags=["Users"])
@@ -23,6 +35,8 @@ app.include_router(charities_router, prefix="/charities", tags=["Charities"])
 app.include_router(charity_posts_router, prefix="/charity-posts", tags=["Charity Posts"])
 app.include_router(social_impact_router, prefix="/social-impact", tags=["Social Impact"])
 app.include_router(admin_activity_router, prefix="/admin-activity", tags=["Admin Activity"])
+app.include_router(purchases_router, prefix="/purchases", tags=["Purchases"])
+app.include_router(ratings_router, prefix="/ratings", tags=["Ratings"])
 
 # Root endpoint
 @app.get("/")

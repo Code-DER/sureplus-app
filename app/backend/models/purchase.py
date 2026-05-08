@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
 from typing import Optional, List, Literal
+from models.product import FoodResponse
 
 class PurchaseBase(BaseModel):
     paymentMethod: Optional[str] = None
@@ -28,6 +29,20 @@ class PurchaseItemResponse(BaseModel):
     foodID: UUID
     quantity: int
     totalPerItem: float
+    Food: Optional[FoodResponse] = None
 
     class Config:
         from_attributes = True
+
+class PurchaseWithItemsResponse(PurchaseResponse):
+    PurchaseItems: List[PurchaseItemResponse]
+
+class PurchaseItemCreate(BaseModel):
+    foodID: UUID
+    quantity: int
+    totalPerItem: float
+
+class PurchaseCreateWithItems(BaseModel):
+    paymentMethod: Optional[str] = None
+    totalPrice: float
+    items: List[PurchaseItemCreate]

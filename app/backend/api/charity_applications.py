@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+import logging
 from typing import List
 from uuid import UUID
 from api.dependency import get_current_user, require_role
@@ -6,6 +7,7 @@ from models.charity_application import CharityApplicationCreate, CharityApplicat
 from services import charity_application_service
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 @router.post("/", response_model=CharityApplicationResponse)
 async def create_application(application: CharityApplicationCreate, current_user: dict = Depends(get_current_user)):
@@ -16,6 +18,7 @@ async def create_application(application: CharityApplicationCreate, current_user
         )
         return response.data[0]
     except Exception as e:
+        logger.error(f"Error creating application: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/mine", response_model=List[CharityApplicationResponse])
@@ -43,4 +46,5 @@ async def review_application(
         )
         return {"message": f"Application {review.status} successfully."}
     except Exception as e:
+        logger.error(f"Error reviewing application: {e}")
         raise HTTPException(status_code=400, detail=str(e))

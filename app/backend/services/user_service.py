@@ -1,14 +1,14 @@
-from database import supabase, supabase_admin
+from database import supabase_admin
 from uuid import UUID
 from services.notification_service import send_notification
 
 # User Service to fetch all users and their details
 def fetch_all_users():
-    return supabase.table("User").select("*").execute()
+    return supabase_admin.table("User").select("*").execute()
 
 # User Service to fetch a user by their id
 def fetch_user_by_id(user_id: int):
-    return supabase.table("User").select("*").eq("userID", user_id).single().execute()
+    return supabase_admin.table("User").select("*").eq("userID", user_id).single().execute()
 
 # User Service to create a seller profile
 def create_seller_profile(user_id: UUID, company_name: str, seller_type: str):

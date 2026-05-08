@@ -3,7 +3,7 @@ Service for handling admin activity audit logs.
 """
 from typing import Optional
 
-from database import supabase
+from database import supabase_admin
 
 
 def fetch_admin_activities(
@@ -12,7 +12,7 @@ def fetch_admin_activities(
     admin_id: Optional[str] = None,
     limit: int = 100,
 ):
-    query = supabase.table("AdminActivity").select("*").order("timestamp", desc=True).limit(limit)
+    query = supabase_admin.table("AdminActivity").select("*").order("timestamp", desc=True).limit(limit)
 
     if action_type:
         query = query.eq("actionType", action_type)
@@ -39,4 +39,4 @@ def record_admin_activity(
         "targetEntity": target_entity,
     }
 
-    return supabase.table("AdminActivity").insert(admin_activity).execute()
+    return supabase_admin.table("AdminActivity").insert(admin_activity).execute()

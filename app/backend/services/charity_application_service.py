@@ -3,7 +3,7 @@ Service for handling charity applications.
 """
 import logging
 
-from database import supabase
+from database import supabase_admin
 
 from uuid import UUID
 from typing import Optional
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def submit_application(user_id: str, data: dict):
     # Check for existing pending or approved application
-    existing = supabase.table("CharityApplication") \
+    existing = supabase_admin.table("CharityApplication") \
         .select("*") \
         .eq("userID", user_id) \
         .in_("status", ["pending", "approved"]) \
@@ -30,23 +30,23 @@ def submit_application(user_id: str, data: dict):
         "status": "pending"
     }
     
-    return supabase.table("CharityApplication").insert(application_data).execute()
+    return supabase_admin.table("CharityApplication").insert(application_data).execute()
 
 def fetch_application_by_user(user_id: str):
-    return supabase.table("CharityApplication") \
+    return supabase_admin.table("CharityApplication") \
         .select("*") \
         .eq("userID", user_id) \
         .execute()
 
 def fetch_all_pending():
-    return supabase.table("CharityApplication") \
+    return supabase_admin.table("CharityApplication") \
         .select("*") \
         .eq("status", "pending") \
         .execute()
 
 def review_application(application_id: str, status: str, org_name: Optional[str] = None, admin_id: Optional[str] = None):
     # 1. Fetch and validate the application before making any changes
-    application_response = supabase.table("CharityApplication") \
+    application_response = supabase_admin.table("CharityApplication") \
         .select("*") \
         .eq("applicationID", application_id) \
         .execute()
@@ -64,7 +64,7 @@ def review_application(application_id: str, status: str, org_name: Optional[str]
     user_id = application["userID"]
 
     # 2. Update CharityApplication.status
-    response = supabase.table("CharityApplication") \
+    response = supabase_admin.table("CharityApplication") \
         .update({"status": status}) \
         .eq("applicationID", application_id) \
         .execute()
@@ -74,13 +74,13 @@ def review_application(application_id: str, status: str, org_name: Optional[str]
 
     if status == "approved":
         # 3. Update User.role = 'charity'
-        supabase.table("User") \
+        supabase_admin.table("User") \
             .update({"role": "charity"}) \
             .eq("userID", user_id) \
             .execute()
 
         # 4. Insert into Charity table
-        supabase.table("Charity") \
+        supabase_admin.table("Charity") \
             .insert({"userID": user_id, "organizationName": org_name}) \
             .execute()
 

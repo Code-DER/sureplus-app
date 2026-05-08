@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { apiGet } from '../api/client'
+import { SocialImpact } from '../types/purchase'
 import './OrderSuccessModal.css'
 
 export interface ImpactStats {
@@ -9,55 +11,68 @@ export interface ImpactStats {
 }
 
 interface OrderSuccessModalProps {
-  stats: ImpactStats
+  stats?: ImpactStats // keep optional for backward compatibility
+  purchaseID?: string
   onClose: () => void
 }
 
-export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalProps) {
+export default function OrderSuccessModal({ stats, purchaseID, onClose }: OrderSuccessModalProps) {
   const [animated, setAnimated] = useState(false)
+  const [realImpact, setRealImpact] = useState<SocialImpact | null>(null)
 
   useEffect(() => {
     // Trigger bar animation after mount
     const timer = setTimeout(() => setAnimated(true), 100)
+    
+    if (purchaseID) {
+      apiGet<SocialImpact>(`/social-impact/purchase/${purchaseID}`)
+        .then(setRealImpact)
+        .catch(err => console.error('Failed to fetch impact:', err))
+    }
+
     return () => clearTimeout(timer)
-  }, [])
+  }, [purchaseID])
+
+  // Map real impact or provided stats to the UI
+  const displayStats = realImpact ? {
+    foodSaved: Math.min(100, (realImpact.rescuedKilos / 10) * 100), // Mock mapping: 10kg = 100%
+    carbonReduced: Math.min(100, (realImpact.carbonOffset / 25) * 100), // Mock mapping: 25kg = 100%
+    peopleFed: Math.min(100, (realImpact.peopleFed / 5) * 100), // Mock mapping: 5 people = 100%
+    pointsEarned: Math.floor(realImpact.rescuedKilos * 10),
+  } : stats || { foodSaved: 0, carbonReduced: 0, peopleFed: 0, pointsEarned: 0 }
 
   const statRows = [
     {
       icon: (
-        // Fork & knife icon placeholder
         <span className="icon-placeholder" style={{ width: 11, height: 15, background: '#0F5238' }} />
       ),
       label: 'Food Saved',
-      value: `${stats.foodSaved} %`,
-      percent: stats.foodSaved,
+      value: realImpact ? `${realImpact.rescuedKilos.toFixed(1)} kg` : `${displayStats.foodSaved} %`,
+      percent: displayStats.foodSaved,
     },
     {
       icon: (
-        // QR/carbon icon placeholder
         <span className="icon-placeholder" style={{ width: 14, height: 7, background: '#0F5238' }} />
       ),
       label: 'Carbon Reduced',
-      value: `${stats.carbonReduced} %`,
-      percent: stats.carbonReduced,
+      value: realImpact ? `${realImpact.carbonOffset.toFixed(1)} kg` : `${displayStats.carbonReduced} %`,
+      percent: displayStats.carbonReduced,
     },
     {
       icon: (
-        // People icon placeholder
         <span className="icon-placeholder" style={{ width: 18, height: 9, background: '#0F5238' }} />
       ),
       label: 'People Fed',
-      value: `${stats.peopleFed} %`,
-      percent: stats.peopleFed,
+      value: realImpact ? `${realImpact.peopleFed} people` : `${displayStats.peopleFed} %`,
+      percent: displayStats.peopleFed,
     },
     {
       icon: (
-        // Star/points icon placeholder
         <span className="icon-placeholder" style={{ width: 15, height: 15, background: '#0F5238' }} />
       ),
       label: 'Points Earned',
-      value: `${stats.pointsEarned} pts`,
-      percent: Math.min(stats.pointsEarned, 100), // cap bar at 100%
+      value: `${displayStats.pointsEarned} pts`,
+      percent: Math.min(displayStats.pointsEarned, 100),
     },
   ]
 

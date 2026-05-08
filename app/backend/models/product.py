@@ -26,6 +26,7 @@ class FoodBase(BaseModel):
     price: Decimal = Field(..., ge=0)
     stockQuantity: int = Field(..., ge=0)
     expirationDate: Optional[date] = None
+    category: str = "All Items"
 
 
 class FoodCreate(FoodBase):

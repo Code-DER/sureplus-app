@@ -25,13 +25,6 @@ export interface CharityPost {
   createdAt: string;
 }
 
-export interface SocialImpactSummary {
-  totalCarbonOffset: number;
-  totalRescuedKilos: number;
-  totalPeopleFed: number;
-  purchaseCount: number;
-}
-
 export interface CharityApplication {
   applicationID: string;
   userID: string;
