@@ -1,4 +1,4 @@
-from database import supabase
+from database import supabase_admin
 
 def create_rating(data):
 
@@ -15,7 +15,7 @@ def create_rating(data):
         raise Exception("Rating Mus be between 1 and 5")
 
     # Check if purchase exist and belongs to buyer
-    purchase_res = supabase.table("Purchase") \
+    purchase_res = supabase_admin.table("Purchase") \
         .select("userID, status") \
         .eq("purchaseID", purchase_id) \
         .single() \
@@ -32,7 +32,7 @@ def create_rating(data):
         raise Exception("You can only rate completed purchases")
     
     # Prevent duplicate rating for same purchases
-    existing_rating = supabase.table("Rating") \
+    existing_rating = supabase_admin.table("Rating") \
         .select("ratingID") \
         .eq("purchaseID", purchase_id) \
         .eq("buyerID", buyer_id) \
@@ -42,7 +42,7 @@ def create_rating(data):
         raise Exception("You already rated this purchase")
     
     # Get sellerID from PurchaseItems
-    purchase_items = supabase.table("PurchaseItems") \
+    purchase_items = supabase_admin.table("PurchaseItems") \
         .select("foodID") \
         .eq("purchaseID", purchase_id) \
         .execute()
@@ -53,7 +53,7 @@ def create_rating(data):
     # Assuming one seller per purchase
     food_id = purchase_items.data[0]["foodID"]
 
-    food_res = supabase.table("Food") \
+    food_res = supabase_admin.table("Food") \
         .select("userID") \
         .eq("foodID", food_id) \
         .single() \
@@ -65,7 +65,7 @@ def create_rating(data):
     seller_id = food_res.data["userID"]
     
     # Insert rating into the database
-    result = supabase.table("Rating").insert({
+    result = supabase_admin.table("Rating").insert({
         "purchaseID": purchase_id,
         "buyerID": buyer_id,
         "sellerID": seller_id,
@@ -76,7 +76,7 @@ def create_rating(data):
     return result.data[0]
 
 def get_seller_rating_list(seller_id):
-    res = supabase.table("Rating") \
+    res = supabase_admin.table("Rating") \
         .select("*") \
         .eq("sellerID", seller_id) \
         .execute()

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
-from database import supabase
+from database import supabase_admin
 from models.user import SellerRead, SellerUpdate
 from api.dependency import get_current_user
 from services.seller_service import get_seller_by_id 
@@ -33,6 +33,6 @@ async def update_seller_profile(update_data: SellerUpdate, current_user: dict = 
     
     update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
 
-    response = supabase.table("Seller").update(update_dict).eq("userID", current_user["userID"]).execute()
+    response = supabase_admin.table("Seller").update(update_dict).eq("userID", current_user["userID"]).execute()
 
     return {"message": "Seller profile updated successfully!", "Data": response.data}

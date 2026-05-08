@@ -5,7 +5,8 @@ import OrderSuccessModal, { type ImpactStats } from './OrderSuccessModal'
 import NotificationDropdown from './NotificationDropdown'
 import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
-
+import CharityPostsFeed from './CharityPostsFeed'
+import SocialImpactView from './SocialImpactView'
 interface FoodListing {
   id: number
   name: string
@@ -110,18 +111,14 @@ const INITIAL_ORDER: OrderItem[] = [
 
 
 
-interface ListingsFeedProps {
-  onSwitchRole: (role: 'buyer' | 'seller' | 'admin') => void;
-}
-
-export default function ListingsFeed({ onSwitchRole }: ListingsFeedProps) {
+export default function ListingsFeed() {
   const [activeCategory, setActiveCategory] = useState('All Items')
   const [orderItems, setOrderItems] = useState<OrderItem[]>(INITIAL_ORDER)
   const [paymentMethod, setPaymentMethod] = useState('GCash')
   const [selectedListing, setSelectedListing] = useState<FoodListing | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNotifs, setShowNotifs] = useState(false)
-  const [activeTab, setActiveTab] = useState<'listings' | 'history' | 'profile'>('profile')
+  const [activeTab, setActiveTab] = useState<'listings' | 'charity' | 'history' | 'impact' | 'profile'>('listings')
 
   // Mock impact stats — will be replaced by backend data
   const [impactStats] = useState<ImpactStats>({
@@ -179,7 +176,9 @@ export default function ListingsFeed({ onSwitchRole }: ListingsFeedProps) {
           <div className="navbar-left">
             <span className="brand">Sureplus</span>
             <a href="#" className={`nav-link ${activeTab === 'listings' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('listings') }}>Listings</a>
+            <a href="#" className={`nav-link ${activeTab === 'charity' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('charity') }}>Charity</a>
             <a href="#" className={`nav-link ${activeTab === 'history' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('history') }}>History</a>
+            <a href="#" className={`nav-link ${activeTab === 'impact' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('impact') }}>Impact</a>
             <a href="#" className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('profile') }}>Profile</a>
           </div>
           <div className="navbar-right" style={{ position: 'relative' }}>
@@ -206,9 +205,13 @@ export default function ListingsFeed({ onSwitchRole }: ListingsFeedProps) {
       {/* Main content container (Figma rounded card) */}
       <div className="content-container">
         {activeTab === 'profile' ? (
-          <ProfileView onSwitchRole={onSwitchRole} />
+          <ProfileView />
         ) : activeTab === 'history' ? (
           <HistoryView />
+        ) : activeTab === 'charity' ? (
+          <CharityPostsFeed />
+        ) : activeTab === 'impact' ? (
+          <SocialImpactView />
         ) : (
           <div className="listings-content">
             {selectedListing ? (

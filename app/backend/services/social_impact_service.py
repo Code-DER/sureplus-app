@@ -1,5 +1,5 @@
 import math
-from database import supabase
+from database import supabase_admin
 
 CO2_PER_KG  = 2.5   # kg CO2 equivalent per kg food waste avoided (FAO)
 KG_PER_MEAL = 0.5   # kg of food per meal
@@ -10,7 +10,7 @@ def compute_metrics(purchase_id: str) -> dict:
     Fetches PurchaseItems joined with Food to get real weightKg.
     """
     # Fetch all PurchaseItems for the purchase joined with Food
-    response = supabase.table("PurchaseItems") \
+    response = supabase_admin.table("PurchaseItems") \
         .select("quantity, Food(weightKg)") \
         .eq("purchaseID", purchase_id) \
         .execute()
@@ -35,13 +35,13 @@ def create_impact(purchase_id: str):
     Compute metrics and create a record in the SocialImpact table.
     """
     metrics = compute_metrics(purchase_id)
-    return supabase.table("SocialImpact").insert(metrics).execute()
+    return supabase_admin.table("SocialImpact").insert(metrics).execute()
 
 def fetch_impact_by_purchase(purchase_id: str):
     """
     Fetch the social impact record for a specific purchase.
     """
-    return supabase.table("SocialImpact") \
+    return supabase_admin.table("SocialImpact") \
         .select("*") \
         .eq("purchaseID", purchase_id) \
         .single() \
@@ -52,7 +52,7 @@ def fetch_summary_by_user(user_id: str):
     Fetch and aggregate social impact metrics for a specific user.
     """
     # Join path: SocialImpact -> Purchase -> filter by userID
-    response = supabase.table("SocialImpact") \
+    response = supabase_admin.table("SocialImpact") \
         .select("*, Purchase!inner(userID)") \
         .eq("Purchase.userID", user_id) \
         .execute()
