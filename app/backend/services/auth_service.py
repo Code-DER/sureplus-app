@@ -1,5 +1,10 @@
+"""
+Authentication service for managing user login and signup.
+"""
 from passlib.context import CryptContext
-from database import supabase
+from database import supabase_admin
+
+
 from fastapi import HTTPException
 import jwt
 import os
@@ -12,6 +17,15 @@ load_dotenv()
 
 # Context for password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Function to load the backend-only JWT secret
+def get_jwt_secret():
+    secret_key = os.getenv("JWT_SECRET_KEY")
+
+    if not secret_key:
+        raise ValueError("JWT_SECRET_KEY is missing from .env")
+
+    return secret_key
 
 # Function to hash the password
 def hash_password(password: str):
@@ -28,7 +42,7 @@ def hash_password(password: str):
 # Function to create a new user
 def create_user(user_data: dict):
     # Check if email exists
-    existing = supabase.table("User").select("emailAddress").eq("emailAddress", user_data["emailAddress"]).execute()
+    existing = supabase_admin.table("User").select("emailAddress").eq("emailAddress", user_data["emailAddress"]).execute()
     if existing.data:
         raise HTTPException(status_code=400, detail="Email already registered!")
     
@@ -41,7 +55,7 @@ def create_user(user_data: dict):
     user_data['password'] = hash_password(user_data['password'])
 
     # Insert user into User Table
-    user_response = supabase.table("User").insert(user_data).execute()
+    user_response = supabase_admin.table("User").insert(user_data).execute()
     # Check if user creation was successful
     if not user_response.data:
         raise HTTPException(status_code=500, detail="Failed to create user!")
@@ -51,7 +65,7 @@ def create_user(user_data: dict):
     new_user_id = new_user['userID']
 
     buyer_data = {"userID": new_user_id, "points": 0}
-    buyer_response = supabase.table("Buyer").insert(buyer_data).execute()
+    buyer_response = supabase_admin.table("Buyer").insert(buyer_data).execute()
     if not buyer_response.data:
         raise HTTPException(status_code=500, detail="Failed to create buyer!")
 
@@ -70,6 +84,25 @@ def create_user(user_data: dict):
 
     return new_user
 
+# Function to fetch a user by email during login
+def fetch_user_by_email(email_address: str):
+    return supabase_admin.table("User").select("*").eq("emailAddress", email_address).execute()
+
+# Function to fetch the current authorization context from the database
+def fetch_user_auth_context(user_id: str):
+    response = (
+        supabase_admin.table("User")
+        .select("userID, role")
+        .eq("userID", user_id)
+        .limit(1)
+        .execute()
+    )
+
+    if not response.data:
+        return None
+
+    return response.data[0]
+
 # Function to verify the password
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
@@ -80,13 +113,9 @@ def create_access_token(data: dict):
     to_encode = data.copy()
 
     # Get the keys, algorithm, and expiry time from the env
-    secret_key = os.getenv("SUPABASE_ANON_KEY")
+    secret_key = get_jwt_secret()
     algorithm = os.getenv("ALGORITHM", "HS256")
     expire_time = int(os.getenv("ACCESS_TOKEN_EXPIRE_TIME_MINUTES", "30"))
-
-    # Raise an error if secret key is missing
-    if not secret_key:
-        raise ValueError("Secret Key is missing from .env")
     
     # Calcualte the expiry time 
     expire = datetime.now(timezone.utc) + timedelta(minutes=expire_time)

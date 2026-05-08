@@ -3,9 +3,10 @@ from database import supabase
 from typing import List
 from uuid import UUID
 from services import user_service
-from models.user import UserResponse, SellerSignUp
+from models.user import UserResponse, SellerSignUp, UserUpdate, PasswordChange
 from api.dependency import get_current_user
 from services.user_service import create_seller_profile
+from services.auth_service import verify_password, hash_password
 
 router = APIRouter()
 
@@ -26,7 +27,7 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
 
     # Fetch the user's profile from the database
     user = supabase.table("User")\
-        .select("firstName, lastName, role, emailAddress, street, residentialName, barangay, city")\
+        .select("firstName, lastName, role, emailAddress, phoneNumber, street, residentialName, barangay, city")\
         .eq("userID", user_id)\
         .single()\
         .execute()
@@ -70,3 +71,27 @@ async def upgrade_to_seller(seller_input: SellerSignUp, current_user: dict = Dep
     supabase.table("User").update({"role": "seller"}).eq("userID", current_user["userID"]).execute()
 
     return {"message": "Successfully upgraded to seller!"}
+
+@router.patch("/update")
+async def update_user_profile(update_data: UserUpdate, current_user: dict = Depends(get_current_user)):
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+
+    if not update_dict:
+        raise HTTPException(status_code=400, detail="No fields provided for update!")
+    
+    response = supabase.table("User").update(update_dict).eq("userID", current_user["userID"]).execute()
+
+    return {"message": "User profile updated successfully!", "Data": response.data}
+
+@router.post("/change-password")
+async def change_password(data: PasswordChange, current_user: dict = Depends(get_current_user)):
+    user_response = supabase.table("User").select("*").eq("userID", current_user['userID']).execute()
+    user_db = user_response.data[0]
+
+    if not verify_password(data.currentPassword, user_db['password']):
+        raise HTTPException(status_code=400, detail="Current password is incorrect!")
+
+    new_hashed_password = hash_password(data.newPassword)
+    supabase.table("User").update({"password": new_hashed_password}).eq("userID", current_user["userID"]).execute()
+
+    return {"message": "Password changed successfully!"}

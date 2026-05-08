@@ -1,4 +1,4 @@
-from database import supabase
+from database import supabase, supabase_admin
 from uuid import UUID
 from services.notification_service import send_notification
 
@@ -21,7 +21,7 @@ def create_seller_profile(user_id: UUID, company_name: str, seller_type: str):
     }
     
     # Insert the seller information into Seller table
-    response = supabase.table("Seller").insert(seller_data).execute()
+    response = supabase_admin.table("Seller").insert(seller_data).execute()
 
     # Send notification to the user when their seller profile is created
     send_notification(

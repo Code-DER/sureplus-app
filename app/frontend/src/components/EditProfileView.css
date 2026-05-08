@@ -1,0 +1,343 @@
+.edit-profile-view {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.btn-back-profile {
+  background: transparent;
+  border: none;
+  color: #0F5238;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  align-self: flex-start;
+  padding: 0;
+}
+
+.btn-back-profile:hover {
+  text-decoration: underline;
+}
+
+.arrow-left-icon {
+  width: 16px;
+  height: 16px;
+  background: #0F5238;
+  /* Ideally use an SVG mask for icons here, for now using block color */
+}
+
+.edit-profile-content {
+  display: flex;
+  gap: 24px;
+}
+
+/* === LEFT COLUMN === */
+.edit-form-card {
+  flex: 1;
+  background: white;
+  border: 1px solid #E9ECEF;
+  border-radius: 12px;
+  padding: 32px 40px;
+}
+
+.edit-form-card h1 {
+  margin: 0 0 32px 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #191C1A;
+}
+
+.photo-edit-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.photo-avatar-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.photo-avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #2D6A4F;
+  background-image: url('https://placehold.co/80x80/2D6A4F/FFF?text=TM');
+  background-size: cover;
+}
+
+.btn-edit-photo {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 28px;
+  height: 28px;
+  background: #FE6B00;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.pencil-icon {
+  width: 12px;
+  height: 12px;
+  background: white;
+}
+
+.photo-edit-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #191C1A;
+}
+
+.photo-edit-info p {
+  margin: 0;
+  font-size: 12px;
+  color: #707973;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #E9ECEF;
+  margin: 32px 0;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-row {
+  display: flex;
+  gap: 24px;
+}
+
+.form-row.two-cols > .form-group {
+  flex: 1;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group.half-width {
+  width: 50%;
+  padding-right: 12px; /* to account for gap if it were two cols */
+  box-sizing: border-box;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #707973;
+  text-transform: capitalize;
+}
+
+.form-group input {
+  background: #F8F9FA;
+  border: 1px solid #E9ECEF;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 16px;
+  color: #191C1A;
+  outline: none;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  border-color: #B1F0CE;
+  background: white;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon input {
+  padding-right: 48px;
+}
+
+.input-pin-icon {
+  position: absolute;
+  right: 16px;
+  width: 20px;
+  height: 20px;
+  background: #707973;
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.btn-save-changes {
+  background: #FE6B00;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-save-changes:hover {
+  background: #E05D00;
+}
+
+.btn-cancel-changes {
+  background: white;
+  color: #191C1A;
+  border: 1px solid #191C1A;
+  border-radius: 8px;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-cancel-changes:hover {
+  background: #F8F9FA;
+}
+
+
+/* === RIGHT COLUMN === */
+.edit-side-col {
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.security-card {
+  background: #316E50;
+  border-radius: 12px;
+  padding: 32px;
+  color: white;
+}
+
+.security-icon-wrapper {
+  margin-bottom: 16px;
+}
+
+.shield-icon-white {
+  width: 32px;
+  height: 32px;
+  background: white;
+}
+
+.security-card h2 {
+  margin: 0 0 12px 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.security-card p {
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.btn-manage-password {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-manage-password:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.impact-progress-card {
+  background: #EBEBE6;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.impact-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.leaf-icon-orange {
+  width: 24px;
+  height: 24px;
+  background: #A04100;
+}
+
+.impact-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #191C1A;
+}
+
+.impact-stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.impact-label-sm {
+  font-size: 11px;
+  font-weight: 600;
+  color: #707973;
+}
+
+.impact-value-sm {
+  font-size: 18px;
+  font-weight: 600;
+  color: #316E50;
+}
+
+.impact-progress-bg {
+  width: 100%;
+  height: 8px;
+  background: white;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.impact-progress-fill {
+  height: 100%;
+  background: #316E50;
+  border-radius: 4px;
+}
+
+.impact-goal-text {
+  margin: 0;
+  font-size: 11px;
+  color: #A1A7A3;
+  font-style: italic;
+}

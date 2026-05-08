@@ -1,4 +1,4 @@
-from database import supabase
+from database import supabase_admin
 from uuid import UUID
 
 # Function to send a notification to a user
@@ -14,7 +14,7 @@ def send_notification(user_id: UUID, title: str, message: str, type: str = "syst
     }
 
     # Insert the notification info into the Table
-    response = supabase.table("Notifications").insert(notification_data).execute()
+    response = supabase_admin.table("Notifications").insert(notification_data).execute()
 
     # Raise an error if notification could not be sent
     if not response.data:
