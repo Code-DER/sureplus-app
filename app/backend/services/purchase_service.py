@@ -124,15 +124,25 @@ def get_seller_purchase_list(seller_id):
         .in_("foodID", food_ids) \
         .execute()
     
-    purchase_ids = list(set([i["purchaseID"] for i in items_res.data]))
+    items = items_res.data or []
 
-    if not purchase_ids:
+    if not items:
         return []
+    
+    purchases_ids = list(set(item["purchaseID"] for item in items))
     
     # Get purchases
     purchases_res = supabase_admin.table("Purchase") \
         .select("*") \
-        .in_("purchaseID", purchase_ids) \
+        .in_("purchaseID", purchases_ids) \
         .execute()
+    
+    purchases = purchases_res.data or []
+
+    for purchase in purchases:
+        purchase["items"] = [
+            item for item in items
+            if item["purchaseID"] == purchase["purchaseID"]
+        ]
 
     return purchases_res.data
