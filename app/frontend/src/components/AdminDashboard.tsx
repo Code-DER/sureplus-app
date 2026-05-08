@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './AdminDashboard.css';
 import AdminDashboardHome from './AdminDashboardHome';
 import AdminUserManagement from './AdminUserManagement';
+import AdminPartnerTagging from './AdminPartnerTagging';
+import AdminReports from './AdminReports';
 
 interface AdminDashboardProps {
   onSwitchRole: (role: 'buyer' | 'seller' | 'admin') => void;
@@ -75,10 +77,12 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
       {/* Main Content Area */}
       <div className="admin-main-content">
         {activeTab === 'dashboard' && <AdminDashboardHome />}
-        {activeTab === 'users' && <AdminUserManagement />}
-        {activeTab !== 'dashboard' && activeTab !== 'users' && (
+        {activeTab === 'users'     && <AdminUserManagement />}
+        {activeTab === 'partners'  && <AdminPartnerTagging />}
+        {activeTab === 'reports'   && <AdminReports />}
+        {activeTab !== 'dashboard' && activeTab !== 'users' && activeTab !== 'partners' && activeTab !== 'reports' && (
           <div className="admin-dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            <h3>🚧 Feature Under Development 🚧</h3>
+            <h3>Feature Under Development</h3>
           </div>
         )}
       </div>
