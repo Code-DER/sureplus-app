@@ -130,25 +130,39 @@
 .admin-nav {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 4px;
+  width: 223px;
   flex: 1;
 }
 
 .admin-nav-item {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 12px;
   padding: 12px 16px;
+  gap: 12px;
+  width: 223px;
+  height: 48px;
+  border-radius: 8px;
   color: #475569;
+  font-family: 'Work Sans', sans-serif;
+  font-style: normal;
   font-weight: 400;
   font-size: 16px;
-  border-radius: 8px;
+  line-height: 24px;
   cursor: pointer;
-  margin-bottom: 4px;
+  box-sizing: border-box;
   transition: all 0.2s;
+  background: none;
+  border: none;
+  text-align: left;
 }
 
 .admin-nav-item svg {
-  color: #475569;
+  color: #6B7280;
+  flex-shrink: 0;
 }
 
 .admin-nav-item:hover {
@@ -156,12 +170,12 @@
 }
 
 .admin-nav-item.active {
+  padding: 12px 16px 12px 12px;
   background: rgba(177, 240, 206, 0.21);
   border-left: 4px solid #0F5238;
   border-radius: 8px;
   color: #0F5238;
   font-weight: 600;
-  padding-left: 12px;
 }
 
 .admin-nav-item.active svg {
