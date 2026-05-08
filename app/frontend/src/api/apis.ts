@@ -103,4 +103,10 @@ export const notificationsAPI = {
     markAllNotificationsAsRead: () => api.patch('/notifications/read-all'),
 };
 
+export const purchaseAPI = {
+    createPurchase: (data: any) => api.post('/purchase', data),
+    completePurchase: (purchaseID: string) => api.put('/purchase/${purchaseID}/complete'),
+    getSellerPurchases: (sellerID: string) => api.get('/purchase/seller/${sellerID')
+};
+
 export default api;
