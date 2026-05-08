@@ -85,17 +85,7 @@ function App() {
         >
           Open Seller Dashboard
         </button>) : (
-        <button
-          onClick={() => alert("Function unavailable...")}
-          style={{ 
-            position: 'fixed', bottom: 20, right: 20, zIndex: 9999, 
-            background: '#0F5238', color: 'white', border: 'none', 
-            padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
-            fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
-          }}
-        >
-          Become a Seller
-        </button>
+        <></>
       )}
     </>
   )
