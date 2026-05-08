@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState } from 'react';
 import './Signup.css';
 
@@ -39,6 +41,8 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
   const [allergens, setAllergens] = useState<Record<string, boolean>>({});
 
   const [waiverAgreed, setWaiverAgreed] = useState(false);
+  const [becomeSeller, setBecomeSeller] = useState(false);
+  const [sellerFormData, setSellerFormData] = useState({ sellerType: '', companyName: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -88,11 +92,22 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
       setError('Password must be at least 8 characters long.');
       return;
     }
-    
+
+    if (becomeSeller) {
+      if (!sellerFormData.sellerType) {
+        setError('Please select a seller type.');
+        return;
+      }
+      if (!sellerFormData.companyName.trim()) {
+        setError('Please enter your company / trade name.');
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
-      const signupData = {
+      const signupData: Record<string, any> = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         emailAddress: formData.email,
@@ -102,8 +117,14 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
         residentialName: formData.residentialName,
         barangay: formData.barangay,
         city: formData.city,
-        becomeSeller: false,
+        becomeSeller,
       };
+      if (becomeSeller) {
+        signupData.sellerInfo = {
+          sellerType: sellerFormData.sellerType,
+          companyName: sellerFormData.companyName,
+        };
+      }
 
       // Sign up user
       const signupResponse = await fetch('http://localhost:8000/auth/signup', {
@@ -286,6 +307,58 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
                   <span className="checkbox-custom"></span>
                   <span className="waiver-label">I have read and agree to the Buyer Waiver and the Terms of Service.</span>
                 </label>
+              </div>
+
+              {/* Become a Seller */}
+              <div className="signup-card">
+                <div className="seller-toggle-row">
+                  <div>
+                    <h2 style={{ margin: 0 }}>Become a Seller</h2>
+                    <p className="card-subtitle" style={{ margin: '8px 0 0 0' }}>List your surplus food items and help reduce food waste in your community.</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={`signup-toggle ${becomeSeller ? 'signup-toggle--on' : ''}`}
+                    onClick={() => setBecomeSeller(prev => !prev)}
+                    aria-pressed={becomeSeller}
+                  >
+                    <span className="signup-toggle-knob" />
+                  </button>
+                </div>
+
+                <div className={`seller-fields ${becomeSeller ? 'seller-fields--visible' : ''}`}>
+                  <div className="form-grid" style={{ marginTop: '24px' }}>
+                    <div className="form-group">
+                      <label>Seller Type <span className="field-required">*</span></label>
+                      <div className="input-wrapper select-input-wrapper">
+                        <select
+                          value={sellerFormData.sellerType}
+                          onChange={(e) => setSellerFormData(prev => ({ ...prev, sellerType: e.target.value }))}
+                          tabIndex={becomeSeller ? 0 : -1}
+                        >
+                          <option value="">Select type...</option>
+                          <option value="individual">Individual</option>
+                          <option value="business">Business</option>
+                          <option value="distributor">Distributor</option>
+                          <option value="restaurant">Restaurant</option>
+                          <option value="bakery">Bakery</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>Company / Trade Name <span className="field-required">*</span></label>
+                      <div className="input-wrapper">
+                        <input
+                          type="text"
+                          placeholder="e.g. Harvest Bakery"
+                          value={sellerFormData.companyName}
+                          onChange={(e) => setSellerFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                          tabIndex={becomeSeller ? 0 : -1}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
             </form>
