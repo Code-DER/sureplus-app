@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import './SellerDashboard.css';
 import CreateNewListing from './CreateNewListing';
@@ -6,6 +6,8 @@ import ManageListings from './ManageListings';
 import MysteryBox from './MysteryBox';
 import SalesAnalytics from './SalesAnalytics';
 import SellerReviews from './SellerReviews';
+import { purchaseAPI } from '../api/apis';
+import { getAuthUser } from '../App';
 
 interface SellerDashboardProps {
   onSwitchRole: () => void;
@@ -84,6 +86,26 @@ const MOCK_FEED = [
 
 export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) {
   const [activeTab, setActiveTab] = useState<SidebarTab>('dashboard');
+  const [purchases, setPurchases] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPurchases = async () => {
+        try {
+            const user = getAuthUser();
+            if (!user) return;
+
+            const res = await purchaseAPI.getSellerPurchases(user.userID);
+            setPurchases(res.data);
+        } catch (err) {
+            console.error("Failed to load purchases", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchPurchases();
+}, []);
 
   return (
     <div className="seller-page">
@@ -238,6 +260,24 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
                         </td>
                       </tr>
                     ))}
+                    {purchases.flatMap((purchase) => 
+                      purchase.items?.map((item: any,idx: number) => (
+                      <tr key={`${purchase.purchseID}-${idx}`}>
+                        <td>
+                          <div className="product-cell">
+                            <div className="product-thumb"></div>
+                            <span>{item.foodID}</span>
+                          </div>
+                        </td>
+                        <td className="qty-cell">{item.quantity}</td>
+                        <td className="price-cell">{item.price}</td>
+                        <td>
+                          <span className={`status-badge ${purchase.status}`}>
+                            {purchase.status}
+                          </span>
+                        </td>
+                      </tr>
+                    )))}
                   </tbody>
                 </table>
               </div>
