@@ -55,6 +55,7 @@ function App() {
     );
   }
 
+
   if (view === 'seller' && user) {
     return <SellerDashboard onSwitchRole={() => setView('buyer')} />
   }

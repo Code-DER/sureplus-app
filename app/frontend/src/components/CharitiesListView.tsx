@@ -62,7 +62,7 @@ export default function CharitiesListView({ onViewCharity, onBecomeCharity }: Ch
               <div className="charity-card-info">
                 <h3>{charity.organizationName}</h3>
                 <p className="charity-description">
-                  Tap to view their fundraising posts and help make an impact in the community.
+                  {charity.description || "Tap to view their fundraising posts and help make an impact."}
                 </p>
               </div>
               <button 

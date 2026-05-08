@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { apiGet, apiPost, apiPut } from '../api/client'
-import { Purchase, Rating, SocialImpact } from '../types/purchase'
+import type { Purchase, Rating, SocialImpact } from '../types/purchase'
 import './HistoryView.css'
 
 export default function HistoryView() {

@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { apiGet } from '../api/client';
+import type { SocialImpactSummary } from '../types/charity';
+
 import './LandingPage.css';
 
 interface LandingPageProps {
@@ -7,12 +10,27 @@ interface LandingPageProps {
 
 export default function LandingPage({ onSelect }: LandingPageProps) {
   const [selectedRole, setSelectedRole] = useState<'buyer' | 'seller' | null>('buyer'); // Default to buyer as shown in design
+  const [summary, setSummary] = useState<SocialImpactSummary | null>(null);
+
+  useEffect(() => {
+    async function fetchSummary() {
+      try {
+        const data = await apiGet<SocialImpactSummary>('/social-impact/platform-summary');
+        setSummary(data);
+      } catch (error) {
+        console.error('Failed to fetch platform summary:', error);
+      }
+    }
+    fetchSummary();
+  }, []);
 
   const handleSignUp = () => {
     if (selectedRole) {
       onSelect(selectedRole);
     }
   };
+
+  const rescuedKilos = summary ? summary.totalRescuedKilos.toLocaleString() : '1,240';
 
   return (
     <div className="landing-page">
@@ -114,7 +132,7 @@ export default function LandingPage({ onSelect }: LandingPageProps) {
                 <div className="floating-icon">
                   <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 12a5 5 0 110-10 5 5 0 010 10z" fill="#FE6B00" /><path d="M8 4v4l3 3" stroke="#FE6B00" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </div>
-                <span className="floating-text">1,240 lbs of food rescued this week</span>
+                <span className="floating-text">{rescuedKilos} kg of food rescued so far</span>
               </div>
             </div>
           </div>
@@ -124,3 +142,4 @@ export default function LandingPage({ onSelect }: LandingPageProps) {
     </div>
   );
 }
+

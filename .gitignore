@@ -11,6 +11,7 @@ dump/
 learn/
 puller-out/
 .california-agentic/
+repomix.config.json
 
 # Environment and secrets
 .env

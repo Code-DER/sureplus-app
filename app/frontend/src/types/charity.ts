@@ -1,6 +1,7 @@
 export interface Charity {
   userID: string;
   organizationName: string;
+  description?: string;
 }
 
 export interface CharityProfile extends Charity {

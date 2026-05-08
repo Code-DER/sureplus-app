@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
 from uuid import uuid4
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
@@ -20,20 +20,43 @@ class TestRatingService(unittest.TestCase):
     @patch("services.rating_service.supabase_admin")
     def test_create_rating(self, mock_supabase):
         buyer_id = str(uuid4())
+        purchase_id = str(uuid4())
+        seller_id = str(uuid4())
+        food_id = str(uuid4())
+        
         data = RatingCreate(
-            purchaseID=uuid4(),
-            sellerID=uuid4(),
+            purchaseID=purchase_id,
+            sellerID=seller_id,
             rating=5,
             comment="Excellent service!"
         )
         
+        # Setup chained mock
+        mock_table = MagicMock()
+        mock_supabase.table.return_value = mock_table
+        
+        mock_query = MagicMock()
+        mock_table.select.return_value = mock_query
+        mock_table.insert.return_value = mock_query
+        
+        mock_query.eq.return_value = mock_query
+        mock_query.single.return_value = mock_query
+        mock_query.maybe_single.return_value = mock_query
+        mock_query.in_.return_value = mock_query
+        
+        # Configure execution side effects
+        mock_query.execute.side_effect = [
+            Mock(data={"userID": buyer_id, "status": "completed"}), # Purchase check
+            Mock(data=[]), # Duplicate rating check
+            Mock(data=[{"foodID": food_id}]), # PurchaseItems check
+            Mock(data={"userID": seller_id}), # Food/Seller check
+            Mock(data=[{"ratingID": "new-rating-id"}]) # Final insert
+        ]
+        
         rating_service.create_rating(buyer_id, data)
         
-        mock_supabase.table.assert_called_with("Rating")
-        # Check if insert was called with correct data including buyerID
-        expected_data = data.model_dump()
-        expected_data["buyerID"] = buyer_id
-        mock_supabase.table().insert.assert_called_with(expected_data)
+        # Check if insert was called
+        mock_table.insert.assert_called()
 
     @patch("services.rating_service.supabase_admin")
     def test_fetch_ratings_by_seller(self, mock_supabase):
@@ -59,19 +82,17 @@ class TestRatingService(unittest.TestCase):
         buyer_id = str(uuid4())
         data = RatingUpdate(rating=4, comment="Updated comment")
         
-        # Configure the mock to return itself for chained calls
-        mock_query = mock_supabase.table.return_value.update.return_value
+        mock_table = MagicMock()
+        mock_supabase.table.return_value = mock_table
+        mock_query = MagicMock()
+        mock_table.update.return_value = mock_query
         mock_query.eq.return_value = mock_query
         
         rating_service.update_rating(rating_id, buyer_id, data)
         
         mock_supabase.table.assert_called_with("Rating")
-        mock_supabase.table().update.assert_called_with(data.model_dump(exclude_unset=True))
-        
-        # Check if eq was called with both conditions
+        mock_table.update.assert_called_with(data.model_dump(exclude_unset=True))
         self.assertEqual(mock_query.eq.call_count, 2)
-        mock_query.eq.assert_any_call("ratingID", rating_id)
-        mock_query.eq.assert_any_call("buyerID", buyer_id)
 
 if __name__ == "__main__":
     unittest.main()

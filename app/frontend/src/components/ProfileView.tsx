@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './ProfileView.css';
 import EditProfileView from './EditProfileView';
 import { apiGet } from '../api/client';
-import type { SocialImpactSummary } from '../types/charity';
+import type { SocialImpactSummary } from '../types/purchase';
 import type { User } from '../types/user';
 
 interface ProfileViewProps {

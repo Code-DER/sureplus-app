@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiGet } from '../api/client'
-import { SocialImpact } from '../types/purchase'
+import type { SocialImpact } from '../types/purchase'
 import './OrderSuccessModal.css'
 
 export interface ImpactStats {

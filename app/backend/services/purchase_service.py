@@ -35,7 +35,6 @@ def create_purchase(user_id: str, data: PurchaseCreateWithItems):
     
     if not items_res.data:
         # Should we rollback? Supabase doesn't support easy transactions via client
-        # For now, we assume it works or handled by higher level
         pass
 
     # 3. Complete purchase to trigger social impact
@@ -89,3 +88,37 @@ def complete_purchase(purchase_id: str):
         social_impact_service.create_impact(purchase_id)
     
     return response
+
+def get_seller_purchase_list(seller_id: str):
+    """
+    Fetch all purchases that contain items from a specific seller.
+    """
+    # Get seller's food
+    foods_res = supabase_admin.table("Food") \
+        .select("foodID") \
+        .eq("userID", seller_id) \
+        .execute()
+    
+    food_ids = [f["foodID"] for f in foods_res.data]
+
+    if not food_ids:
+        return []
+    
+    # Get purchase items
+    items_res = supabase_admin.table("PurchaseItems") \
+        .select("purchaseID") \
+        .in_("foodID", food_ids) \
+        .execute()
+    
+    purchase_ids = list(set([i["purchaseID"] for i in items_res.data]))
+
+    if not purchase_ids:
+        return []
+    
+    # Get purchases
+    purchases_res = supabase_admin.table("Purchase") \
+        .select("*") \
+        .in_("purchaseID", purchase_ids) \
+        .execute()
+
+    return purchases_res.data

@@ -22,7 +22,7 @@ async def get_impact_by_purchase(
     purchase_response = supabase.table("Purchase") \
         .select("userID") \
         .eq("purchaseID", str(purchase_id)) \
-        .single() \
+        .maybe_single() \
         .execute()
     
     if not purchase_response.data:
@@ -45,4 +45,12 @@ async def get_my_impact_summary(
     Fetch aggregated social impact summary for the current user.
     """
     summary = social_impact_service.fetch_summary_by_user(current_user["userID"])
+    return summary
+
+@router.get("/platform-summary", response_model=SocialImpactSummary)
+async def get_platform_impact_summary():
+    """
+    Public endpoint to fetch aggregated social impact summary for the entire platform.
+    """
+    summary = social_impact_service.fetch_platform_summary()
     return summary

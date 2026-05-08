@@ -87,8 +87,7 @@ export default function CharityDetailView({ charityUserId, onBack, user }: Chari
             <span>{profile.city}, {profile.barangay}</span>
           </div>
           <p className="charity-bio">
-            We are dedicated to reducing food waste and supporting our community. 
-            Your donations help us continue our mission and reach more people in need.
+            {profile.description || "We are dedicated to reducing food waste and supporting our community. Your donations help us continue our mission and reach more people in need."}
           </p>
         </div>
       </header>

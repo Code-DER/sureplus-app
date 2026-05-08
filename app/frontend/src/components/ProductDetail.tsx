@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Food } from '../types/product'
+import type { Food } from '../types/product'
 import './ProductDetail.css'
 
 interface ProductDetailProps {

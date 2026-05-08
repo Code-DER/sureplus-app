@@ -20,6 +20,7 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
   // Profile Edit State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editOrgName, setEditOrgName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
   // Post Form State (for both create and edit)
   const [showPostForm, setShowPostForm] = useState(false);
@@ -38,6 +39,7 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
         ]);
         setProfile(profileData);
         setEditOrgName(profileData.organizationName);
+        setEditDescription(profileData.description || '');
         setPosts(postsData);
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
@@ -56,13 +58,18 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
     setFormError(null);
     try {
       const updated = await apiPut<CharityProfile>('/charities/myprofile', {
-        organizationName: editOrgName
+        organizationName: editOrgName,
+        description: editDescription
       });
-      setProfile(prev => prev ? { ...prev, organizationName: updated.organizationName } : null);
+      setProfile(prev => prev ? { 
+        ...prev, 
+        organizationName: updated.organizationName,
+        description: updated.description
+      } : null);
       setIsEditingProfile(false);
     } catch (err) {
       console.error('Failed to update profile:', err);
-      setFormError('Failed to update organization name.');
+      setFormError('Failed to update organization profile.');
     }
   };
 
@@ -182,6 +189,15 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
                   required
                 />
               </div>
+              <div className="input-group">
+                <label>Description</label>
+                <textarea 
+                  value={editDescription} 
+                  onChange={(e) => setEditDescription(e.target.value)} 
+                  placeholder="Tell us about your organization's mission..."
+                  rows={3}
+                />
+              </div>
               <div className="form-actions-inline">
                 <button type="submit" className="btn-save">Save</button>
                 <button type="button" className="btn-cancel" onClick={() => setIsEditingProfile(false)}>Cancel</button>
@@ -192,7 +208,8 @@ export default function CharityDashboard({ user, onSwitchRole }: CharityDashboar
               <div className="org-avatar-med">{profile.organizationName.charAt(0)}</div>
               <div className="org-info-text">
                 <h3>{profile.organizationName}</h3>
-                <p>{profile.emailAddress}</p>
+                <p className="org-desc-preview">{profile.description || 'No description provided yet.'}</p>
+                <p className="org-email-preview">{profile.emailAddress}</p>
                 <p className="location-tag">{profile.city}, {profile.barangay}</p>
               </div>
             </div>

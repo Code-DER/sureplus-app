@@ -44,3 +44,17 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str
     user: UserResponse
+
+class UserUpdate(BaseModel):
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    emailAddress: Optional[EmailStr] = None
+    phoneNumber: Optional[str] = None
+    street: Optional[str] = None
+    residentialName: Optional[str] = None
+    barangay: Optional[str] = None
+    city: Optional[str] = None
+
+class PasswordChange(BaseModel):
+    currentPassword: str
+    newPassword: str

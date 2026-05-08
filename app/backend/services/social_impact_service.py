@@ -44,7 +44,7 @@ def fetch_impact_by_purchase(purchase_id: str):
     return supabase_admin.table("SocialImpact") \
         .select("*") \
         .eq("purchaseID", purchase_id) \
-        .single() \
+        .maybe_single() \
         .execute()
 
 def fetch_summary_by_user(user_id: str):
@@ -61,6 +61,20 @@ def fetch_summary_by_user(user_id: str):
     summary = {
         "totalCarbonOffset": sum(row["carbonOffset"] for row in rows),
         "totalRescuedKilos": sum(row["rescuedKilos"] for row in rows),
+        "totalPeopleFed": sum(row["peopleFed"] for row in rows),
+        "purchaseCount": len(rows)
+    }
+    return summary
+
+def fetch_platform_summary():
+    """
+    Fetch and aggregate social impact metrics for the entire platform.
+    """
+    response = supabase_admin.table("SocialImpact").select("*").execute()
+    rows = response.data
+    summary = {
+        "totalCarbonOffset": sum(float(row["carbonOffset"]) for row in rows),
+        "totalRescuedKilos": sum(float(row["rescuedKilos"]) for row in rows),
         "totalPeopleFed": sum(row["peopleFed"] for row in rows),
         "purchaseCount": len(rows)
     }

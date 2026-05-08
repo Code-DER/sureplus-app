@@ -11,7 +11,7 @@ import CharityDetailView from './CharityDetailView'
 import CharityApplicationForm from './CharityApplicationForm'
 import type { User } from '../types/user'
 import type { Food } from '../types/product'
-import { Purchase } from '../types/purchase'
+import type { Purchase } from '../types/purchase'
 
 interface OrderItem {
   foodID: string

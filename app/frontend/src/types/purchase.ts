@@ -1,4 +1,4 @@
-import { Food } from './product';
+import type { Food } from './product';
 
 export interface PurchaseItem {
   purchaseID: string;
