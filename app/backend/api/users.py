@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException, Depends
-from database import supabase
 from typing import List
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException
+
+from database import supabase
 from services import user_service
 from models.user import UserResponse, SellerSignUp, UserUpdate, PasswordChange
 from api.dependency import get_current_user
