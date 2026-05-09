@@ -1,126 +1,72 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './ListingsFeed.css'
-import ProductDetail, { type FoodListingFull } from './ProductDetail'
+import ProductDetail from './ProductDetail'
 import OrderSuccessModal, { type ImpactStats } from './OrderSuccessModal'
 import NotificationDropdown from './NotificationDropdown'
 import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
 import CharityPostsFeed from './CharityPostsFeed'
 import SocialImpactView from './SocialImpactView'
-interface FoodListing {
-  id: number
-  name: string
-  price: number
-  description: string
-  fullDescription: string
-  category: string
-  availableTime: string
-  expiration: string
-  allergens: string[]
-  location: string
-}
+import { foodAPI } from '../api/apis'
+import type { FoodItem } from '../types/food'
 
 interface OrderItem {
-  id: number
+  id: string       // foodID (UUID)
   name: string
   price: number
   qty: number
 }
 
-const LISTINGS: FoodListing[] = [
-  {
-    id: 1,
-    name: 'Sourdough Bread Loaf',
-    price: 300,
-    description: 'Freshly baked, slight crust crack, perfect for toast or sandwiches...',
-    fullDescription: 'Freshly baked daily using a 5-year-old starter. This surplus loaf is perfectly crusty on the outside and airy on the inside. Great for morning toast, sandwiches, or pairing with soup.',
-    category: 'Bakery',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'Tomorrow',
-    allergens: ['Contains Gluten', 'Dairy'],
-    location: 'SM Ecoland, Matina Pangi Road, Davao City',
-  },
-  {
-    id: 2,
-    name: 'Mixed Vegetable Box',
-    price: 150,
-    description: 'Assorted greens, carrots, and tomatoes. Great for soups or stir-fry...',
-    fullDescription: 'A curated box of fresh assorted greens, carrots, tomatoes, and bell peppers sourced from local farms. Ideal for soups, stir-fry, or salads. Lightly surplus from a restaurant prep.',
-    category: 'Produce',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'Tomorrow',
-    allergens: ['None'],
-    location: 'Abreeza Mall, J.P. Laurel Avenue, Davao City',
-  },
-  {
-    id: 3,
-    name: 'Greek Yogurt (500g)',
-    price: 100,
-    description: 'Creamy, high-protein yogurt near best-by date. Still perfectly fresh...',
-    fullDescription: 'Creamy, high-protein Greek yogurt approaching its best-by date but still perfectly fresh and safe. Great for breakfast bowls, smoothies, or as a healthy snack with honey and granola.',
-    category: 'Dairy',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'Tomorrow',
-    allergens: ['Contains Dairy'],
-    location: 'SM Lanang Premier, Davao City',
-  },
-  {
-    id: 4,
-    name: 'Brown Rice (2kg)',
-    price: 200,
-    description: 'Whole grain brown rice, lightly surplus from a local restaurant batch...',
-    fullDescription: 'Whole grain brown rice, lightly surplus from a local restaurant batch order. Sealed and stored properly. Perfect for healthy meals, fried rice, or as a side dish.',
-    category: 'Pantry',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'In 3 Days',
-    allergens: ['None'],
-    location: 'Gaisano Mall, Davao City',
-  },
-  {
-    id: 5,
-    name: 'Banana Bunch (6 pcs)',
-    price: 80,
-    description: 'Ripe bananas, great for smoothies, banana bread, or eating fresh...',
-    fullDescription: 'A bunch of 6 ripe Cavendish bananas. Perfect ripeness for smoothies, banana bread baking, or just eating fresh. Rescued from a local fruit stand.',
-    category: 'Produce',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'Tomorrow',
-    allergens: ['None'],
-    location: 'Bankerohan Public Market, Davao City',
-  },
-  {
-    id: 6,
-    name: 'Cheddar Cheese Block',
-    price: 250,
-    description: 'Sharp cheddar, slightly past peak but excellent for cooking or melting...',
-    fullDescription: 'Premium sharp cheddar cheese block, slightly past its peak display date but excellent quality for cooking, melting on burgers, or grating over pasta. Properly refrigerated.',
-    category: 'Dairy',
-    availableTime: 'Today, 6:00 PM',
-    expiration: 'In 2 Days',
-    allergens: ['Contains Dairy'],
-    location: 'SM Ecoland, Matina Pangi Road, Davao City',
-  },
-]
-
-const CATEGORIES = ['All Items', 'Produce', 'Bakery', 'Dairy', 'Pantry']
-
-const INITIAL_ORDER: OrderItem[] = [
-  { id: 1, name: 'Sourdough Bread Loaf', price: 300, qty: 1 },
-  { id: 2, name: 'Mixed Vegetable Box', price: 150, qty: 1 },
-]
-
-
+function formatExpiration(dateStr: string | null): string {
+  if (!dateStr) return 'No expiry date'
+  const exp = new Date(dateStr)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays < 0) return 'Expired'
+  if (diffDays === 0) return 'Expires today'
+  if (diffDays === 1) return 'Expires tomorrow'
+  if (diffDays <= 7) return `In ${diffDays} days`
+  return exp.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
+}
 
 export default function ListingsFeed() {
-  const [activeCategory, setActiveCategory] = useState('All Items')
-  const [orderItems, setOrderItems] = useState<OrderItem[]>(INITIAL_ORDER)
+  // ── Listings API state ────────────────────────────────────────────────────
+  const [listings, setListings] = useState<FoodItem[]>([])
+  const [loadingListings, setLoadingListings] = useState(true)
+  const [listingsError, setListingsError] = useState<string | null>(null)
+  const [safeForMe, setSafeForMe] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    async function fetchListings() {
+      setLoadingListings(true)
+      setListingsError(null)
+      try {
+        const resp = await foodAPI.list({
+          safe_for_me: safeForMe,
+          edible_only: true,
+          include_expired: false,
+        })
+        if (!cancelled) setListings(resp.data)
+      } catch {
+        if (!cancelled) setListingsError('Failed to load listings. Please try again.')
+      } finally {
+        if (!cancelled) setLoadingListings(false)
+      }
+    }
+    fetchListings()
+    return () => { cancelled = true }
+  }, [safeForMe])
+
+  // ── Order state ───────────────────────────────────────────────────────────
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [paymentMethod, setPaymentMethod] = useState('GCash')
-  const [selectedListing, setSelectedListing] = useState<FoodListing | null>(null)
+  const [selectedListing, setSelectedListing] = useState<FoodItem | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNotifs, setShowNotifs] = useState(false)
   const [activeTab, setActiveTab] = useState<'listings' | 'charity' | 'history' | 'impact' | 'profile'>('listings')
 
-  // Mock impact stats — will be replaced by backend data
   const [impactStats] = useState<ImpactStats>({
     foodSaved: 67,
     carbonReduced: 32,
@@ -128,27 +74,10 @@ export default function ListingsFeed() {
     pointsEarned: 67,
   })
 
-  const filtered =
-    activeCategory === 'All Items'
-      ? LISTINGS
-      : LISTINGS.filter((l) => l.category === activeCategory)
-
+  // ── Order helpers ─────────────────────────────────────────────────────────
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
-  const total = subtotal
 
-  // Derive unique pickup locations from order items
-  const pickupLocations = Array.from(
-    new Set(
-      orderItems
-        .map((item) => {
-          const listing = LISTINGS.find((l) => l.id === item.id)
-          return listing?.location ?? ''
-        })
-        .filter(Boolean)
-    )
-  )
-
-  const addToOrder = (listing: { id: number; name: string; price: number }, qty = 1) => {
+  const addToOrder = (listing: { id: string; name: string; price: number }, qty = 1) => {
     setOrderItems((prev) => {
       const existing = prev.find((o) => o.id === listing.id)
       if (existing) {
@@ -160,11 +89,11 @@ export default function ListingsFeed() {
     })
   }
 
-  const addFromDetail = (listing: FoodListingFull, qty: number) => {
-    addToOrder(listing, qty)
+  const addFromDetail = (listing: FoodItem, qty: number) => {
+    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price) }, qty)
   }
 
-  const removeFromOrder = (id: number) => {
+  const removeFromOrder = (id: string) => {
     setOrderItems((prev) => prev.filter((o) => o.id !== id))
   }
 
@@ -196,13 +125,12 @@ export default function ListingsFeed() {
             </button>
             <div className="avatar" aria-label="User profile" />
 
-            {/* Notification dropdown */}
             {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
           </div>
         </nav>
       </div>
 
-      {/* Main content container (Figma rounded card) */}
+      {/* Main content */}
       <div className="content-container">
         {activeTab === 'profile' ? (
           <ProfileView />
@@ -216,7 +144,7 @@ export default function ListingsFeed() {
           <div className="listings-content">
             {selectedListing ? (
               <ProductDetail
-                listing={selectedListing as FoodListingFull}
+                listing={selectedListing}
                 onBack={() => setSelectedListing(null)}
                 onAddToOrder={addFromDetail}
               />
@@ -228,63 +156,136 @@ export default function ListingsFeed() {
                   <p className="listings-subtitle">High-quality surplus food from local favorites at sustainable prices.</p>
                 </div>
 
-                {/* Category filters */}
+                {/* Filters */}
                 <div className="category-filters">
-                  {CATEGORIES.map((cat) => (
-                    <button
-                      key={cat}
-                      className={`filter-btn ${activeCategory === cat ? 'active' : ''}`}
-                      onClick={() => setActiveCategory(cat)}
-                    >
-                      {cat}
-                    </button>
-                  ))}
+                  <button
+                    className={`filter-btn ${!safeForMe ? 'active' : ''}`}
+                    onClick={() => setSafeForMe(false)}
+                  >
+                    All Items
+                  </button>
+                  <button
+                    className={`filter-btn ${safeForMe ? 'active' : ''}`}
+                    onClick={() => setSafeForMe(true)}
+                  >
+                    Safe for Me
+                  </button>
                 </div>
+
+                {/* Loading state */}
+                {loadingListings && (
+                  <div className="listings-grid">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="listing-card" style={{ opacity: 0.5 }}>
+                        <div className="listing-img-placeholder" style={{ background: '#f0f0f0' }} />
+                        <div className="listing-info">
+                          <div style={{ height: 16, background: '#e0e0e0', borderRadius: 4, marginBottom: 8 }} />
+                          <div style={{ height: 12, background: '#e8e8e8', borderRadius: 4, width: '60%' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Error state */}
+                {!loadingListings && listingsError && (
+                  <div style={{
+                    padding: '40px 24px', textAlign: 'center', color: '#BA1A1A',
+                    background: '#FFEBEE', borderRadius: 12, margin: '24px 0'
+                  }}>
+                    <p style={{ margin: '0 0 16px', fontSize: 16 }}>{listingsError}</p>
+                    <button
+                      onClick={() => setSafeForMe((v) => v)}
+                      style={{
+                        background: '#BA1A1A', color: 'white', border: 'none',
+                        borderRadius: 8, padding: '8px 20px', cursor: 'pointer'
+                      }}
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+
+                {/* Empty state */}
+                {!loadingListings && !listingsError && listings.length === 0 && (
+                  <div style={{ padding: '60px 24px', textAlign: 'center', color: '#707973' }}>
+                    <p style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>No listings found</p>
+                    <p style={{ fontSize: 14, margin: 0 }}>
+                      {safeForMe
+                        ? 'No allergen-safe listings are available right now.'
+                        : 'No food listings are available right now. Check back soon!'}
+                    </p>
+                  </div>
+                )}
 
                 {/* Grid */}
-                <div className="listings-grid">
-                  {filtered.map((listing) => (
-                    <div
-                      key={listing.id}
-                      className="listing-card"
-                      onClick={() => setSelectedListing(listing)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {/* Placeholder image */}
-                      <div className="listing-img-placeholder" aria-label={`Image for ${listing.name}`}>
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
-                          <rect x="3" y="3" width="18" height="18" rx="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                        <span className="placeholder-label">Add photo</span>
-                      </div>
-
-                      <div className="listing-info">
-                        <div className="listing-header">
-                          <span className="listing-name">{listing.name}</span>
-                          <span className="listing-price">₱{listing.price}.00</span>
-                        </div>
-                        <p className="listing-desc">{listing.description}</p>
-
-                        <div className="listing-meta">
-                          <div className="meta-row">
-                            <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#707973' }} />
-                            <span>Available: {listing.availableTime}</span>
+                {!loadingListings && !listingsError && listings.length > 0 && (
+                  <div className="listings-grid">
+                    {listings.map((item) => (
+                      <div
+                        key={item.foodID}
+                        className="listing-card"
+                        onClick={() => setSelectedListing(item)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {item.picture ? (
+                          <img
+                            className="listing-img-placeholder"
+                            src={item.picture}
+                            alt={item.foodName}
+                            style={{ objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <div className="listing-img-placeholder" aria-label={`Image for ${item.foodName}`}>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
+                              <rect x="3" y="3" width="18" height="18" rx="2" />
+                              <circle cx="8.5" cy="8.5" r="1.5" />
+                              <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                            <span className="placeholder-label">No photo</span>
                           </div>
-                          <div className="meta-row expiry">
-                            <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#BA1A1A' }} />
-                            <span>Expiration: {listing.expiration}</span>
+                        )}
+
+                        <div className="listing-info">
+                          <div className="listing-header">
+                            <span className="listing-name">{item.foodName}</span>
+                            <span className="listing-price">₱{Number(item.price).toFixed(2)}</span>
                           </div>
+                          <p className="listing-desc">{item.description ?? ''}</p>
+
+                          <div className="listing-meta">
+                            {item.stockQuantity > 0 ? (
+                              <div className="meta-row">
+                                <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#0F5238' }} />
+                                <span>{item.stockQuantity} available</span>
+                              </div>
+                            ) : (
+                              <div className="meta-row" style={{ color: '#BA1A1A' }}>
+                                <span>Out of stock</span>
+                              </div>
+                            )}
+                            {item.expirationDate && (
+                              <div className="meta-row expiry">
+                                <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#BA1A1A' }} />
+                                <span>Expiration: {formatExpiration(item.expirationDate)}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {item.isSafeForCurrentUser === false && (
+                            <div style={{ fontSize: 11, color: '#E65100', marginTop: 6, fontWeight: 600 }}>
+                              ⚠ Contains your allergens
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Right: Order panel */}
+            {/* Order panel */}
             <div className="order-panel">
               <div className="order-header">
                 <div className="order-header-row">
@@ -292,7 +293,9 @@ export default function ListingsFeed() {
                   <span className="order-title">My order</span>
                 </div>
                 <div className="order-subtitle">
-                  Rescuing from {new Set(orderItems.map(o => o.id)).size} store{orderItems.length !== 1 ? 's' : ''}
+                  {orderItems.length === 0
+                    ? 'No items yet'
+                    : `${orderItems.length} item${orderItems.length !== 1 ? 's' : ''}`}
                 </div>
               </div>
 
@@ -302,7 +305,6 @@ export default function ListingsFeed() {
                 ) : (
                   orderItems.map((item) => (
                     <div key={item.id} className="order-item">
-                      {/* Placeholder thumbnail */}
                       <div className="order-item-img" aria-label={item.name} />
                       <div className="order-item-info">
                         <span className="order-item-name">{item.name}</span>
@@ -326,22 +328,11 @@ export default function ListingsFeed() {
                   <span>Subtotal</span>
                   <span>{subtotal.toFixed(2)}</span>
                 </div>
-                {pickupLocations.length > 0 && (
-                  <div className="pickup-locations">
-                    <div className="pickup-label-row">
-                      <span className="icon-placeholder" style={{ width: 12, height: 14, background: '#0F5238' }} />
-                      <span className="pickup-label">Pickup Location{pickupLocations.length > 1 ? 's' : ''}</span>
-                    </div>
-                    {pickupLocations.map((loc) => (
-                      <span key={loc} className="pickup-address">{loc}</span>
-                    ))}
-                  </div>
-                )}
               </div>
 
               <div className="order-total">
                 <span className="total-label">Total</span>
-                <span className="total-amount">₱{total.toFixed(2)}</span>
+                <span className="total-amount">₱{subtotal.toFixed(2)}</span>
               </div>
 
               <div className="payment-row">
@@ -359,9 +350,8 @@ export default function ListingsFeed() {
 
               <button
                 className="confirm-btn"
-                onClick={() => {
-                  setShowSuccess(true)
-                }}
+                disabled={orderItems.length === 0}
+                onClick={() => setShowSuccess(true)}
               >
                 <span>Confirm Order</span>
                 <span className="icon-placeholder" style={{ width: 13, height: 13, background: 'white' }} />

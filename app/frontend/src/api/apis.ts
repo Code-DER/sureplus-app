@@ -63,4 +63,14 @@ export const socialImpactAPI = {
     getMyImpactSummary: () => api.get('/social-impact/summary'),
 };
 
+export const foodAPI = {
+  list: (params?: {
+    safe_for_me?: boolean;
+    edible_only?: boolean;
+    include_expired?: boolean;
+    seller_id?: string;
+  }) => api.get('/products/', { params }),
+  get: (foodId: string) => api.get(`/products/${foodId}`),
+};
+
 export default api;
