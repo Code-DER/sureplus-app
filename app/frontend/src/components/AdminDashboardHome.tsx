@@ -1,4 +1,4 @@
-import React from 'react';
+// No imports needed from react if not using hooks/types
 
 const ACTIVITIES = [
   {

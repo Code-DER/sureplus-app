@@ -32,11 +32,35 @@ export const userAPI = {
     getMyProfile: () => api.get('/users/myprofile'),
     getMyBuyerProfile: () => api.get('/buyers/me'),
     getMySellerProfile: () => api.get('/sellers/me'),
+    updateMyProfile: (profileData: Record<string, unknown>) => api.patch('/users/update', profileData),
+    updateMySellerProfile: (sellerData: Record<string, unknown>) => api.patch('/sellers/update', sellerData),
+    changeMyPassword: (passwordData: Record<string, unknown>) => api.post('/users/change-password', passwordData),
+    upgradeToSeller: (sellerData: Record<string, unknown>) => api.post('/users/upgrade', sellerData),
+};
+
+// Charity API functions
+export const charityAPI = {
+    getAllCharities: () => api.get('/charities/list'),
+    getMyCharityProfile: () => api.get('/charities/myprofile'),
+    getCharityById: (userId: string) => api.get(`/charities/${userId}`),
+    updateMyCharityProfile: (data: { organizationName: string }) => api.put('/charities/myprofile', data),
+};
+
+// Charity Post API functions
+export const charityPostAPI = {
+    getAllPosts: () => api.get('/charity-posts/'),
+    getPostsByUser: (userId: string) => api.get(`/charity-posts/by-user/${userId}`),
+    getPostById: (charityId: string) => api.get(`/charity-posts/${charityId}`),
+    createPost: (data: { title: string, description?: string, amountNeeded: number }) => api.post('/charity-posts/', data),
+    updatePost: (charityId: string, data: Partial<{ title: string, description: string, amountNeeded: number }>) => api.put(`/charity-posts/${charityId}`, data),
+    deletePost: (charityId: string) => api.delete(`/charity-posts/${charityId}`),
+    donateToPost: (charityId: string, amount: number) => api.post(`/charity-posts/${charityId}/donate`, { amount }),
+};
+
+// Social Impact API functions
+export const socialImpactAPI = {
+    getImpactByPurchase: (purchaseId: string) => api.get(`/social-impact/purchase/${purchaseId}`),
     getMyImpactSummary: () => api.get('/social-impact/summary'),
-    updateMyProfile: (profileData: Record<string, any>) => api.patch('/users/update', profileData),
-    updateMySellerProfile: (sellerData: Record<string, any>) => api.patch('/sellers/update', sellerData),
-    changeMyPassword: (passwordData: Record<string, any>) => api.post('/users/change-password', passwordData),
-    upgradeToSeller: (sellerData: Record<string, any>) => api.post('/users/upgrade', sellerData),
 };
 
 export default api;

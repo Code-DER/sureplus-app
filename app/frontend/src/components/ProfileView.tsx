@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import './ProfileView.css';
 import EditProfileView from './EditProfileView';
-import { userAPI } from '../api/apis';
+import { userAPI, charityAPI, socialImpactAPI } from '../api/apis';
 
 const SELLER_TYPES = ['Individual', 'Business', 'Distributor', 'Restaurant', 'Bakery'];
 
@@ -31,6 +31,11 @@ interface SellerProfile {
   companyName: string;
 }
 
+interface CharityProfile {
+  userID: string;
+  organizationName: string;
+}
+
 interface SocialImpactSummary {
   totalCarbonOffset: number;
   totalRescuedKilos: number;
@@ -38,15 +43,12 @@ interface SocialImpactSummary {
   purchaseCount: number;
 }
 
-interface ProfileViewProps {
-  onSwitchRole: (role: 'buyer' | 'seller' | 'admin') => void;
-}
-
-export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
+export default function ProfileView() {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [buyerProfile, setBuyerProfile] = useState<BuyerProfile | null>(null);
   const [sellerProfile, setSellerProfile] = useState<SellerProfile | null>(null);
+  const [charityProfile, setCharityProfile] = useState<CharityProfile | null>(null);
   const [impactSummary, setImpactSummary] = useState<SocialImpactSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [showSellerModal, setShowSellerModal] = useState(false);
@@ -64,7 +66,6 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
     }
 
     try {
-      setLoading(true);
       const profileResponse = await userAPI.getMyProfile();
       const userData = profileResponse.data;
       setProfile(userData);
@@ -89,13 +90,20 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
               setSellerProfile(null);
             })
         );
+      } else if (userData.role === 'charity') {
+        fetchPromises.push(
+          charityAPI.getMyCharityProfile()
+            .then(res => setCharityProfile(res.data))
+            .catch(() => setCharityProfile(null))
+        );
       } else {
         setBuyerProfile(null);
         setSellerProfile(null);
+        setCharityProfile(null);
       }
 
       fetchPromises.push(
-        userAPI.getMyImpactSummary()
+        socialImpactAPI.getMyImpactSummary()
           .then(response => setImpactSummary(response.data))
           .catch(error => {
             console.log('Impact summary not found:', error);
@@ -112,7 +120,10 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
   }, []);
 
   useEffect(() => {
-    fetchProfileData();
+    const init = async () => {
+      await fetchProfileData();
+    };
+    init();
   }, [fetchProfileData]);
 
   const handleProfileSaved = async () => {
@@ -134,8 +145,9 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
       await fetchProfileData();
       setSellerSuccess(true);
       setSellerForm({ sellerType: '', companyName: '' });
-    } catch (err: any) {
-      setSellerError(err.response?.data?.detail || 'Failed to upgrade. Please try again.');
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setSellerError(error.response?.data?.detail || 'Failed to upgrade. Please try again.');
     } finally {
       setSellerSubmitting(false);
     }
@@ -149,6 +161,7 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
       <EditProfileView
         profile={profile}
         sellerProfile={sellerProfile}
+        charityProfile={charityProfile}
         role={profile.role}
         onBack={() => setIsEditing(false)}
         onSave={handleProfileSaved}
@@ -218,6 +231,17 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
                     Verified
                   </span>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {profile.role === 'charity' && charityProfile && (
+          <div className="charity-info-card">
+            <div className="seller-header">
+              <h4>{charityProfile.organizationName}</h4>
+              <div className="seller-badges">
+                <span className="seller-type-badge">Charity</span>
               </div>
             </div>
           </div>
@@ -403,4 +427,3 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
     </div>
   );
 }
-

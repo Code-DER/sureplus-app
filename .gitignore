@@ -10,6 +10,9 @@ agent/
 dump/
 learn/
 puller-out/
+pyrightconfig.json
+repomix-output.xml
+repomix.config.json
 .california-agentic/
 
 # Environment and secrets
@@ -18,6 +21,7 @@ puller-out/
 !.env.example
 !.env.sample
 **/.venv/
+.python-version
 
 # Python
 __pycache__/

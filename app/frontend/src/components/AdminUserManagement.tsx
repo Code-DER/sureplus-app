@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './AdminUserManagement.css';
 
 const USERS_PER_PAGE = 10;

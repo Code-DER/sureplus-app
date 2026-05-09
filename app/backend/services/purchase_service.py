@@ -1,4 +1,4 @@
-from database import supabase
+from database import supabase_admin
 from services import social_impact_service
 
 def create_purchase(data):
@@ -9,7 +9,7 @@ def create_purchase(data):
     items = []
 
     for item in data["items"]:
-        food_res = supabase.table("Food") \
+        food_res = supabase_admin.table("Food") \
             .select("price, stockQuantity") \
             .eq("foodID", item["foodID"]) \
             .execute()
@@ -37,12 +37,12 @@ def create_purchase(data):
 
         # Update stock
         new_stock = stock - item["quantity"]
-        supabase.table("Food").update({
+        supabase_admin.table("Food").update({
             "stockQuantity": new_stock
         }).eq("foodID", item["foodID"]).execute()
 
     # Insert info to purchase table (Default Status: pending)
-    purchase = supabase.table("Purchase").insert({
+    purchase = supabase_admin.table("Purchase").insert({
         "userID": data["userID"],
         "paymentMethod": data["paymentMethod"],
         "totalPrice": total,
@@ -54,13 +54,13 @@ def create_purchase(data):
     # Insert PurchaseItems
     for i in items:
         i["purchaseID"] = purchase_id
-        supabase.table("PurchaseItems").insert(i).execute()
+        supabase_admin.table("PurchaseItems").insert(i).execute()
 
     return purchase.data[0]
 
 def complete_purchase(purchase_id):
     # Get purchase info
-    purchase_res = supabase.table("Purchase") \
+    purchase_res = supabase_admin.table("Purchase") \
         .select("userID, totalPrice, status") \
         .eq("purchaseID", purchase_id) \
         .single() \
@@ -76,7 +76,7 @@ def complete_purchase(purchase_id):
         raise Exception("Purchase already completed")
 
     # Update status to completed
-    supabase.table("Purchase").update({
+    supabase_admin.table("Purchase").update({
         "status": "completed"
     }).eq("purchaseID", purchase_id).execute()
 
@@ -85,7 +85,7 @@ def complete_purchase(purchase_id):
     points_earned = int(total // 10)
 
     # Get current points
-    buyer_res = supabase.table("Buyer") \
+    buyer_res = supabase_admin.table("Buyer") \
         .select("points") \
         .eq("userID", purchase["userID"]) \
         .single() \
@@ -94,7 +94,7 @@ def complete_purchase(purchase_id):
     current_points = float(buyer_res.data.get("points", 0))
 
     # Update points
-    supabase.table("Buyer").update({
+    supabase_admin.table("Buyer").update({
         "points": current_points + points_earned
     }).eq("userID", purchase["userID"]).execute()
 
@@ -105,7 +105,7 @@ def complete_purchase(purchase_id):
 
 def get_seller_purchase_list(seller_id):
     # Get seller's food
-    foods_res = supabase.table("Food") \
+    foods_res = supabase_admin.table("Food") \
         .select("foodID") \
         .eq("userID", seller_id) \
         .execute()
@@ -116,7 +116,7 @@ def get_seller_purchase_list(seller_id):
         return []
     
     # Get purchase items
-    items_res = supabase.table("PurchaseItems") \
+    items_res = supabase_admin.table("PurchaseItems") \
         .select("purchaseID") \
         .in_("foodID", food_ids) \
         .execute()
@@ -127,7 +127,7 @@ def get_seller_purchase_list(seller_id):
         return []
     
     # Get purchases
-    purchases_res = supabase.table("Purchase") \
+    purchases_res = supabase_admin.table("Purchase") \
         .select("*") \
         .in_("purchaseID", purchase_ids) \
         .execute()
@@ -138,7 +138,7 @@ def complete_purchase(purchase_id: str):
     """
     Mark a purchase as completed and trigger social impact calculation.
     """
-    response = supabase.table("Purchase") \
+    response = supabase_admin.table("Purchase") \
         .update({"status": "completed"}) \
         .eq("purchaseID", purchase_id) \
         .execute()

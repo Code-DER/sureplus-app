@@ -1,5 +1,11 @@
 import { useState } from 'react'
 import './HistoryView.css'
+import { socialImpactAPI } from '../api/apis'
+
+// TODO (blocked by purchase list integration, out of scope):
+// Replace MOCK_HISTORY with real purchases from the purchases API.
+// Once real purchaseIDs are available, the socialImpactAPI calls in
+// handleSelectOrder will resolve correctly.
 
 interface PurchasedItem {
   id: string
@@ -23,6 +29,15 @@ interface OrderHistory {
   paymentMethod: string
   items: PurchasedItem[]
 }
+
+interface SocialImpactRecord {
+  impactID: string;
+  purchaseID: string;
+  carbonOffset: number;
+  rescuedKilos: number;
+  peopleFed: number;
+}
+
 
 const MOCK_HISTORY: OrderHistory[] = [
   {
@@ -84,8 +99,21 @@ const MOCK_HISTORY: OrderHistory[] = [
 
 export default function HistoryView() {
   const [selectedOrder, setSelectedOrder] = useState<OrderHistory>(MOCK_HISTORY[0])
+  const [purchaseImpacts, setPurchaseImpacts] = useState<Record<string, SocialImpactRecord>>({});
   const [reviewRating, setReviewRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
+
+  const handleSelectOrder = async (order: OrderHistory) => {
+    setSelectedOrder(order);
+    if (!purchaseImpacts[order.id]) {
+      try {
+        const res = await socialImpactAPI.getImpactByPurchase(order.id);
+        setPurchaseImpacts((prev) => ({ ...prev, [order.id]: res.data }));
+      } catch {
+        // Impact not found for this purchase — fail silently
+      }
+    }
+  };
 
   return (
     <div className="history-view">
@@ -105,7 +133,7 @@ export default function HistoryView() {
             <div 
               key={order.id} 
               className={`history-card ${selectedOrder.id === order.id ? 'active' : ''}`}
-              onClick={() => setSelectedOrder(order)}
+              onClick={() => handleSelectOrder(order)}
             >
               <div className="history-card-top">
                 <span className="history-date">{order.dateStr}</span>
@@ -162,7 +190,9 @@ export default function HistoryView() {
           </div>
           <div className="stat-col">
             <label>CO2 OFFSET</label>
-            <span className="stat-val co2-val">{selectedOrder.co2} kg</span>
+            <span className="stat-val co2-val">
+              {purchaseImpacts[selectedOrder.id]?.carbonOffset.toFixed(2) ?? selectedOrder.co2} kg
+            </span>
           </div>
         </div>
 

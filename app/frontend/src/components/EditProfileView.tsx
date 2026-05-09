@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './EditProfileView.css';
-import { userAPI } from '../api/apis';
+import { userAPI, charityAPI } from '../api/apis';
 
 interface UserProfile {
   userID: string;
@@ -22,15 +22,21 @@ interface SellerProfile {
   companyName: string;
 }
 
+interface CharityProfile {
+  userID: string;
+  organizationName: string;
+}
+
 interface EditProfileViewProps {
   profile: UserProfile
   sellerProfile: SellerProfile | null;
+  charityProfile: CharityProfile | null;
   role: string;
   onBack: () => void;
   onSave: () => Promise<void>;
 }
 
-export default function EditProfileView({ profile, sellerProfile, role, onBack, onSave }: EditProfileViewProps) {
+export default function EditProfileView({ profile, sellerProfile, charityProfile, role, onBack, onSave }: EditProfileViewProps) {
   const [formData, setFormData] = useState({
     firstName: profile.firstName,
     lastName: profile.lastName,
@@ -42,6 +48,7 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
   });
   const [companyName, setCompanyName] = useState(sellerProfile?.companyName || '');
   const [sellerType, setSellerType] = useState(sellerProfile?.sellerType || '');
+  const [organizationName, setOrganizationName] = useState(charityProfile?.organizationName || '');
   const [isPasswordExpanded, setIsPasswordExpanded] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -107,8 +114,15 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
         }
       }
 
+      if (role === 'charity') {
+        if (organizationName !== charityProfile?.organizationName) {
+          await charityAPI.updateMyCharityProfile({ organizationName });
+        }
+      }
+
       await onSave();
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } }, message?: string };
       console.error('Error saving profile:', error);
       setErrorMessage(error?.response?.data?.detail || error?.message || 'Failed to update profile. Please try again.');
     } finally {
@@ -256,6 +270,22 @@ export default function EditProfileView({ profile, sellerProfile, role, onBack, 
                       onChange={(event) => setSellerType(event.target.value)}
                     />
                   </div>
+                </div>
+              </>
+            )}
+
+            {role === 'charity' && (
+              <>
+                <hr className="divider" />
+                <h2>Charity Profile</h2>
+                <div className="form-group">
+                  <label>Organization Name</label>
+                  <input
+                    type="text"
+                    name="organizationName"
+                    value={organizationName}
+                    onChange={(e) => setOrganizationName(e.target.value)}
+                  />
                 </div>
               </>
             )}
