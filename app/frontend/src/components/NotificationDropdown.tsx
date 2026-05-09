@@ -13,33 +13,33 @@ interface Notification {
   link?: string
 }
 
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: 1,
-    type: 'new_listing',
-    text: 'Nanami walang damit at ',
-    highlight: 'Le Petit Bistro',
-    time: '2m ago',
-    unread: true,
-  },
-  {
-    id: 2,
-    type: 'deal',
-    text: '50% off all ',
-    highlight: 'Surplus Veggie Bundles',
-    time: '1h ago',
-    unread: true,
-  },
-  {
-    id: 3,
-    type: 'order_complete',
-    text: 'Rescue from ',
-    highlight: 'Kali Market Central',
-    time: '',
-    unread: false,
-    meta: '2.4kg CO₂ saved',
-  },
-]
+// const MOCK_NOTIFICATIONS: Notification[] = [
+//   {
+//     id: 1,
+//     type: 'new_listing',
+//     text: 'Nanami walang damit at ',
+//     highlight: 'Le Petit Bistro',
+//     time: '2m ago',
+//     unread: true,
+//   },
+//   {
+//     id: 2,
+//     type: 'deal',
+//     text: '50% off all ',
+//     highlight: 'Surplus Veggie Bundles',
+//     time: '1h ago',
+//     unread: true,
+//   },
+//   {
+//     id: 3,
+//     type: 'order_complete',
+//     text: 'Rescue from ',
+//     highlight: 'Kali Market Central',
+//     time: '',
+//     unread: false,
+//     meta: '2.4kg CO₂ saved',
+//   },
+// ]
 
 const TYPE_CONFIG: Record<Notification['type'], { label: string; iconColor: string; iconBg: string }> = {
   new_listing: { label: 'New Listing:', iconColor: '#0F5238', iconBg: 'green' },
@@ -165,7 +165,7 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
         {/* Footer */}
         <div className="notif-footer">
           <button className="notif-see-all" onClick={onClose}>
-            See all notifications
+            Close
           </button>
         </div>
       </div>
