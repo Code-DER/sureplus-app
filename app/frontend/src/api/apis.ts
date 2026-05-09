@@ -65,7 +65,7 @@ export const socialImpactAPI = {
 
 // Notifications API functions
 export const notificationsAPI = {
-    getMyNotifications: () => api.post('/notifications/list'),
+    getMyNotifications: () => api.get('/notifications/list'),
     markNotificationAsRead: (notificationId: string) => api.patch(`/notifications/${notificationId}/read`),
     markAllNotificationsAsRead: () => api.patch('/notifications/read-all'),
 };

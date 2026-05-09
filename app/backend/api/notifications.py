@@ -6,7 +6,7 @@ from uuid import UUID
 router = APIRouter()
 
 # Endpoint to fetch the notifications of the logged in user
-@router.post("/list")
+@router.get("/list")
 async def get_my_notifications(current_user: dict = Depends(get_current_user)):
     # Fetch notifications for the current user ordered by createdAt
     response = supabase_admin.table("Notifications").select("*").eq("userID", current_user["userID"]).order("createdAt", desc=True).execute()
