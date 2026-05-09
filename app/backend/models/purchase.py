@@ -12,10 +12,8 @@ class PurchaseItemCreate(BaseModel):
 
 class PurchaseBase(BaseModel):
     paymentMethod: Literal["Cash" , "Online Payment"] = "Cash"
-    status: Literal["pending", "completed", "cancelled", "refunded"] = "pending"
 
 class PurchaseCreate(PurchaseBase):
-    userID: UUID
     items: List[PurchaseItemCreate]
     
 class PurchaseResponse(PurchaseBase):
