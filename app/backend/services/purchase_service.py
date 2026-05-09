@@ -88,6 +88,14 @@ def complete_purchase(purchase_id: str):
     # Prevent duplicate completion
     if purchase["status"] == "completed":
         return {"message": "Already completed"}
+    
+    # Update status to completed
+    supabase.table("Purchase").update({
+        "status": "completed"
+    }).eq("purchaseID", purchase_id).execute()
+
+    # Hook into Social Impact
+    social_impact_service.create_impact(purchase_id)
 
     # Update status
     supabase_admin.table("Purchase") \
@@ -109,7 +117,7 @@ def complete_purchase(purchase_id: str):
         .single() \
         .execute()
 
-    current_points = float(buyer_res.data.get("points", 0))
+    current_points = float(buyer_res.data[0].get("points", 0))
 
     # Update buyer points
     supabase_admin.table("Buyer") \
