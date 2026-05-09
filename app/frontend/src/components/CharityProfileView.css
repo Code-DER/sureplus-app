@@ -1,0 +1,115 @@
+.charity-profile-view {
+  background: #F2F4F0;
+  min-height: 100vh;
+}
+
+.charity-profile-hero {
+  background: #0F5238;
+  padding: 64px 48px;
+  color: white;
+}
+
+.profile-hero-content {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.charity-logo-large {
+  width: 120px;
+  height: 120px;
+  background: white;
+  color: #0F5238;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 800;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+}
+
+.charity-info-text h1 {
+  margin: 0 0 12px 0;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.charity-meta {
+  display: flex;
+  gap: 24px;
+  margin: 0;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.charity-posts-section {
+  padding: 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.section-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.section-header p {
+  margin: 0;
+  font-size: 1rem;
+  color: #6B7280;
+}
+
+.charity-posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.charity-profile-loading, .charity-profile-error {
+  height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #E5E7EB;
+  border-top-color: #0F5238;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.charity-profile-error p {
+  color: #BA1A1A;
+  font-weight: 600;
+}
+
+.empty-state {
+  background: white;
+  padding: 48px;
+  border-radius: 16px;
+  text-align: center;
+  color: #6B7280;
+  border: 2px dashed #D1D5DB;
+}

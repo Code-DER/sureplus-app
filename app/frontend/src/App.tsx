@@ -2,6 +2,7 @@ import { useState } from 'react'
 import ListingsFeed from './components/ListingsFeed'
 import SellerDashboard from './components/SellerDashboard'
 import AdminDashboard from './components/AdminDashboard'
+import CharityDashboard from './components/CharityDashboard'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import './index.css'
@@ -12,7 +13,7 @@ interface SureplusJwtPayload extends JwtPayload {
   role: string;
 }
 
-export const getAuthUser = () => {
+const getAuthUser = () => {
   const token = localStorage.getItem("token");
   if (!token) {
     return null;
@@ -21,7 +22,7 @@ export const getAuthUser = () => {
   try {
     const decoded = jwtDecode<SureplusJwtPayload>(token);
     return decoded;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -32,7 +33,7 @@ function App() {
   });
 
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
-  const [view, setView] = useState<'buyer' | 'seller' | 'admin'>('buyer')
+  const [view, setView] = useState<'buyer' | 'seller' | 'admin' | 'charity'>('buyer')
   // const [message, setMessage] = useState("");
 
   // useEffect(() => {
@@ -43,6 +44,7 @@ function App() {
 
   const user = getAuthUser();
   const isSeller = user?.role === 'seller';
+  const isCharity = user?.role === 'charity';
 
   if (!isAuthenticated) {
     if (authView === 'signup') {
@@ -69,34 +71,40 @@ function App() {
     return <AdminDashboard onSwitchRole={() => setView('buyer')} />
   }
 
+  if (view === 'charity' && isCharity) {
+    return <CharityDashboard onSwitchRole={() => setView('buyer')} />
+  }
+
   return (
     <>
-      <ListingsFeed onSwitchRole={setView} />
+      <ListingsFeed />
       {/* Temporary developer button to toggle views since accounts are unified */}
-      {isSeller ? (
-        <button 
-          onClick={() => setView('seller')}
-          style={{
-            position: 'fixed', bottom: 20, right: 20, zIndex: 9999, 
-            background: '#0F5238', color: 'white', border: 'none', 
-            padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
-            fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-          }}
-        >
-          Open Seller Dashboard
-        </button>) : (
-        <button
-          onClick={() => alert("Function unavailable...")}
-          style={{ 
-            position: 'fixed', bottom: 20, right: 20, zIndex: 9999, 
-            background: '#0F5238', color: 'white', border: 'none', 
-            padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
-            fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
-          }}
-        >
-          Become a Seller
-        </button>
-      )}
+      <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {isSeller && (
+          <button 
+            onClick={() => setView('seller')}
+            style={{
+              background: '#0F5238', color: 'white', border: 'none', 
+              padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
+              fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            }}
+          >
+            Open Seller Dashboard
+          </button>
+        )}
+        {isCharity && (
+          <button 
+            onClick={() => setView('charity')}
+            style={{
+              background: '#0F5238', color: 'white', border: 'none', 
+              padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
+              fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            }}
+          >
+            Open Charity Dashboard
+          </button>
+        )}
+      </div>
     </>
   )
 }

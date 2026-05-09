@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import './ProfileView.css';
 import EditProfileView from './EditProfileView';
-import { userAPI } from '../api/apis';
+import { userAPI, charityAPI, socialImpactAPI } from '../api/apis';
+
+const SELLER_TYPES = ['Individual', 'Business', 'Distributor', 'Restaurant', 'Bakery'];
 
 
 interface UserProfile {
@@ -29,6 +31,11 @@ interface SellerProfile {
   companyName: string;
 }
 
+interface CharityProfile {
+  userID: string;
+  organizationName: string;
+}
+
 interface SocialImpactSummary {
   totalCarbonOffset: number;
   totalRescuedKilos: number;
@@ -36,17 +43,19 @@ interface SocialImpactSummary {
   purchaseCount: number;
 }
 
-interface ProfileViewProps {
-  onSwitchRole: (role: 'buyer' | 'seller' | 'admin') => void;
-}
-
-export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
+export default function ProfileView() {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [buyerProfile, setBuyerProfile] = useState<BuyerProfile | null>(null);
   const [sellerProfile, setSellerProfile] = useState<SellerProfile | null>(null);
+  const [charityProfile, setCharityProfile] = useState<CharityProfile | null>(null);
   const [impactSummary, setImpactSummary] = useState<SocialImpactSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSellerModal, setShowSellerModal] = useState(false);
+  const [sellerForm, setSellerForm] = useState({ sellerType: '', companyName: '' });
+  const [sellerSubmitting, setSellerSubmitting] = useState(false);
+  const [sellerError, setSellerError] = useState('');
+  const [sellerSuccess, setSellerSuccess] = useState(false);
 
   const fetchProfileData = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -57,7 +66,6 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
     }
 
     try {
-      setLoading(true);
       const profileResponse = await userAPI.getMyProfile();
       const userData = profileResponse.data;
       setProfile(userData);
@@ -82,13 +90,20 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
               setSellerProfile(null);
             })
         );
+      } else if (userData.role === 'charity') {
+        fetchPromises.push(
+          charityAPI.getMyCharityProfile()
+            .then(res => setCharityProfile(res.data))
+            .catch(() => setCharityProfile(null))
+        );
       } else {
         setBuyerProfile(null);
         setSellerProfile(null);
+        setCharityProfile(null);
       }
 
       fetchPromises.push(
-        userAPI.getMyImpactSummary()
+        socialImpactAPI.getMyImpactSummary()
           .then(response => setImpactSummary(response.data))
           .catch(error => {
             console.log('Impact summary not found:', error);
@@ -105,12 +120,37 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
   }, []);
 
   useEffect(() => {
-    fetchProfileData();
+    const init = async () => {
+      await fetchProfileData();
+    };
+    init();
   }, [fetchProfileData]);
 
   const handleProfileSaved = async () => {
     await fetchProfileData();
     setIsEditing(false);
+  };
+
+  const handleUpgradeToSeller = async () => {
+    setSellerError('');
+    if (!sellerForm.sellerType) { setSellerError('Please select a seller type.'); return; }
+    if (!sellerForm.companyName.trim()) { setSellerError('Please enter a company / trade name.'); return; }
+
+    setSellerSubmitting(true);
+    try {
+      await userAPI.upgradeToSeller({
+        sellerType: sellerForm.sellerType.toLowerCase(),
+        companyName: sellerForm.companyName,
+      });
+      await fetchProfileData();
+      setSellerSuccess(true);
+      setSellerForm({ sellerType: '', companyName: '' });
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setSellerError(error.response?.data?.detail || 'Failed to upgrade. Please try again.');
+    } finally {
+      setSellerSubmitting(false);
+    }
   };
 
   if (loading) return <p>Loading profile...</p>
@@ -121,6 +161,7 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
       <EditProfileView
         profile={profile}
         sellerProfile={sellerProfile}
+        charityProfile={charityProfile}
         role={profile.role}
         onBack={() => setIsEditing(false)}
         onSave={handleProfileSaved}
@@ -151,11 +192,7 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
             </span>
           </div>
           
-          {/* NO ENDPOINT YET */}
           <button className="btn-edit-profile" onClick={() => setIsEditing(true)}>Edit Profile</button>
-          <button className="btn-edit-profile" style={{marginTop: '8px', background: '#F0F2F5', color: '#191C1A', border: '1px solid #E9ECEF'}} onClick={() => onSwitchRole('admin')}>
-            View as Admin
-          </button>
         </div>
 
         {/* Rescuer Impact Card */}
@@ -194,6 +231,17 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
                     Verified
                   </span>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {profile.role === 'charity' && charityProfile && (
+          <div className="charity-info-card">
+            <div className="seller-header">
+              <h4>{charityProfile.organizationName}</h4>
+              <div className="seller-badges">
+                <span className="seller-type-badge">Charity</span>
               </div>
             </div>
           </div>
@@ -261,29 +309,106 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
           </div>
         </div>
 
-        {/* NO ENDPOINT YET */}
-        {/* Settings Row */}
-        {/* <div className="profile-settings-row">
-          <div className="settings-box">
-            <div className="settings-icon-bg">
-              <span className="icon-placeholder bell-icon-green"></span>
-            </div>
-            <div className="settings-info">
-              <h4>Notifications</h4>
-              <p>Manage alerts and news</p>
-            </div>
-          </div>
-          
-          <div className="settings-box">
-            <div className="settings-icon-bg">
-              <span className="icon-placeholder shield-icon-green"></span>
-            </div>
-            <div className="settings-info">
-              <h4>Privacy & Security</h4>
-              <p>Password and data</p>
+        {/* Become a Seller Row */}
+        {profile.role === 'buyer' && (
+          <div className="profile-settings-row">
+            <div className="settings-box" style={{ cursor: 'pointer' }} onClick={() => {
+              setSellerForm({ sellerType: '', companyName: ''});
+              setShowSellerModal(true);
+              setSellerError('');
+              setSellerSuccess(false);
+            }}>
+              <div className="settings-icon-bg" style={{ background: '#FFF3EA' }}>
+                <span className="icon-placeholder bell-icon-green" style={{ background: '#FE6B00' }}></span>
+              </div>
+              <div className="settings-info">
+                <h4>Become a Seller</h4>
+                <p>Start listing surplus food</p>
+              </div>
+              <span style={{ marginLeft: 'auto', color: '#707973', fontSize: '18px' }}>›</span>
             </div>
           </div>
-        </div> */}
+        )}
+
+        {/* Seller Upgrade Modal */}
+        {showSellerModal && (
+          <div className="seller-modal-overlay" onClick={() => {
+            if (!sellerSuccess) {
+              setShowSellerModal(false);
+              setSellerForm({ sellerType: '', companyName: '' });
+              setSellerError('');
+            }
+          }}>
+            <div className="seller-modal" onClick={(e) => e.stopPropagation()}>
+              {sellerSuccess ? (
+                <>
+                  <div className="seller-modal-success">
+                    <div className="seller-modal-success-icon">✓</div>
+                    <h3>You're now a Seller!</h3>
+                    <p>Please log in again for your new role to take effect.</p>
+                  </div>
+                  <button
+                    className="btn-seller-submit"
+                    style={{ marginTop: '24px', width: '100%' }}
+                    onClick={() => { localStorage.clear(); window.location.href = '/'; }}
+                  >
+                    Log In Again
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="seller-modal-header">
+                    <h3>Become a Seller</h3>
+                    <button className="seller-modal-close" onClick={() => setShowSellerModal(false)}>×</button>
+                  </div>
+                  <p className="seller-modal-desc">Fill in your seller details to start listing food items on SurePlus.</p>
+
+                  {sellerError && <div className="seller-modal-error">{sellerError}</div>}
+
+                  <div className="seller-modal-field">
+                    <label>Seller Type</label>
+                    <div className="seller-select-wrapper">
+                      <select
+                        value={sellerForm.sellerType}
+                        onChange={(e) => setSellerForm(prev => ({ ...prev, sellerType: e.target.value }))}
+                      >
+                        <option value="">Select type...</option>
+                        {SELLER_TYPES.map(t => (
+                          <option key={t} value={t.toLowerCase()}>{t}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="seller-modal-field">
+                    <label>Company / Trade Name</label>
+                    <div className="seller-input-wrapper">
+                      <input
+                        type="text"
+                        placeholder="e.g. Harvest Bakery"
+                        value={sellerForm.companyName}
+                        onChange={(e) => setSellerForm(prev => ({ ...prev, companyName: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="seller-modal-footer">
+                    <button className="btn-seller-cancel" onClick={() => {
+                      setShowSellerModal(false);
+                      setSellerForm({ sellerType: '', companyName: '' });
+                      setSellerError('');
+                    }}>
+                      Cancel
+                    </button>
+                    <button className="btn-seller-submit" onClick={handleUpgradeToSeller} disabled={sellerSubmitting}>
+                      {sellerSubmitting ? 'Submitting...' : 'Become a Seller'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Logout Row */}
         <div className="profile-logout-row">
@@ -302,4 +427,3 @@ export default function ProfileView({ onSwitchRole }: ProfileViewProps) {
     </div>
   );
 }
-

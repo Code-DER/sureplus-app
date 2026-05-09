@@ -5,7 +5,7 @@ from typing import List
 from models.social_impact import SocialImpactResponse, SocialImpactSummary
 from services import social_impact_service
 from api.dependency import get_current_user
-from database import supabase
+from database import supabase_admin
 
 router = APIRouter()
 
@@ -19,7 +19,7 @@ async def get_impact_by_purchase(
     Ownership check: only the buyer of the purchase can see its impact.
     """
     # Ownership check
-    purchase_response = supabase.table("Purchase") \
+    purchase_response = supabase_admin.table("Purchase") \
         .select("userID") \
         .eq("purchaseID", str(purchase_id)) \
         .single() \

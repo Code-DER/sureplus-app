@@ -7,6 +7,8 @@ from api.auth import router as auth_router
 from api.products import router as products_router
 from api.safety import router as safety_router
 from api.notifications import router as notifications_router
+from api.purchases import router as purchases_router
+from api.ratings import router as ratings_router
 from api.charity_applications import router as charity_applications_router
 from api.charities import router as charities_router
 from api.charity_posts import router as charity_posts_router
@@ -36,6 +38,8 @@ app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(products_router, prefix="/products", tags=["Products"])
 app.include_router(safety_router, prefix="/safety", tags=["Safety"])
 app.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
+app.include_router(purchases_router, prefix="/purchases", tags=["Purchases"])
+app.include_router(ratings_router, prefix="/ratings", tags=["Ratings"])
 app.include_router(charity_applications_router, prefix="/charity-applications", tags=["Charity Applications"])
 app.include_router(charities_router, prefix="/charities", tags=["Charities"])
 app.include_router(charity_posts_router, prefix="/charity-posts", tags=["Charity Posts"])

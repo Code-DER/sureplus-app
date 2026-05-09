@@ -1,0 +1,189 @@
+.social-impact-view {
+  padding: 32px 48px;
+  background-color: #F9FAFB;
+  min-height: calc(100vh - 150px);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.impact-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111827;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.impact-header p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #6B7280;
+}
+
+.impact-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.impact-empty-state {
+  background: white;
+  padding: 80px 32px;
+  border-radius: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  border: 2px dashed #E5E7EB;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.empty-icon {
+  font-size: 4rem;
+}
+
+.impact-empty-state h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.impact-empty-state p {
+  margin: 0;
+  color: #6B7280;
+  line-height: 1.6;
+}
+
+.browse-btn {
+  padding: 12px 32px;
+  background-color: #0F5238;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.browse-btn:hover {
+  transform: translateY(-2px);
+  background-color: #0D4731;
+}
+
+.impact-loading, .impact-error {
+  height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.impact-error p {
+  color: #BA1A1A;
+  font-weight: 600;
+}
+
+.impact-error button {
+  padding: 8px 24px;
+  background-color: #0F5238;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Stat Card Styles (copied from AdminDashboard.css for consistency) */
+.admin-stat-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.admin-stat-card.dark {
+  background: #2D6A4F;
+  border: none;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+}
+
+.admin-stat-card.dark .stat-icon-wrapper {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #FFFFFF;
+}
+
+.stat-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #ECFDF5;
+  border: 1px solid #D1FAE5;
+  border-radius: 4px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #047857;
+}
+
+.stat-badge.highlight {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+}
+
+.stat-label {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0 0 4px 0;
+}
+
+.admin-stat-card.dark .stat-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.stat-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.admin-stat-card.dark .stat-value {
+  color: #FFFFFF;
+}

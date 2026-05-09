@@ -1,3 +1,6 @@
+from pydantic import BaseModel
+from typing import List
+
 """
 Models for purchase transactions.
 """
@@ -8,8 +11,9 @@ from datetime import datetime
 from typing import Optional, List, Literal
 
 class PurchaseBase(BaseModel):
-    paymentMethod: Optional[str] = None
-    totalPrice: float
+    foodID: str
+    quantity: int
+    paymentMethod: Literal["Cash" , "Online Payment"] = "Cash"
     status: Literal["pending", "completed", "cancelled", "refunded"] = "pending"
 
 class PurchaseCreate(PurchaseBase):
