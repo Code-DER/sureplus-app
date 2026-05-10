@@ -3,7 +3,7 @@
 ## Adaptation and Transparency Notice
 
 This is an independent community policy for this repository.
-It is adapted from publicly available University of the Philippines (UP) documents, including the UP Quality Policy and the UP Statement of the Philosophy of Education and Graduate Attributes (approved November 28, 2019), to embody their spirit in an open-source context.
+It is adapted from publicly available University of the Philippines (UP) documents, including the UP Quality Policy and the UP Statement of the Philosophy of Education and Graduate Attributes (approved November 28, 2019), to embody their spirit in this project context.
 This adaptation does not imply UP affiliation, adoption, sponsorship, or endorsement unless explicitly stated by repository maintainers.
 
 ## Our Commitment
@@ -30,6 +30,7 @@ We aim to foster:
 - Share knowledge, mentor when possible, and collaborate constructively.
 - Consider broader social impact, accessibility, and sustainability in decisions.
 - Respect confidentiality, privacy, and responsible data handling.
+- Keep credentials, personal data, and security-sensitive setup details out of public collaboration spaces.
 
 ## Unacceptable Behavior
 

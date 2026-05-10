@@ -1,6 +1,19 @@
 # Changelog
 
-Status: early full-stack scaffold.
+Status: remote Supabase-ready development baseline.
+
+## v0.2.0
+
+### Added or Changed
+- Updated the backend environment sample to target the hosted Sureplus Supabase project while keeping elevated keys and runtime secrets outside tracked files.
+- Made FastAPI CORS configuration environment-driven so local and deployed frontend origins can be coordinated across developers.
+- Replaced hardcoded frontend login/signup backend URLs with the shared Vite API base configuration.
+- Updated Supabase auth redirect defaults for the Vite development frontend origin.
+- Refreshed the public documentation set for the hosted-Supabase development workflow, backend-only secret handling, migration validation, and version `v0.2.0`.
+- Added detailed version documentation at `docs/version-0.2.0-docs.md`.
+
+### For Deletion
+- Local dependency, build, bytecode, and environment artifacts were observed during validation. They are ignored and should remain out of commits; remove them locally when convenient.
 
 ## v0.0.10
 
