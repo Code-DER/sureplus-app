@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.users import router as users_router
@@ -17,14 +19,17 @@ from api.admin_activity import router as admin_activity_router
 
 app = FastAPI(title="SurePlus API")
 
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+def _cors_origins() -> list[str]:
+    configured = os.getenv(
+        "BACKEND_CORS_ORIGINS",
+        "http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173",
+    )
+    return [origin.strip() for origin in configured.split(",") if origin.strip()]
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
