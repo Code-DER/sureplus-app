@@ -1,34 +1,33 @@
 import { useState } from 'react'
 import './ProductDetail.css'
+import type { FoodItem } from '../types/food'
 
-export interface FoodListingFull {
-  id: number
-  name: string
-  price: number
-  description: string
-  fullDescription: string
-  category: string
-  availableTime: string
-  expiration: string
-  allergens: string[]
-  location: string
-}
+// Re-exported so ListingsFeed can use it via the same import path it always has
+export type { FoodItem as FoodListingFull }
 
 interface ProductDetailProps {
-  listing: FoodListingFull
+  listing: FoodItem
   onBack: () => void
-  onAddToOrder: (listing: FoodListingFull, qty: number) => void
+  onAddToOrder: (listing: FoodItem, qty: number) => void
+}
+
+function formatExpiration(dateStr: string | null): string {
+  if (!dateStr) return 'No expiry date'
+  const exp = new Date(dateStr)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays < 0) return 'Expired'
+  if (diffDays === 0) return 'Expires today'
+  if (diffDays === 1) return 'Expires tomorrow'
+  if (diffDays <= 7) return `Expires in ${diffDays} days`
+  return exp.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
 }
 
 export default function ProductDetail({ listing, onBack, onAddToOrder }: ProductDetailProps) {
   const [qty, setQty] = useState(1)
 
-  const today = new Date()
-  const formattedDate = today.toLocaleDateString('en-US', {
-    month: 'long',
-    day: '2-digit',
-    year: 'numeric',
-  })
+  const allergenNames = listing.allergens.map((a) => a.name)
 
   return (
     <div className="detail-panel">
@@ -45,35 +44,61 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
 
       {/* Two-column body */}
       <div className="detail-body">
-        {/* Large image */}
+        {/* Image */}
         <div className="detail-image">
-          <div className="detail-image-placeholder">
-            <span className="icon-placeholder" style={{ width: 48, height: 48, background: '#ddd', borderRadius: 8 }} />
-            <span>Product Photo</span>
-          </div>
+          {listing.picture ? (
+            <img
+              src={listing.picture}
+              alt={listing.foodName}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+            />
+          ) : (
+            <div className="detail-image-placeholder">
+              <span className="icon-placeholder" style={{ width: 48, height: 48, background: '#ddd', borderRadius: 8 }} />
+              <span>No Product Photo</span>
+            </div>
+          )}
         </div>
 
         {/* Quick info panel */}
         <div className="detail-info-panel">
-          <h2 className="detail-product-name">{listing.name}</h2>
-          <p className="detail-product-desc">{listing.fullDescription}</p>
+          <h2 className="detail-product-name">{listing.foodName}</h2>
+          <p className="detail-product-desc">{listing.description ?? 'No description provided.'}</p>
+
+          {/* Allergen safety badge */}
+          {listing.isSafeForCurrentUser === false && (
+            <div style={{
+              background: '#FFF3E0', border: '1px solid #FFA726', borderRadius: 8,
+              padding: '8px 12px', marginBottom: 12, fontSize: 13, color: '#E65100'
+            }}>
+              ⚠ This item contains allergens you're sensitive to
+            </div>
+          )}
 
           {/* Allergens */}
-          <span className="detail-allergens-label">Allergens</span>
-          <div className="detail-allergen-tags">
-            {listing.allergens.map((allergen) => (
-              <div key={allergen} className="allergen-tag">
-                <span className="icon-placeholder" style={{ width: 12, height: 12, background: '#0F5238' }} />
-                <span>{allergen}</span>
+          {allergenNames.length > 0 && (
+            <>
+              <span className="detail-allergens-label">Allergens</span>
+              <div className="detail-allergen-tags">
+                {allergenNames.map((name) => (
+                  <div
+                    key={name}
+                    className="allergen-tag"
+                    style={listing.matchedAllergenIDs.length > 0 ? { borderColor: '#FFA726', background: '#FFF8F0' } : {}}
+                  >
+                    <span className="icon-placeholder" style={{ width: 12, height: 12, background: '#0F5238' }} />
+                    <span>{name}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
 
           {/* Price + Quantity */}
           <div className="detail-price-row">
             <div className="detail-price-block">
               <span className="detail-price-label">Price</span>
-              <span className="detail-price-value">₱{listing.price.toFixed(2)}</span>
+              <span className="detail-price-value">₱{Number(listing.price).toFixed(2)}</span>
             </div>
 
             <div className="qty-selector">
@@ -81,23 +106,30 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
                 className="qty-btn"
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
                 aria-label="Decrease quantity"
+                disabled={qty <= 1}
               >
                 <span className="icon-placeholder" style={{ width: 14, height: 2, background: '#191C1A' }} />
               </button>
               <span className="qty-value">{qty}</span>
               <button
                 className="qty-btn"
-                onClick={() => setQty((q) => q + 1)}
+                onClick={() => setQty((q) => Math.min(listing.stockQuantity, q + 1))}
                 aria-label="Increase quantity"
+                disabled={qty >= listing.stockQuantity}
               >
                 <span className="icon-placeholder" style={{ width: 14, height: 14, background: '#191C1A' }} />
               </button>
             </div>
           </div>
 
+          {listing.stockQuantity === 0 && (
+            <p style={{ color: '#BA1A1A', fontSize: 13, margin: '-8px 0 8px' }}>Out of stock</p>
+          )}
+
           {/* Add to Order */}
           <button
             className="detail-add-btn"
+            disabled={listing.stockQuantity === 0}
             onClick={() => {
               onAddToOrder(listing, qty)
               onBack()
@@ -117,7 +149,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
           </div>
           <div className="info-card-content">
             <span className="info-card-label">Expiry Date</span>
-            <span className="info-card-value">{formattedDate}</span>
+            <span className="info-card-value">{formatExpiration(listing.expirationDate)}</span>
           </div>
         </div>
 
@@ -126,8 +158,8 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
             <span className="icon-placeholder" style={{ width: 16, height: 20, background: '#0F5238' }} />
           </div>
           <div className="info-card-content">
-            <span className="info-card-label">Location</span>
-            <span className="info-card-value small">{listing.location}</span>
+            <span className="info-card-label">Stock Available</span>
+            <span className="info-card-value">{listing.stockQuantity} unit{listing.stockQuantity !== 1 ? 's' : ''}</span>
           </div>
         </div>
       </div>
