@@ -6,29 +6,64 @@ interface SalesAnalyticsProps {
   onBack: () => void;
 }
 
-const TOP_LISTINGS = [
+interface Buyer {
+  initials: string;
+  name: string;
+  location: string;
+  rescues: number;
+  totalWeight: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+  topRescuer: { initials: string; name: string };
+  frequency: string;
+  frequencySub: string;
+  rescueContribution: string;
+  loyaltyStatus: string;
+  loyaltyColor: 'green' | 'blue';
+  buyers: Buyer[];
+}
+
+const PRODUCTS: Product[] = [
   {
-    id: '#SR-9021',
+    id: 'BXR-9031',
     name: 'Organic Veggie Box',
-    rescues: 142,
-    revenue: '₱2,840',
-    status: 'HIGH DEMAND',
-    score: 4.9,
-    image: '🥗', // Placeholder
+    image: '🥗',
+    topRescuer: { initials: 'AW', name: 'Alex What' },
+    frequency: '9 Rescues',
+    frequencySub: 'Avg. weekly',
+    rescueContribution: '142 kg',
+    loyaltyStatus: 'ECO CHAMPION',
+    loyaltyColor: 'green',
+    buyers: [
+      { initials: 'AW', name: 'Alex What', location: 'Basak, Mintal', rescues: 18, totalWeight: '542 kg' },
+      { initials: 'VC', name: 'Vic Calag', location: 'Bago Oshiro', rescues: 9, totalWeight: '31 kg' },
+    ],
   },
   {
-    id: '#SR-8842',
-    name: 'Artisan Bakery Bundle',
-    rescues: 98,
-    revenue: '₱2,840',
-    status: 'STABLE',
-    score: 4.9,
-    image: '🍞', // Placeholder
+    id: 'BXR-8842',
+    name: 'Artisan Bakery',
+    image: '🍞',
+    topRescuer: { initials: 'SG', name: 'Sarah G?' },
+    frequency: '8 Rescues',
+    frequencySub: 'Monthly regular',
+    rescueContribution: '98 kg',
+    loyaltyStatus: 'RECURRING',
+    loyaltyColor: 'blue',
+    buyers: [],
   },
 ];
 
 export default function SalesAnalytics({ onBack }: SalesAnalyticsProps) {
   const [chartView, setChartView] = useState<'Week' | 'Month'>('Week');
+  const [expandedProduct, setExpandedProduct] = useState<string | null>(PRODUCTS[0].id);
+
+  const toggleProduct = (id: string) => {
+    setExpandedProduct(prev => (prev === id ? null : id));
+  };
 
   return (
     <div className="sa-page">
@@ -169,50 +204,137 @@ export default function SalesAnalytics({ onBack }: SalesAnalyticsProps) {
         </div>
       </div>
 
-      {/* Bottom Row: Top Performing Listings */}
-      <div className="sa-table-card">
-        <div className="sa-table-header">
-          <h3 className="sa-table-title">Top Performing Listings</h3>
-          <button className="sa-table-view-all">View All Analytics</button>
-        </div>
-        
-        <div className="sa-table-container">
-          <div className="sa-table-head">
-            <div className="sa-th">LISTING</div>
-            <div className="sa-th sa-th-center">RESCUES</div>
-            <div className="sa-th sa-th-center">REVENUE</div>
-            <div className="sa-th sa-th-center">STATUS</div>
-            <div className="sa-th sa-th-center">SCORE</div>
+      {/* Bottom Row: Top Buyers by Product */}
+      <div className="sa-buyers-card">
+        {/* Card Header */}
+        <div className="sa-buyers-header">
+          <h3 className="sa-buyers-title">Top Buyers by Product</h3>
+          <div className="sa-buyers-view-link">
+            <span>View All Products</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#71717A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </div>
-          <div className="sa-table-body">
-            {TOP_LISTINGS.map((listing, index) => (
-              <div className="sa-table-row" key={index}>
-                <div className="sa-td sa-td-listing">
-                  <div className="sa-listing-thumb">
-                    <span className="sa-listing-emoji">{listing.image}</span>
+        </div>
+
+        {/* Table */}
+        <div className="sa-buyers-table">
+          {/* Table Header */}
+          <div className="sa-buyers-thead">
+            <div className="sa-buyers-th sa-buyers-th-product">PRODUCT CATEGORY</div>
+            <div className="sa-buyers-th">TOP RESCUER</div>
+            <div className="sa-buyers-th">FREQUENCY</div>
+            <div className="sa-buyers-th">RESCUE CONTRIBUTION</div>
+            <div className="sa-buyers-th sa-buyers-th-right">LOYALTY STATUS</div>
+          </div>
+
+          {/* Table Body */}
+          <div className="sa-buyers-tbody">
+            {PRODUCTS.map((product) => {
+              const isExpanded = expandedProduct === product.id;
+              return (
+                <div key={product.id} className="sa-buyers-row-group">
+                  {/* Main Product Row */}
+                  <div
+                    className={`sa-buyers-row ${isExpanded ? 'expanded' : ''}`}
+                    onClick={() => toggleProduct(product.id)}
+                  >
+                    {/* Toggle Arrow + Product */}
+                    <div className="sa-buyers-td sa-buyers-td-product">
+                      <button className={`sa-expand-btn ${isExpanded ? 'open' : ''}`} aria-label="Toggle details">
+                        <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="#A1A1AA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </button>
+                      <div className="sa-product-thumb">
+                        <span className="sa-product-emoji">{product.image}</span>
+                      </div>
+                      <div className="sa-product-info">
+                        <span className="sa-product-name">{product.name}</span>
+                        <span className="sa-product-id">ID: {product.id}</span>
+                      </div>
+                    </div>
+
+                    {/* Top Rescuer */}
+                    <div className="sa-buyers-td sa-buyers-td-rescuer">
+                      <div className="sa-rescuer-avatar">
+                        <span>{product.topRescuer.initials}</span>
+                      </div>
+                      <span className="sa-rescuer-name">{product.topRescuer.name}</span>
+                    </div>
+
+                    {/* Frequency */}
+                    <div className="sa-buyers-td sa-buyers-td-frequency">
+                      <span className="sa-freq-value">{product.frequency}</span>
+                      <span className="sa-freq-sub">{product.frequencySub}</span>
+                    </div>
+
+                    {/* Rescue Contribution */}
+                    <div className="sa-buyers-td sa-buyers-td-contribution">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F5238" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                      <span className="sa-contribution-value">{product.rescueContribution}</span>
+                    </div>
+
+                    {/* Loyalty Status */}
+                    <div className="sa-buyers-td sa-buyers-td-loyalty">
+                      <span className={`sa-loyalty-badge ${product.loyaltyColor === 'green' ? 'sa-loyalty-green' : 'sa-loyalty-blue'}`}>
+                        {product.loyaltyStatus}
+                      </span>
+                    </div>
                   </div>
-                  <div className="sa-listing-info">
-                    <span className="sa-listing-name">{listing.name}</span>
-                    <span className="sa-listing-id">ID: {listing.id}</span>
-                  </div>
+
+                  {/* Expanded Sub-table */}
+                  {isExpanded && product.buyers.length > 0 && (
+                    <div className="sa-buyers-subtable-wrapper">
+                      <div className="sa-buyers-subtable-border">
+                        <table className="sa-buyers-subtable">
+                          <thead>
+                            <tr>
+                              <th>RESCUER NAME</th>
+                              <th>LOCATION</th>
+                              <th>RESCUES</th>
+                              <th>TOTAL WEIGHT</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {product.buyers.map((buyer, idx) => (
+                              <tr key={idx}>
+                                <td>
+                                  <div className="sa-sub-rescuer">
+                                    <div className={`sa-sub-avatar ${idx === 0 ? 'sa-sub-avatar-highlight' : ''}`}>
+                                      <span>{buyer.initials}</span>
+                                    </div>
+                                    <span className="sa-sub-name">{buyer.name}</span>
+                                  </div>
+                                </td>
+                                <td className="sa-sub-location">{buyer.location}</td>
+                                <td className="sa-sub-rescues">{buyer.rescues}</td>
+                                <td className="sa-sub-weight">{buyer.totalWeight}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="sa-td sa-td-center sa-td-rescues">{listing.rescues}</div>
-                <div className="sa-td sa-td-center sa-td-revenue">{listing.revenue}</div>
-                <div className="sa-td sa-td-center">
-                  <span className={`sa-status-badge ${listing.status === 'HIGH DEMAND' ? 'sa-status-high' : 'sa-status-stable'}`}>
-                    {listing.status}
-                  </span>
-                </div>
-                <div className="sa-td sa-td-center sa-td-score">
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1l1.5 3 3.5.5-2.5 2.5.5 3.5L6 9l-3 1.5.5-3.5-2.5-2.5L4.5 4 6 1z" fill="#FB923C"/></svg>
-                  <span>{listing.score}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Pagination */}
+        <div className="sa-buyers-pagination">
+          <span className="sa-buyers-pagination-info">Showing 1-10 of 42 product categories</span>
+          <div className="sa-buyers-pagination-controls">
+            <button className="sa-page-btn">
+              <svg width="6" height="9" viewBox="0 0 6 9" fill="none"><path d="M5 1L1.5 4.5L5 8" stroke="#71717A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+            <button className="sa-page-btn active">1</button>
+            <button className="sa-page-btn">2</button>
+            <button className="sa-page-btn">3</button>
+            <button className="sa-page-btn">
+              <svg width="6" height="9" viewBox="0 0 6 9" fill="none"><path d="M1 1L4.5 4.5L1 8" stroke="#71717A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
