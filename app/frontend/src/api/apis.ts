@@ -63,4 +63,11 @@ export const socialImpactAPI = {
     getMyImpactSummary: () => api.get('/social-impact/summary'),
 };
 
+// Notifications API functions
+export const notificationsAPI = {
+    getMyNotifications: () => api.get('/notifications/list'),
+    markNotificationAsRead: (notificationId: string) => api.patch(`/notifications/${notificationId}/read`),
+    markAllNotificationsAsRead: () => api.patch('/notifications/read-all'),
+};
+
 export default api;
