@@ -3,7 +3,7 @@
 ## Adaptation and Transparency Notice
 
 This is an independent security policy for this repository.
-It adapts publicly available principles from University of the Philippines (UP) documents, including the UP Quality Policy and the UP Statement of the Philosophy of Education and Graduate Attributes (approved November 28, 2019), to embody their spirit of quality, responsibility, and continuous improvement in an open-source setting.
+It adapts publicly available principles from University of the Philippines (UP) documents, including the UP Quality Policy and the UP Statement of the Philosophy of Education and Graduate Attributes (approved November 28, 2019), to embody their spirit of quality, responsibility, and continuous improvement in this project setting.
 This adaptation does not imply UP affiliation, adoption, sponsorship, or endorsement unless explicitly stated by repository maintainers.
 
 ## Security Principles
@@ -18,12 +18,13 @@ Our approach emphasizes:
 
 ## Supported Versions
 
-The project is in the `0.0.x` design kickoff and early scaffold stage.
-Security support is best-effort until a stable release process exists.
+The project is in the `0.2.x` remote Supabase-ready development baseline.
+Security support is best-effort until a stable production release process exists.
 
 | Version | Supported |
 | --- | --- |
-| 0.0.x | Best effort |
+| 0.2.x | Best effort |
+| 0.0.x | Historical only |
 | older | Not supported |
 
 ## Reporting a Vulnerability
@@ -53,6 +54,7 @@ Treat these product areas as security-sensitive:
 - payment methods, reward-point redemption, fees, and purchase records
 - private conversations, messages, notifications, ratings, and admin activity logs
 - charity approval, partner tagging, account deactivation, and verification workflows
+- Supabase project keys, backend-only elevated keys, database passwords, migration credentials, and application JWT signing secrets
 
 ## Response Targets
 
@@ -67,3 +69,9 @@ Complex issues may require more time; we will provide status updates during tria
 - We will coordinate disclosure timing with the reporter after a fix or mitigation is available.
 - We will credit reporters unless anonymity is requested.
 - We ask reporters to avoid privacy violations, service disruption, or data destruction during testing.
+
+## Credential Handling
+
+Never place backend-only Supabase keys, database passwords, or application JWT signing secrets in frontend code, screenshots, public issues, pull requests, or documentation. If a credential is exposed, rotate it in the Supabase dashboard or deployment environment before continuing shared testing.
+
+After rotating credentials, restart the backend process and re-run a smoke test covering signup, login, allergen loading, and one protected API route.

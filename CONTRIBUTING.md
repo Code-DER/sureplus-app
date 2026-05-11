@@ -1,6 +1,6 @@
 # Contributing
 
-Status: early Sureplus Website full-stack scaffold.
+Status: Sureplus Website remote Supabase-ready development baseline.
 
 Thanks for contributing to the Sureplus Website repository.
 This project follows values of quality, integrity, inclusion, collaboration, service, and continuous improvement.
@@ -45,9 +45,11 @@ This guide aligns contributions with these working values:
    - validation evidence (test output, logs, screenshots)
    - risks, tradeoffs, and rollback notes when relevant
 
-The current frontend scaffold lives under `app/frontend/`, the FastAPI backend lives under `app/backend/`, and the local database layer is provisioned through Supabase under `app/supabase/`. The schema migrations include Row Level Security policies and product-safety database functions; apply them with the local Supabase workflow documented in `SUPABASE_SETUP.md`.
+The current frontend scaffold lives under `app/frontend/`, the FastAPI backend lives under `app/backend/`, and the Supabase database project is defined under `app/supabase/`. The committed migrations include Row Level Security policies and product-safety database functions; apply and validate them through the hosted Supabase workflow documented in `SUPABASE_SETUP.md`. The local Docker workflow remains available when isolated database testing is needed.
 
-When you change anything that touches the database schema, add a new migration file under `app/supabase/migrations/` (use `supabase migration new <name>`) rather than editing the existing initial-schema migration in place, and confirm `supabase db reset` succeeds locally before opening a pull request. For backend changes, install `app/backend/requirements.txt` and run the relevant unittest checks. For frontend changes, use the commands defined in `app/frontend/package.json`.
+When you change anything that touches the database schema, add a new migration file under `app/supabase/migrations/` (use `supabase migration new <name>`) rather than editing the existing initial-schema migration in place. Validate the migration against a local Supabase reset when possible, then apply it to the hosted development project with `supabase db push` from a network that can reach the project database. If a migration must be applied through the Supabase SQL editor, document the validation evidence and reconcile migration history before treating the remote database as complete.
+
+For backend changes, install `app/backend/requirements.txt` and run the relevant unittest checks. For frontend changes, use the commands defined in `app/frontend/package.json`. For configuration changes, confirm backend-only Supabase keys never appear in frontend code, browser-visible configuration, logs, screenshots, public issues, or pull request text.
 
 ## Branch Naming
 

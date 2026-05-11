@@ -1,6 +1,6 @@
-# SurePlus — Supabase Local Development Guide
+# SurePlus — Supabase Remote Development Guide
 
-> Complete setup guide for developers joining the project. No Supabase account required — everything runs locally via Docker.
+> Setup guide for the shared hosted Supabase development project, with an optional local Docker workflow for isolated database testing.
 
 ---
 
@@ -8,9 +8,9 @@
 
 1. [Prerequisites](#1-prerequisites)
 2. [Install Supabase CLI](#2-install-supabase-cli)
-3. [Project Setup](#3-project-setup)
-4. [Apply the Database Schema](#4-apply-the-database-schema)
-5. [Start the Local Instance](#5-start-the-local-instance)
+3. [Remote Project Setup](#3-remote-project-setup)
+4. [Apply the Hosted Database Schema](#4-apply-the-hosted-database-schema)
+5. [Optional Local Instance](#5-optional-local-instance)
 6. [Verify in Supabase Studio](#6-verify-in-supabase-studio)
 7. [Row Level Security (RLS)](#7-row-level-security-rls)
 8. [Common CLI Operations](#8-common-cli-operations)
@@ -23,9 +23,15 @@
 
 Before starting, install the following:
 
-### Docker Desktop _(required)_
+### Supabase Project Access _(required for shared development)_
 
-Supabase runs all its services (database, auth, storage, etc.) in Docker containers locally.
+- Access to the Sureplus Supabase project in the Supabase dashboard.
+- Permission to read project API keys and database connection settings.
+- Permission to run database migrations or apply reviewed SQL in the hosted project.
+
+### Docker Desktop _(optional local database testing)_
+
+Supabase can run its services (database, auth, storage, etc.) in Docker containers locally when you need an isolated database.
 
 - Download: https://www.docker.com/products/docker-desktop
 - After installing, **launch Docker Desktop and keep it running** before using any `supabase` commands.
@@ -34,12 +40,12 @@ Supabase runs all its services (database, auth, storage, etc.) in Docker contain
   docker info
   ```
 
-### Node.js v18+ _(if installing CLI via npm)_
+### Node.js v20+ _(if installing CLI via npm)_
 
 - Download: https://nodejs.org
 - Verify:
   ```bash
-  node --version   # should be v18 or higher
+  node --version   # should be v20 or higher for current Supabase CLI npm usage
   ```
 
 ### Homebrew _(macOS alternative for CLI install)_
@@ -70,20 +76,55 @@ npm install -g supabase
 supabase --version
 ```
 
-> **Note:** No login or Supabase account is needed for local development.
+---
+
+## 3. Remote Project Setup
+
+The shared development project uses the hosted Supabase project configured in the dashboard. Developers should connect the Supabase CLI to the hosted project before applying migrations:
+
+```bash
+cd app/supabase
+supabase login
+supabase link --project-ref <project-ref>
+```
+
+Use the database password from the Supabase dashboard when prompted. Do not commit or publish database passwords, backend-only elevated keys, or application JWT signing secrets.
+
+Required backend configuration values:
+
+```env
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_ANON_KEY=<dashboard anon or publishable key>
+SUPABASE_SERVICE_ROLE_KEY=<backend-only secret or service-role key>
+JWT_SECRET_KEY=<strong backend-only application secret>
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_TIME_MINUTES=30
+BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173
+```
+
+Frontend configuration should point to the FastAPI backend, not directly to the backend-only Supabase key:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
 
 ---
 
-## 3. Apply the Database Schema
+## 4. Apply the Hosted Database Schema
 
-The migration file `20260425000000_initial_schema.sql` is already inside `supabase/migrations/`. It contains:
+The migration directory under `app/supabase/migrations/` contains the database schema, Row Level Security policies, indexes, and RPC functions required by the backend.
 
-- All 17 tables from the ERD
-- Foreign key relationships
-- Row Level Security (RLS) policies
-- Performance indexes
+From `app/supabase/`, apply migrations to the hosted project:
 
-You do **not** need to run this file manually — it is applied automatically when you run `supabase db reset` (see Step 5).
+```bash
+supabase migration list
+supabase db push --dry-run
+supabase db push
+```
+
+Use `--dry-run` first to confirm which migrations will be applied. The hosted project is ready only after the tables and RPC functions exist in Supabase Studio.
+
+If your network cannot complete the hosted Postgres connection, apply the reviewed migration SQL files through the Supabase dashboard SQL editor in chronological order. If SQL editor application is used, reconcile migration history later with the Supabase CLI before relying on `supabase migration list` as the source of truth.
 
 ### If you need to add a new migration:
 
@@ -94,9 +135,9 @@ supabase migration new your_migration_name
 
 ---
 
-## 4. Start the Local Instance
+## 5. Optional Local Instance
 
-Make sure **Docker Desktop is running**, then:
+Use the local instance when you need isolated testing without touching the hosted development database. Make sure **Docker Desktop is running**, then:
 
 ```bash
 supabase start
@@ -115,7 +156,7 @@ anon key:        <your-local-anon-key>
 service_role key: <your-local-service-role-key>
 ```
 
-> Save the `anon key` and `service_role key` — you'll need these to connect your frontend/backend.
+> Local keys are for the local stack only. Do not mix local keys with the hosted project URL.
 
 ### Apply all migrations:
 
@@ -123,19 +164,19 @@ service_role key: <your-local-service-role-key>
 supabase db reset
 ```
 
-This wipes the local database and re-runs every file in `supabase/migrations/` in chronological order. **Run this every time you pull new migration files from the repo.**
+This wipes the local database and re-runs every file in `supabase/migrations/` in chronological order. **Run this only against the local stack.**
 
 ---
 
 ## 6. Verify in Supabase Studio
 
-Open your browser and go to:
+For the hosted project, open the Supabase dashboard and verify the Table Editor and Database Functions pages. For the optional local project, open:
 
 ```
 http://localhost:54323
 ```
 
-You should see the **local Supabase Studio** dashboard with:
+You should see:
 
 - **17 tables** in the Table Editor: `User`, `Buyer`, `Seller`, `Charity`, `Admin`, `Notifications`, `CharityApplication`, `CharityPost`, `Allergen`, `Food`, `FoodAllergen`, `UserAllergies`, `Purchase`, `PurchaseItems`, `SocialImpact`, `Rating`, `AdminActivity`
 - **0 RLS warnings** in the Security Advisor (all tables have RLS enabled)
@@ -217,64 +258,68 @@ supabase logs realtime          # view realtime logs
 ### Type Generation _(optional — for TypeScript projects)_
 
 ```bash
-supabase gen types typescript --local > src/types/supabase.ts
+supabase gen types typescript --linked > src/types/supabase.ts
 ```
 
 ---
 
 ## 9. Connecting Your App
 
-Use the local keys from `supabase status` or `supabase start` output.
+The Sureplus frontend calls the FastAPI backend through `VITE_API_URL`. The backend is responsible for Supabase access and must keep elevated Supabase credentials server-side only.
 
-### JavaScript / TypeScript
+### Backend
 
-```bash
-npm install @supabase/supabase-js
-```
-
-```ts
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = "http://localhost:54321";
-const supabaseAnonKey = "<your-local-anon-key>";
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-```
-
-### Flutter
-
-```yaml
-# pubspec.yaml
-dependencies:
-  supabase_flutter: ^2.0.0
-```
-
-```dart
-await Supabase.initialize(
-  url: 'http://localhost:54321',
-  anonKey: '<your-local-anon-key>',
-);
-```
-
-> **For mobile (iOS/Android):** Replace `localhost` with your machine's local IP address (e.g., `192.168.1.x`) so the device can reach your dev machine.
-
-### Environment Variables
-
-Never hardcode keys. Use a `.env` file:
+Configure these backend values from the Supabase dashboard and deployment environment:
 
 ```env
-SUPABASE_URL=http://localhost:54321
-SUPABASE_ANON_KEY=<your-local-anon-key>
-SUPABASE_SERVICE_ROLE_KEY=<your-local-service-role-key>
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_ANON_KEY=<dashboard anon or publishable key>
+SUPABASE_SERVICE_ROLE_KEY=<backend-only secret or service-role key>
+JWT_SECRET_KEY=<strong backend-only application secret>
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_TIME_MINUTES=30
+BACKEND_CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173
 ```
 
-Add `.env` to your `.gitignore`.
+### Frontend
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+Do not add backend-only Supabase keys to frontend configuration.
+
+### Auth Redirect URLs
+
+In the Supabase dashboard, set the development auth URL configuration to:
+
+```text
+Site URL: http://localhost:5173
+Redirect URLs:
+http://localhost:5173/**
+http://127.0.0.1:5173/**
+```
+
+Add deployed frontend URLs before production testing.
 
 ---
 
 ## 10. Troubleshooting
 
-### `supabase start` fails
+### `supabase db push` cannot connect to the hosted database
+
+- Confirm the project is linked with the correct project reference.
+- Confirm the database password is current.
+- Try from another network if direct Postgres or pooler TLS handshakes time out.
+- If blocked, apply reviewed migration SQL through the dashboard SQL editor, then reconcile migration history later.
+
+### Frontend CORS errors
+
+- Confirm `VITE_API_URL` points to the running FastAPI backend.
+- Confirm `BACKEND_CORS_ORIGINS` includes the current frontend origin.
+- Restart the backend after changing CORS configuration.
+
+### `supabase start` fails for local testing
 
 - Make sure **Docker Desktop is running**
 - Try restarting Docker, then run `supabase start` again
@@ -293,7 +338,7 @@ Add `.env` to your `.gitignore`.
 
 ### RLS blocking all queries during testing
 
-- Use the **service role key** (not anon key) in your backend/tests — it bypasses RLS
+- Use the backend-only elevated key for controlled backend/test operations that intentionally bypass RLS
 - Or temporarily disable RLS on the table via the SQL Editor in Studio (for local dev only)
 
 ### Can't connect from mobile emulator

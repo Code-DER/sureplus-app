@@ -2,6 +2,8 @@ All Rights Reserved
 
 Copyright (c) Sureplus Website Development Team
 
+Project version context: this notice applies to Sureplus Website version 0.2.0 and subsequent repository revisions unless a later written license notice replaces it.
+
 THE CONTENTS OF THIS PROJECT ARE PROPRIETARY AND CONFIDENTIAL.
 UNAUTHORIZED COPYING, TRANSFERRING OR REPRODUCTION OF THE CONTENTS OF THIS PROJECT, VIA ANY MEDIUM IS STRICTLY PROHIBITED.
 
