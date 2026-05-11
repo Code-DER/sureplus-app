@@ -63,6 +63,7 @@ export const socialImpactAPI = {
     getMyImpactSummary: () => api.get('/social-impact/summary'),
 };
 
+// Food API functions
 export const foodAPI = {
   list: (params?: {
     safe_for_me?: boolean;
@@ -71,6 +72,13 @@ export const foodAPI = {
     seller_id?: string;
   }) => api.get('/products/', { params }),
   get: (foodId: string) => api.get(`/products/${foodId}`),
+};
+
+// Notifications API functions
+export const notificationsAPI = {
+    getMyNotifications: () => api.get('/notifications/list'),
+    markNotificationAsRead: (notificationId: string) => api.patch(`/notifications/${notificationId}/read`),
+    markAllNotificationsAsRead: () => api.patch('/notifications/read-all'),
 };
 
 export default api;
