@@ -15,9 +15,9 @@
   <p align="center">
     <strong>A web platform concept for Sureplus Philippines, focused on rescuing edible surplus food, supporting responsible inedible-food recycling, and tracking social impact.</strong>
     <br />
-    Version: v0.0.10
+    Version: v0.2.0
     <br />
-    Status: early full-stack scaffold.
+    Status: remote Supabase-ready development baseline.
     <br />
     <a href="https://github.com/Code-DER/sureplus-app"><strong>Explore the repository</strong></a>
     <br />
@@ -39,6 +39,7 @@
         <li><a href="#key-features">Key Features</a></li>
         <li><a href="#data-model-highlights">Data Model Highlights</a></li>
         <li><a href="#backend-api-highlights">Backend API Highlights</a></li>
+        <li><a href="#remote-supabase-development">Remote Supabase Development</a></li>
         <li><a href="#current-repository-state">Current Repository State</a></li>
       </ul>
     </li>
@@ -117,17 +118,33 @@ The backend scaffold under `app/backend/` now includes FastAPI routes and servic
 - current-user allergy profile reads and updates,
 - allergy-aware product responses that expose matched allergens and safe-for-current-user status.
 
-The backend uses the local Supabase schema as its persistence layer, requires a service-role key for server-side database operations, and signs application JWTs with a backend-only secret rather than the Supabase anon key. Product-safety relationship writes now go through database RPC functions so food-allergen and user-allergy replacement can be handled atomically after the latest migrations are applied.
+The backend uses Supabase as its persistence layer, requires a backend-only elevated Supabase key for server-side database operations, and signs application JWTs with a separate backend-only secret rather than a Supabase client key. Product-safety relationship writes now go through database RPC functions so food-allergen and user-allergy replacement can be handled atomically after the latest migrations are applied.
 
 Focused regression tests cover forged-token rejection, database-role mismatch rejection, service-role configuration failure, and the product-safety service paths that call the atomic RPC functions.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Remote Supabase Development
+
+Version `v0.2.0` moves the shared backend target from developer-specific local Supabase instances to the hosted Sureplus Supabase project. The committed backend sample now points at the hosted Supabase URL, while secrets remain local to each developer or deployment environment.
+
+The current shared-development expectations are:
+
+- apply the committed Supabase migrations to the hosted project before running shared backend or frontend tests,
+- keep elevated Supabase keys on the backend only,
+- configure frontend requests through `VITE_API_URL` instead of hardcoded backend URLs,
+- configure backend CORS through `BACKEND_CORS_ORIGINS` for local and deployed frontend origins,
+- keep Supabase Auth redirect URLs aligned with the active frontend origin.
+
+The frontend still talks to the FastAPI backend rather than directly to Supabase for application login/signup flows. Supabase provides the hosted database, Row Level Security posture, RPC functions, and platform services behind the backend.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### Current Repository State
 
-This repository is currently at the early full-stack scaffold stage. The local Supabase project skeleton is committed under `app/supabase/` with schema migrations, Row Level Security policies, and product-safety RPC functions. `app/backend/` contains the FastAPI backend, dependency manifest, environment sample, authentication routes, user routes, product/safety routes, service modules, Pydantic models, and focused backend regression tests. `app/frontend/` contains the current React/Vite frontend scaffold and application components.
+This repository is currently at the remote Supabase-ready development baseline. The Supabase project skeleton is committed under `app/supabase/` with schema migrations, Row Level Security policies, auth redirect defaults for Vite development, and product-safety RPC functions. `app/backend/` contains the FastAPI backend, dependency manifest, environment sample, authentication routes, user routes, product/safety routes, service modules, Pydantic models, configurable CORS, and focused backend regression tests. `app/frontend/` contains the React/Vite frontend scaffold, application components, and a shared API client driven by `VITE_API_URL`.
 
-Refer to `SUPABASE_SETUP.md` at the repository root for the local-development onboarding flow that runs Supabase entirely on Docker without requiring a hosted Supabase account. Detailed version documentation for the product-and-safety backend additions is available in `docs/version-0.0.8-docs.md`, with follow-up backend review notes summarized in `docs/version-0.0.9-docs.md` and backend debugging/hardening details summarized in `docs/version-0.0.10-docs.md`.
+Refer to `SUPABASE_SETUP.md` at the repository root for the shared hosted-Supabase setup path and the optional local Docker workflow. Detailed version documentation for this remote Supabase transition is available in `docs/version-0.2.0-docs.md`; prior product-and-safety backend additions are documented in `docs/version-0.0.8-docs.md`, `docs/version-0.0.9-docs.md`, and `docs/version-0.0.10-docs.md`.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -137,12 +154,13 @@ Refer to `SUPABASE_SETUP.md` at the repository root for the local-development on
 
 - Git
 - A code editor
-- Docker Desktop, kept running before any `supabase` command is used
+- Docker Desktop, required only when running the optional local Supabase stack
 - Supabase CLI (via Homebrew on macOS or `npm install -g supabase` on Windows or Linux)
 - Python 3.11+ for the FastAPI backend
 - Backend dependencies from `app/backend/requirements.txt`
+- Node.js and npm for the React/Vite frontend
 
-### Local Setup
+### Development Setup
 
 1. Clone the repository.
    ```sh
@@ -160,19 +178,26 @@ Refer to `SUPABASE_SETUP.md` at the repository root for the local-development on
    ```powershell
    Get-Content app/backend/.sample.env
    ```
-5. Bring up the local Supabase stack and apply the initial schema. See `SUPABASE_SETUP.md` for the full walkthrough; the short form is:
+5. Prepare the hosted Supabase project. See `SUPABASE_SETUP.md` for the full walkthrough; the short form is:
    ```sh
    cd app/supabase
-   supabase start
-   supabase db reset
+   supabase link --project-ref <project-ref>
+   supabase db push
    ```
-6. Install backend dependencies and run the FastAPI backend from the backend directory.
+6. Configure backend environment values from the sample, using project-specific keys from the Supabase dashboard and a strong backend JWT secret.
+7. Install backend dependencies and run the FastAPI backend from the backend directory.
    ```powershell
    cd ../backend
    python -m pip install -r requirements.txt
    python -m uvicorn main:app --reload
    ```
-7. Run the focused backend regression tests after dependencies are installed.
+8. Install frontend dependencies and run the Vite dev server from the frontend directory.
+   ```powershell
+   cd ../frontend
+   npm install
+   npm run dev
+   ```
+9. Run the focused backend regression tests after dependencies are installed.
    ```powershell
    python -m unittest discover tests
    ```
@@ -190,7 +215,7 @@ code .
 ## Roadmap
 
 - [ ] Convert the design kickoff into reviewed requirements, user stories, and acceptance criteria.
-- [ ] Commit the initial frontend application scaffold.
+- [x] Commit the initial frontend application scaffold.
 - [x] Add the initial FastAPI backend scaffold with authentication, user, product, allergen, and user-allergy routes.
 - [ ] Complete role-based onboarding and profile management beyond the current authentication and user-profile baseline.
 - [x] Add transactional database functions for product-safety relationship writes.
@@ -199,6 +224,7 @@ code .
 - [ ] Implement charity, innovator, composter, and admin workflows.
 - [ ] Add notification, messaging, social-impact, analytics, and leaderboard outputs.
 - [x] Commit the initial Supabase database migration with Row Level Security policies for the 17 baseline tables.
+- [x] Add shared hosted Supabase setup notes and remote-ready application configuration.
 - [ ] Add broader route tests, live database validation, deployment notes, and operations guidance.
 
 See the [open issues](https://github.com/Code-DER/sureplus-app/issues) for proposed features and known gaps.

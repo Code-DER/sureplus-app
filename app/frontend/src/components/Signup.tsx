@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+import api from '../api/apis';
 import './Signup.css';
 
 interface SignupProps {
@@ -47,9 +50,9 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
   useEffect(() => {
     const fetchAllergens = async () => {
       try {
-        const response = await fetch('http://localhost:8000/safety/allergens');
-        const data = await response.json();
-        if (response.ok && Array.isArray(data)) {
+        const response = await api.get('/safety/allergens');
+        const data = response.data;
+        if (Array.isArray(data)) {
           setAllergenList(data);
           const allergenMap: Record<string, boolean> = {};
           data.forEach((allergen: Allergen) => {
@@ -125,37 +128,20 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
       }
 
       // Sign up user
-      const signupResponse = await fetch('http://localhost:8000/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(signupData),
-      });
-
-      if (!signupResponse.ok) {
-        const data = await signupResponse.json();
-        setError(data.detail || 'Signup failed. Please try again.');
-      }
+      await api.post('/auth/signup', signupData);
 
       // Auto login after signup
       const loginFormData = new URLSearchParams();
       loginFormData.append('username', formData.email);
       loginFormData.append('password', formData.password);
 
-      const loginResponse = await fetch('http://localhost:8000/auth/login', {
-        method: 'POST',
+      const loginResponse = await api.post('/auth/login', loginFormData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded' 
         },
-        body: loginFormData.toString(),
       });
 
-      const loginData = await loginResponse.json();
-
-      if (!loginResponse.ok) {
-        setError('Account created but login failed. Please log in manually.');
-        onSwitchToLogin();
-        return;
-      }
+      const loginData = loginResponse.data;
 
       localStorage.setItem('token', loginData.access_token);
       localStorage.setItem('token_type', loginData.token_type);
@@ -163,20 +149,21 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
       // Save selected allergens
       const selectedAllergenIds = Object.keys(allergens).filter(id => allergens[id]);
       for (const allergenId of selectedAllergenIds) {
-        const allergyResponse = await fetch(`http://localhost:8000/safety/me/allergies/${allergenId}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${loginData.access_token}`
-          },
-        });
-        if (!allergyResponse.ok) {
+        try {
+          await api.post(`/safety/me/allergies/${allergenId}`, undefined, {
+            headers: {
+              'Authorization': `Bearer ${loginData.access_token}`
+            },
+          });
+        } catch {
           console.warn(`Failed to save allergen ${allergenId}, but account was created.`);
         }
       }
 
       onSignup();
     } catch (err) {
-      setError('Connection error. Please try again.');
+      const detail = axios.isAxiosError(err) ? err.response?.data?.detail : undefined;
+      setError(detail || 'Connection error. Please try again.');
       console.error('Signup error:', err);
     } finally {
       setLoading(false);
@@ -408,4 +395,3 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
     </div>
   );
 }
-

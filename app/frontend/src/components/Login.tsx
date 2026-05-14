@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import axios from 'axios';
 
+import api from '../api/apis';
 import './Login.css';
 
 interface LoginProps {
@@ -24,27 +26,20 @@ export default function Login({ onLogin, onSwitchToSignup }: LoginProps) {
       formData.append('username', email); // OAuth2 uses 'username' for email
       formData.append('password', password);
 
-      const response = await fetch('http://localhost:8000/auth/login', {
-        method: 'POST',
+      const response = await api.post('/auth/login', formData, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData.toString(),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log('Login Success:', data);
-        // Store both token and type
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('token_type', data.token_type);
-        onLogin();
-      } else {
-        setError(data.detail || 'Login failed');
-        console.log('Login Failed:', data.detail);
-      }
+      const data = response.data;
+      console.log('Login Success:', data);
+      // Store both token and type
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('token_type', data.token_type);
+      onLogin();
 
     } catch (error) {
-      setError('Connection error. Please try again.');
+      const detail = axios.isAxiosError(error) ? error.response?.data?.detail : undefined;
+      setError(detail || 'Connection error. Please try again.');
       console.error('Connection error:', error);
     }
   };
@@ -155,4 +150,3 @@ export default function Login({ onLogin, onSwitchToSignup }: LoginProps) {
     </div>
   );
 }
-
