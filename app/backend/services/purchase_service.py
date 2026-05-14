@@ -32,7 +32,7 @@ def create_purchase(data: dict, user_id: str):
         purchase_items.append({
             "foodID": str(item["foodID"]),
             "quantity": item["quantity"],
-            "price": food["price"],
+            "price": float(food["price"]),
             "totalPerItem": item_total
         })
 
@@ -90,20 +90,11 @@ def complete_purchase(purchase_id: str):
         return {"message": "Already completed"}
     
     # Update status to completed
-    supabase.table("Purchase").update({
+    supabase_admin.table("Purchase").update({
         "status": "completed"
     }).eq("purchaseID", purchase_id).execute()
 
     # Hook into Social Impact
-    social_impact_service.create_impact(purchase_id)
-
-    # Update status
-    supabase_admin.table("Purchase") \
-        .update({"status": "completed"}) \
-        .eq("purchaseID", purchase_id) \
-        .execute()
-
-    # Hook into social impact
     social_impact_service.create_impact(purchase_id)
 
     # Compute points
