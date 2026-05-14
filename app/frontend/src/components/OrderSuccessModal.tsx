@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import './OrderSuccessModal.css'
 
+import FoodSavedIcon from '../assets/BUYER/Food Saved.svg'
+import CarbonReducedIcon from '../assets/BUYER/Carbon Reduced.svg'
+import PeopleFedIcon from '../assets/BUYER/People fed.svg'
+import PointsEarnedIcon from '../assets/BUYER/Points Earned.svg'
+
 export interface ImpactStats {
   foodSaved: number    // percentage 0-100
   carbonReduced: number // percentage 0-100
@@ -25,8 +30,7 @@ export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalP
   const statRows = [
     {
       icon: (
-        // Fork & knife icon placeholder
-        <span className="icon-placeholder" style={{ width: 11, height: 15, background: '#0F5238' }} />
+        <img src={FoodSavedIcon} alt="Food Saved" width="15" height="15" />
       ),
       label: 'Food Saved',
       value: `${stats.foodSaved} %`,
@@ -34,8 +38,7 @@ export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalP
     },
     {
       icon: (
-        // QR/carbon icon placeholder
-        <span className="icon-placeholder" style={{ width: 14, height: 7, background: '#0F5238' }} />
+        <img src={CarbonReducedIcon} alt="Carbon Reduced" width="14" height="14" />
       ),
       label: 'Carbon Reduced',
       value: `${stats.carbonReduced} %`,
@@ -43,8 +46,7 @@ export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalP
     },
     {
       icon: (
-        // People icon placeholder
-        <span className="icon-placeholder" style={{ width: 18, height: 9, background: '#0F5238' }} />
+        <img src={PeopleFedIcon} alt="People Fed" width="18" height="14" />
       ),
       label: 'People Fed',
       value: `${stats.peopleFed} %`,
@@ -52,8 +54,7 @@ export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalP
     },
     {
       icon: (
-        // Star/points icon placeholder
-        <span className="icon-placeholder" style={{ width: 15, height: 15, background: '#0F5238' }} />
+        <img src={PointsEarnedIcon} alt="Points Earned" width="15" height="15" />
       ),
       label: 'Points Earned',
       value: `${stats.pointsEarned} pts`,

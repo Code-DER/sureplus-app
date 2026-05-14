@@ -5,6 +5,15 @@ import AdminUserManagement from './AdminUserManagement';
 import AdminPartnerTagging from './AdminPartnerTagging';
 import AdminReports from './AdminReports';
 
+import StoreLogo from '../assets/ADMIN/Store Logo.svg';
+import NotificationIcon from '../assets/ADMIN/notification.svg';
+import QuestionIcon from '../assets/ADMIN/Question.svg';
+import DashboardIcon from '../assets/ADMIN/Dashboard.svg';
+import UserManagementIcon from '../assets/ADMIN/user management.svg';
+import PartnerTaggingIcon from '../assets/ADMIN/Partner Tagging.svg';
+import ReportsIcon from '../assets/ADMIN/Reports.svg';
+import InboxIcon from '../assets/ADMIN/inbox.svg';
+
 interface AdminDashboardProps {
   onSwitchRole: (role: 'buyer' | 'seller' | 'admin') => void;
 }
@@ -22,13 +31,13 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
         </div>
         <div className="topbar-right">
           <button className="icon-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <img src={NotificationIcon} alt="Notifications" width="20" height="20" />
           </button>
           <button className="icon-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <img src={QuestionIcon} alt="Help" width="20" height="20" />
           </button>
           <div className="avatar-wrapper">
-            <img src="https://placehold.co/32x32/191C1A/FFFFFF?text=Z" alt="Admin" className="admin-avatar" />
+            <img src={StoreLogo} alt="Admin" className="admin-avatar" />
           </div>
         </div>
       </div>
@@ -37,7 +46,7 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
       <div className="admin-sidebar-floating">
         <div className="admin-brand">
           <div className="admin-brand-icon">
-            <span className="icon-placeholder sureplus-icon">SP</span>
+            <img src={StoreLogo} alt="Sureplus" width="40" height="40" style={{ borderRadius: 8 }} />
           </div>
           <div className="admin-brand-text">
             <h3>Sureplus</h3>
@@ -47,23 +56,23 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
 
         <nav className="admin-nav">
           <button className={`admin-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <img src={DashboardIcon} alt="" width="18" height="18" />
             Dashboard
           </button>
           <button className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
-            <svg width="20" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <img src={UserManagementIcon} alt="" width="20" height="16" />
             User Management
           </button>
           <button className={`admin-nav-item ${activeTab === 'partners' ? 'active' : ''}`} onClick={() => setActiveTab('partners')}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            <img src={PartnerTaggingIcon} alt="" width="20" height="20" />
             Partner Tagging
           </button>
           <button className={`admin-nav-item ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <img src={ReportsIcon} alt="" width="18" height="18" />
             Reports
           </button>
           <button className={`admin-nav-item ${activeTab === 'inbox' ? 'active' : ''}`} onClick={() => setActiveTab('inbox')}>
-            <svg width="20" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <img src={InboxIcon} alt="" width="20" height="16" />
             Inbox
           </button>
           

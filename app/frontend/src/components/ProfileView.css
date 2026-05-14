@@ -36,11 +36,20 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: #2D6A4F;
-  background-image: url('https://placehold.co/128x128/2D6A4F/FFF?text=TM');
-  background-size: cover;
+  background-color: #2D6A4F;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 700;
+  font-size: 48px;
   border: 4px solid #B1F0CE;
   box-sizing: border-box;
+}
+
+.avatar-image::after {
+  content: 'TM';
 }
 
 .avatar-check-badge {

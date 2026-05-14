@@ -10,6 +10,10 @@ import SocialImpactView from './SocialImpactView'
 import { foodAPI } from '../api/apis'
 import type { FoodItem } from '../types/food'
 
+import ExpiryIcon from '../assets/BUYER/Expiry Icon.svg'
+import CartIcon from '../assets/BUYER/Cart Icon.svg'
+import LocationIcon from '../assets/BUYER/location.svg'
+
 interface OrderItem {
   id: string       // foodID (UUID)
   name: string
@@ -256,7 +260,7 @@ export default function ListingsFeed() {
                           <div className="listing-meta">
                             {item.stockQuantity > 0 ? (
                               <div className="meta-row">
-                                <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#0F5238' }} />
+                                <img src={ExpiryIcon} alt="Expiry" width="11" height="12" />
                                 <span>{item.stockQuantity} available</span>
                               </div>
                             ) : (
@@ -266,7 +270,7 @@ export default function ListingsFeed() {
                             )}
                             {item.expirationDate && (
                               <div className="meta-row expiry">
-                                <span className="icon-placeholder" style={{ width: 11, height: 12, background: '#BA1A1A' }} />
+                                <img src={ExpiryIcon} alt="Expiry" width="11" height="12" />
                                 <span>Expiration: {formatExpiration(item.expirationDate)}</span>
                               </div>
                             )}
@@ -289,7 +293,7 @@ export default function ListingsFeed() {
             <div className="order-panel">
               <div className="order-header">
                 <div className="order-header-row">
-                  <span className="icon-placeholder" style={{ width: 18, height: 20, background: 'white' }} />
+                  <img src={CartIcon} alt="Cart" width="18" height="20" />
                   <span className="order-title">My order</span>
                 </div>
                 <div className="order-subtitle">
@@ -316,7 +320,7 @@ export default function ListingsFeed() {
                         onClick={() => removeFromOrder(item.id)}
                         aria-label={`Remove ${item.name}`}
                       >
-                        <span className="icon-placeholder" style={{ width: 12, height: 14, background: '#707973' }} />
+                        <img src={LocationIcon} alt="Location" width="12" height="14" />
                       </button>
                     </div>
                   ))
@@ -354,7 +358,7 @@ export default function ListingsFeed() {
                 onClick={() => setShowSuccess(true)}
               >
                 <span>Confirm Order</span>
-                <span className="icon-placeholder" style={{ width: 13, height: 13, background: 'white' }} />
+                <img src={CartIcon} alt="Cart" width="13" height="13" />
               </button>
             </div>
           </div>

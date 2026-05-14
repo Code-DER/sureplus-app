@@ -50,7 +50,7 @@
 .login-image-bg {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-image: url('https://placehold.co/800x800/105437/A1A1AA?text=Produce+Image');
+  background-image: url('../assets/AUTH & ENTRY/Auth&Ent_stock2.png');
   background-size: cover;
   background-position: center;
   z-index: 0;

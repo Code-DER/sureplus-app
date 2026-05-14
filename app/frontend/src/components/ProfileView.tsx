@@ -3,6 +3,13 @@ import './ProfileView.css';
 import EditProfileView from './EditProfileView';
 import { userAPI, charityAPI, socialImpactAPI } from '../api/apis';
 
+import CheckmarkIcon from '../assets/Global Profile System/Checkmark.svg';
+import EcoIcon from '../assets/Global Profile System/Eco Icon.svg';
+import LogoutIcon from '../assets/Global Profile System/Logout Icon.svg';
+import AddressIcon from '../assets/Global Profile System/Address Icon.svg';
+import AccountIcon from '../assets/Global Profile System/Account Details Icon..svg';
+import ListingIcon from '../assets/Global Profile System/Listing Icon.svg';
+
 const SELLER_TYPES = ['Individual', 'Business', 'Distributor', 'Restaurant', 'Bakery'];
 
 
@@ -179,7 +186,7 @@ export default function ProfileView() {
           <div className="profile-avatar-wrapper">
             <div className="avatar-image"></div>
             <div className="avatar-check-badge">
-              <span className="icon-placeholder check-icon"></span>
+              <img src={CheckmarkIcon} alt="Verified" width="16" height="16" />
             </div>
           </div>
           
@@ -202,7 +209,7 @@ export default function ProfileView() {
             <span className="impact-value">{impactSummary ? `${impactSummary.totalRescuedKilos} kg` : '0 kg'}</span>
           </div>
           <div className="impact-icon-wrapper">
-            <span className="icon-placeholder leaf-icon"></span>
+            <img src={EcoIcon} alt="Eco" width="24" height="24" />
           </div>
         </div>
 
@@ -214,7 +221,7 @@ export default function ProfileView() {
               <span className="impact-value">{buyerProfile.points}</span>
             </div>
             <div className="impact-icon-wrapper">
-              <span className="icon-placeholder points-icon">💰</span>
+              <span className="points-icon-text">💰</span>
             </div>
           </div>
         )}
@@ -227,7 +234,7 @@ export default function ProfileView() {
                 <span className="seller-type-badge">{sellerProfile.sellerType}</span>
                 {sellerProfile.isVerified && (
                   <span className="verified-badge">
-                    <span className="icon-placeholder check-icon">✓</span>
+                    <img src={CheckmarkIcon} alt="Verified" width="12" height="12" />
                     Verified
                   </span>
                 )}
@@ -256,7 +263,7 @@ export default function ProfileView() {
         <div className="account-details-card">
           <div className="account-header">
             <h3>Account Details</h3>
-            <span className="icon-placeholder settings-icon"></span>
+            <img src={AccountIcon} alt="Settings" width="20" height="20" />
           </div>
           
           <div className="account-grid">
@@ -281,7 +288,7 @@ export default function ProfileView() {
           <div className="account-full-row">
             <label>DELIVERY ADDRESS</label>
             <div className="address-value">
-              <span className="icon-placeholder pin-icon"></span>
+              <img src={AddressIcon} alt="Pin" width="14" height="16" />
               <p>{profile.street}, {profile.residentialName}, {profile.barangay}, {profile.city}</p>
             </div>
           </div>
@@ -319,7 +326,7 @@ export default function ProfileView() {
               setSellerSuccess(false);
             }}>
               <div className="settings-icon-bg" style={{ background: '#FFF3EA' }}>
-                <span className="icon-placeholder bell-icon-green" style={{ background: '#FE6B00' }}></span>
+                <img src={ListingIcon} alt="Seller" width="18" height="18" />
               </div>
               <div className="settings-info">
                 <h4>Become a Seller</h4>
@@ -418,7 +425,7 @@ export default function ProfileView() {
               window.location.href = '/';
             }}
           >
-            <span className="icon-placeholder logout-icon"></span>
+            <img src={LogoutIcon} alt="Logout" width="18" height="18" />
             Logout Account
           </button>
         </div>
