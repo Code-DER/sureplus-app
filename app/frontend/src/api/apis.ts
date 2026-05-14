@@ -1,4 +1,24 @@
 import axios from "axios";
+import { jwtDecode, type JwtPayload } from 'jwt-decode';
+
+export interface SureplusJwtPayload extends JwtPayload {
+  userID: string;
+  role: string;
+}
+
+export const getAuthUser = () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const decoded = jwtDecode<SureplusJwtPayload>(token);
+    return decoded;
+  } catch {
+    return null;
+  }
+};
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
@@ -44,11 +64,18 @@ export const charityAPI = {
     getMyCharityProfile: () => api.get('/charities/myprofile'),
     getCharityById: (userId: string) => api.get(`/charities/${userId}`),
     updateMyCharityProfile: (data: { organizationName: string }) => api.put('/charities/myprofile', data),
+    
+    // Application endpoints
+    submitApplication: (data: { purpose: string, govID: string }) => api.post('/charity-applications/', data),
+    getMyApplications: () => api.get('/charity-applications/mine'),
+    getPendingApplications: () => api.get('/charity-applications/pending'),
+    reviewApplication: (applicationId: string, data: { status: 'approved' | 'rejected', organizationName?: string }) => 
+        api.put(`/charity-applications/${applicationId}/review`, data),
 };
 
 // Charity Post API functions
 export const charityPostAPI = {
-    getAllPosts: () => api.get('/charity-posts/'),
+    getAllPosts: (params?: { limit?: number, offset?: number, search?: string }) => api.get('/charity-posts/', { params }),
     getPostsByUser: (userId: string) => api.get(`/charity-posts/by-user/${userId}`),
     getPostById: (charityId: string) => api.get(`/charity-posts/${charityId}`),
     createPost: (data: { title: string, description?: string, amountNeeded: number }) => api.post('/charity-posts/', data),
@@ -61,6 +88,12 @@ export const charityPostAPI = {
 export const socialImpactAPI = {
     getImpactByPurchase: (purchaseId: string) => api.get(`/social-impact/purchase/${purchaseId}`),
     getMyImpactSummary: () => api.get('/social-impact/summary'),
+};
+
+// Purchase API functions
+export const purchaseAPI = {
+    create: (data: { userID: string, paymentMethod: string, items: { foodID: string, quantity: number }[] }) => api.post('/purchase', data),
+    complete: (purchaseId: string) => api.put(`/purchase/${purchaseId}/complete`),
 };
 
 // Food API functions

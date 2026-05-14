@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from models.charity_post import CharityPostCreate, CharityPostUpdate, CharityPostResponse, CharityPostDonateRequest
@@ -9,9 +9,13 @@ from api.dependency import get_current_user, require_role
 router = APIRouter()
 
 @router.get("/", response_model=List[CharityPostResponse])
-async def get_all_posts():
-    """Public endpoint to list all charity posts."""
-    response = charity_post_service.fetch_all_posts()
+async def get_all_posts(
+    limit: int = 10,
+    offset: int = 0,
+    search: Optional[str] = None
+):
+    """Public endpoint to list all charity posts with pagination and search."""
+    response = charity_post_service.fetch_all_posts(limit=limit, offset=offset, search=search)
     return response.data
 
 @router.get("/by-user/{user_id}", response_model=List[CharityPostResponse])

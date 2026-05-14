@@ -119,9 +119,33 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  margin-top: 4px;
 }
 
 .donate-btn:hover {
   background-color: #0D4731;
+}
+
+.charity-post-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.charity-post-footer button {
+  flex: 1;
+}
+
+.view-profile-btn {
+  background-color: white;
+  color: #0F5238;
+  border: 1px solid #0F5238;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.view-profile-btn:hover {
+  background-color: #F0FDF4;
 }

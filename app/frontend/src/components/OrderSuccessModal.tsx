@@ -29,26 +29,26 @@ export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalP
         <span className="icon-placeholder" style={{ width: 11, height: 15, background: '#0F5238' }} />
       ),
       label: 'Food Saved',
-      value: `${stats.foodSaved} %`,
-      percent: stats.foodSaved,
+      value: `${stats.foodSaved} kg`,
+      percent: Math.min(stats.foodSaved * 10, 100), // Scaled for visualization
     },
     {
       icon: (
         // QR/carbon icon placeholder
         <span className="icon-placeholder" style={{ width: 14, height: 7, background: '#0F5238' }} />
       ),
-      label: 'Carbon Reduced',
-      value: `${stats.carbonReduced} %`,
-      percent: stats.carbonReduced,
+      label: 'Carbon Offset',
+      value: `${stats.carbonReduced} kg CO₂e`,
+      percent: Math.min(stats.carbonReduced * 5, 100), // Scaled for visualization
     },
     {
       icon: (
         // People icon placeholder
         <span className="icon-placeholder" style={{ width: 18, height: 9, background: '#0F5238' }} />
       ),
-      label: 'People Fed',
-      value: `${stats.peopleFed} %`,
-      percent: stats.peopleFed,
+      label: 'Meals Provided',
+      value: `${stats.peopleFed} ${stats.peopleFed === 1 ? 'Meal' : 'Meals'}`,
+      percent: Math.min(stats.peopleFed * 20, 100), // Scaled for visualization
     },
     {
       icon: (

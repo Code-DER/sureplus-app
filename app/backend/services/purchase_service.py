@@ -58,8 +58,8 @@ def create_purchase(data):
 
     return purchase.data[0]
 
-def complete_purchase(purchase_id):
-    # Get purchase info
+def complete_purchase(purchase_id: str):
+    # 1. Get purchase info
     purchase_res = supabase_admin.table("Purchase") \
         .select("userID, totalPrice, status") \
         .eq("purchaseID", purchase_id) \
@@ -75,28 +75,25 @@ def complete_purchase(purchase_id):
     if purchase["status"] == "completed":
         raise Exception("Purchase already completed")
 
-    # Update status to completed
+    # 2. Update status to completed
     supabase_admin.table("Purchase").update({
         "status": "completed"
     }).eq("purchaseID", purchase_id).execute()
 
-    # Compute points
-    total = float(purchase["totalPrice"])
-    points_earned = int(total // 10)
+    # 3. Compute and persist social impact
+    social_impact_service.create_impact(purchase_id)
 
-    # Get current points
+    # 4. Award buyer points (₱10 = 1 point)
+    points_earned = int(float(purchase["totalPrice"]) // 10)
+    
     buyer_res = supabase_admin.table("Buyer") \
-        .select("points") \
-        .eq("userID", purchase["userID"]) \
-        .single() \
-        .execute()
-
-    current_points = float(buyer_res.data.get("points", 0))
-
-    # Update points
-    supabase_admin.table("Buyer").update({
-        "points": current_points + points_earned
-    }).eq("userID", purchase["userID"]).execute()
+        .select("points").eq("userID", purchase["userID"]).single().execute()
+    
+    if buyer_res.data:
+        current_points = float(buyer_res.data.get("points", 0))
+        supabase_admin.table("Buyer").update({
+            "points": current_points + points_earned
+        }).eq("userID", purchase["userID"]).execute()
 
     return {
         "message": "Purchase completed",
@@ -133,18 +130,3 @@ def get_seller_purchase_list(seller_id):
         .execute()
 
     return purchases_res.data
-
-def complete_purchase(purchase_id: str):
-    """
-    Mark a purchase as completed and trigger social impact calculation.
-    """
-    response = supabase_admin.table("Purchase") \
-        .update({"status": "completed"}) \
-        .eq("purchaseID", purchase_id) \
-        .execute()
-    
-    if response.data:
-        # Hook into Social Impact
-        social_impact_service.create_impact(purchase_id)
-    
-    return response

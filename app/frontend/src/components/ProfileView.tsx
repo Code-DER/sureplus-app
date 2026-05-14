@@ -56,6 +56,12 @@ export default function ProfileView() {
   const [sellerSubmitting, setSellerSubmitting] = useState(false);
   const [sellerError, setSellerError] = useState('');
   const [sellerSuccess, setSellerSuccess] = useState(false);
+  const [showCharityModal, setShowCharityModal] = useState(false);
+  const [charityForm, setCharityForm] = useState({ purpose: '', govID: '' });
+  const [charitySubmitting, setCharitySubmitting] = useState(false);
+  const [charityError, setCharityError] = useState('');
+  const [charitySuccess, setCharitySuccess] = useState(false);
+  const [hasPendingApplication, setHasPendingApplication] = useState(false);
 
   const fetchProfileData = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -111,6 +117,15 @@ export default function ProfileView() {
           })
       );
 
+      fetchPromises.push(
+        charityAPI.getMyApplications()
+          .then(res => {
+            const pending = res.data.some((app: any) => app.status === 'pending');
+            setHasPendingApplication(pending);
+          })
+          .catch(() => setHasPendingApplication(false))
+      );
+
       await Promise.all(fetchPromises);
     } catch (error) {
       console.error('Error fetching profile data:', error);
@@ -150,6 +165,28 @@ export default function ProfileView() {
       setSellerError(error.response?.data?.detail || 'Failed to upgrade. Please try again.');
     } finally {
       setSellerSubmitting(false);
+    }
+  };
+
+  const handleApplyAsCharity = async () => {
+    setCharityError('');
+    if (!charityForm.purpose.trim()) { setCharityError('Please describe your organization mission.'); return; }
+    if (!charityForm.govID.trim()) { setCharityError('Please provide a government ID or registration number.'); return; }
+
+    setCharitySubmitting(true);
+    try {
+      await charityAPI.submitApplication({
+        purpose: charityForm.purpose,
+        govID: charityForm.govID,
+      });
+      setCharitySuccess(true);
+      setHasPendingApplication(true);
+      setCharityForm({ purpose: '', govID: '' });
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setCharityError(error.response?.data?.detail || 'Failed to submit application. Please try again.');
+    } finally {
+      setCharitySubmitting(false);
     }
   };
 
@@ -330,6 +367,32 @@ export default function ProfileView() {
           </div>
         )}
 
+        {/* Become a Charity Row */}
+        {profile.role === 'buyer' && (
+          <div className="profile-settings-row" style={{ marginTop: '16px' }}>
+            <div 
+              className={`settings-box ${hasPendingApplication ? 'disabled' : ''}`} 
+              style={{ cursor: hasPendingApplication ? 'default' : 'pointer' }} 
+              onClick={() => {
+                if (hasPendingApplication) return;
+                setCharityForm({ purpose: '', govID: ''});
+                setShowCharityModal(true);
+                setCharityError('');
+                setCharitySuccess(false);
+              }}
+            >
+              <div className="settings-icon-bg" style={{ background: '#F0FDF4' }}>
+                <span className="icon-placeholder bell-icon-green" style={{ background: '#0F5238' }}></span>
+              </div>
+              <div className="settings-info">
+                <h4>{hasPendingApplication ? 'Application Pending' : 'Become a Charity'}</h4>
+                <p>{hasPendingApplication ? 'Your application is under review' : 'Help the community as a partner'}</p>
+              </div>
+              {!hasPendingApplication && <span style={{ marginLeft: 'auto', color: '#707973', fontSize: '18px' }}>›</span>}
+            </div>
+          </div>
+        )}
+
         {/* Seller Upgrade Modal */}
         {showSellerModal && (
           <div className="seller-modal-overlay" onClick={() => {
@@ -402,6 +465,81 @@ export default function ProfileView() {
                     </button>
                     <button className="btn-seller-submit" onClick={handleUpgradeToSeller} disabled={sellerSubmitting}>
                       {sellerSubmitting ? 'Submitting...' : 'Become a Seller'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Charity Application Modal */}
+        {showCharityModal && (
+          <div className="seller-modal-overlay" onClick={() => {
+            if (!charitySuccess) {
+              setShowCharityModal(false);
+              setCharityForm({ purpose: '', govID: '' });
+              setCharityError('');
+            }
+          }}>
+            <div className="seller-modal" onClick={(e) => e.stopPropagation()}>
+              {charitySuccess ? (
+                <div className="seller-modal-success">
+                  <div className="seller-modal-success-icon">✓</div>
+                  <h3>Application Submitted!</h3>
+                  <p>Your application is now being reviewed by our admins. We'll notify you once it's approved.</p>
+                  <button
+                    className="btn-seller-submit"
+                    style={{ marginTop: '24px', width: '100%' }}
+                    onClick={() => setShowCharityModal(false)}
+                  >
+                    Got it
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="seller-modal-header">
+                    <h3>Apply as Charity Partner</h3>
+                    <button className="seller-modal-close" onClick={() => setShowCharityModal(false)}>×</button>
+                  </div>
+                  <p className="seller-modal-desc">Tell us about your organization and mission to help the community.</p>
+
+                  {charityError && <div className="seller-modal-error">{charityError}</div>}
+
+                  <div className="seller-modal-field">
+                    <label>Organization Mission / Purpose</label>
+                    <div className="seller-input-wrapper">
+                      <textarea
+                        style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #D1D5DB', minHeight: '100px', fontFamily: 'inherit' }}
+                        placeholder="Describe what your organization does..."
+                        value={charityForm.purpose}
+                        onChange={(e) => setCharityForm(prev => ({ ...prev, purpose: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="seller-modal-field">
+                    <label>Government ID / Registration No.</label>
+                    <div className="seller-input-wrapper">
+                      <input
+                        type="text"
+                        placeholder="e.g. SEC-12345 or Tax ID"
+                        value={charityForm.govID}
+                        onChange={(e) => setCharityForm(prev => ({ ...prev, govID: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="seller-modal-footer">
+                    <button className="btn-seller-cancel" onClick={() => {
+                      setShowCharityModal(false);
+                      setCharityForm({ purpose: '', govID: '' });
+                      setCharityError('');
+                    }}>
+                      Cancel
+                    </button>
+                    <button className="btn-seller-submit" onClick={handleApplyAsCharity} disabled={charitySubmitting}>
+                      {charitySubmitting ? 'Submitting...' : 'Submit Application'}
                     </button>
                   </div>
                 </>

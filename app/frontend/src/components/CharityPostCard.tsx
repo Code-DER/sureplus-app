@@ -5,6 +5,7 @@ import './CharityPostCard.css';
 interface CharityPostCardProps {
   post: CharityPost;
   onDonate?: (post: CharityPost) => void;
+  onViewProfile?: (userId: string) => void;
   isOwner?: boolean;
   onEdit?: (post: CharityPost) => void;
   onDelete?: (post: CharityPost) => void;
@@ -13,6 +14,7 @@ interface CharityPostCardProps {
 const CharityPostCard: React.FC<CharityPostCardProps> = ({ 
   post, 
   onDonate, 
+  onViewProfile,
   isOwner, 
   onEdit, 
   onDelete 
@@ -58,11 +60,18 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
         <span className="progress-percentage">{Math.round(progress)}% funded</span>
       </div>
 
-      {!isOwner && onDonate && (
-        <button className="donate-btn" onClick={() => onDonate(post)}>
-          Donate Now
-        </button>
-      )}
+      <div className="charity-post-footer">
+        {!isOwner && onDonate && (
+          <button className="donate-btn" onClick={() => onDonate(post)}>
+            Donate Now
+          </button>
+        )}
+        {!isOwner && onViewProfile && (
+          <button className="view-profile-btn" onClick={() => onViewProfile(post.userID)}>
+            View Charity
+          </button>
+        )}
+      </div>
     </div>
   );
 };

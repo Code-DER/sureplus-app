@@ -19,6 +19,11 @@ export interface CharityProfile extends UserProfile {
   organizationName: string;
 }
 
+export interface CharityResponse {
+  userID: string;
+  organizationName: string;
+}
+
 export interface CharityPost {
   charityID: string;
   userID: string;
@@ -43,3 +48,14 @@ export interface SocialImpactSummary {
   totalPeopleFed: number;
   purchaseCount: number;
 }
+
+export interface CharityApplication {
+  applicationID: string;
+  userID: string;
+  purpose: string;
+  govID: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
+export interface CharityApplicationResponse extends CharityApplication {}

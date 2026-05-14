@@ -3,11 +3,16 @@ Service for handling charity post database operations.
 """
 from database import supabase_admin
 
-def fetch_all_posts():
+def fetch_all_posts(limit: int = 10, offset: int = 0, search: str = None):
     """
-    Fetch all charity posts ordered by createdAt DESC.
+    Fetch all charity posts ordered by createdAt DESC with pagination and search.
     """
-    return supabase_admin.table("CharityPost").select("*").order("createdAt", desc=True).execute()
+    query = supabase_admin.table("CharityPost").select("*").order("createdAt", desc=True)
+    
+    if search:
+        query = query.or_(f"title.ilike.%{search}%,description.ilike.%{search}%")
+        
+    return query.range(offset, offset + limit - 1).execute()
 
 def fetch_post_by_id(charity_id: str):
     """

@@ -7,7 +7,7 @@ import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
 import CharityPostsFeed from './CharityPostsFeed'
 import SocialImpactView from './SocialImpactView'
-import { foodAPI } from '../api/apis'
+import { foodAPI, purchaseAPI, socialImpactAPI, getAuthUser } from '../api/apis'
 import type { FoodItem } from '../types/food'
 
 interface OrderItem {
@@ -67,12 +67,8 @@ export default function ListingsFeed() {
   const [showNotifs, setShowNotifs] = useState(false)
   const [activeTab, setActiveTab] = useState<'listings' | 'charity' | 'history' | 'impact' | 'profile'>('listings')
 
-  const [impactStats] = useState<ImpactStats>({
-    foodSaved: 67,
-    carbonReduced: 32,
-    peopleFed: 40,
-    pointsEarned: 67,
-  })
+  const [impactStats, setImpactStats] = useState<ImpactStats | null>(null)
+  const [isOrdering, setIsOrdering] = useState(false)
 
   // ── Order helpers ─────────────────────────────────────────────────────────
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
@@ -95,6 +91,52 @@ export default function ListingsFeed() {
 
   const removeFromOrder = (id: string) => {
     setOrderItems((prev) => prev.filter((o) => o.id !== id))
+  }
+
+  const handleConfirmOrder = async () => {
+    const user = getAuthUser()
+    if (!user) {
+      alert('Please log in to place an order.')
+      return
+    }
+
+    setIsOrdering(true)
+    try {
+      // 1. Create Purchase
+      const createResp = await purchaseAPI.create({
+        userID: user.userID,
+        paymentMethod,
+        items: orderItems.map(item => ({
+          foodID: item.id,
+          quantity: item.qty
+        }))
+      })
+
+      const purchaseId = createResp.data.purchaseID
+
+      // 2. Complete Purchase (This triggers social impact creation in backend)
+      const completeResp = await purchaseAPI.complete(purchaseId)
+      const pointsEarned = completeResp.data.pointsEarned
+
+      // 3. Get Real Social Impact Stats
+      const impactResp = await socialImpactAPI.getImpactByPurchase(purchaseId)
+      const impact = impactResp.data
+
+      const liveStats: ImpactStats = {
+        foodSaved: Math.round(impact.rescuedKilos * 10) / 10,
+        carbonReduced: Math.round(impact.carbonOffset * 10) / 10,
+        peopleFed: impact.peopleFed,
+        pointsEarned: pointsEarned,
+      }
+
+      setImpactStats(liveStats)
+      setShowSuccess(true)
+    } catch (err) {
+      console.error('Order failed:', err)
+      alert('Failed to place order. Please try again.')
+    } finally {
+      setIsOrdering(false)
+    }
   }
 
   return (
@@ -350,10 +392,10 @@ export default function ListingsFeed() {
 
               <button
                 className="confirm-btn"
-                disabled={orderItems.length === 0}
-                onClick={() => setShowSuccess(true)}
+                disabled={orderItems.length === 0 || isOrdering}
+                onClick={handleConfirmOrder}
               >
-                <span>Confirm Order</span>
+                <span>{isOrdering ? 'Processing...' : 'Confirm Order'}</span>
                 <span className="icon-placeholder" style={{ width: 13, height: 13, background: 'white' }} />
               </button>
             </div>
@@ -362,11 +404,12 @@ export default function ListingsFeed() {
       </div>
 
       {/* Success Modal */}
-      {showSuccess && (
+      {showSuccess && impactStats && (
         <OrderSuccessModal
           stats={impactStats}
           onClose={() => {
             setShowSuccess(false)
+            setImpactStats(null)
             setOrderItems([])
           }}
         />

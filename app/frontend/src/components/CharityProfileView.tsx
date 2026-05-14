@@ -7,9 +7,10 @@ import './CharityProfileView.css';
 
 interface CharityProfileViewProps {
   userId: string;
+  onBack?: () => void;
 }
 
-const CharityProfileView: React.FC<CharityProfileViewProps> = ({ userId }) => {
+const CharityProfileView: React.FC<CharityProfileViewProps> = ({ userId, onBack }) => {
   const [profile, setProfile] = useState<CharityProfile | null>(null);
   const [posts, setPosts] = useState<CharityPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +52,15 @@ const CharityProfileView: React.FC<CharityProfileViewProps> = ({ userId }) => {
 
   return (
     <div className="charity-profile-view">
+      {onBack && (
+        <button className="back-btn" onClick={onBack} aria-label="Go back to feed">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Feed
+        </button>
+      )}
       <header className="charity-profile-hero">
         <div className="profile-hero-content">
           <div className="charity-logo-large">

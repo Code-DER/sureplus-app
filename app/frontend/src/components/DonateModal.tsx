@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { CharityPost } from '../api/types';
 import { charityPostAPI } from '../api/apis';
 import './DonateModal.css';
@@ -9,10 +9,27 @@ interface DonateModalProps {
   onSuccess: (updatedPost: CharityPost) => void;
 }
 
-const DonateModal: React.FC<DonateModalProps> = ({ post, onClose, onSuccess }) => {
+const DonateModal: React.FC<DonateModalProps> = ({ post: initialPost, onClose, onSuccess }) => {
+  const [post, setPost] = useState<CharityPost>(initialPost);
   const [amount, setAmount] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchLatestPost = async () => {
+      try {
+        const response = await charityPostAPI.getPostById(initialPost.charityID);
+        setPost(response.data);
+      } catch (err) {
+        console.error('Error fetching latest post data:', err);
+        // Fallback to initialPost if fetch fails
+      } finally {
+        setFetching(false);
+      }
+    };
+    fetchLatestPost();
+  }, [initialPost.charityID]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +55,8 @@ const DonateModal: React.FC<DonateModalProps> = ({ post, onClose, onSuccess }) =
     }
   };
 
+  const progress = Math.min((post.currentAmount / post.amountNeeded) * 100, 100);
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="donate-modal" onClick={(e) => e.stopPropagation()}>
@@ -46,39 +65,58 @@ const DonateModal: React.FC<DonateModalProps> = ({ post, onClose, onSuccess }) =
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        {fetching ? (
           <div className="modal-body">
-            <p className="donation-instruction">
-              Enter the amount you wish to donate to help {post.title} reach its goal.
-            </p>
+            <div className="spinner-container">
+              <div className="spinner"></div>
+              <p>Fetching latest campaign status...</p>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="modal-body">
+              <div className="current-progress-info">
+                <div className="progress-stats">
+                  <span>₱{post.currentAmount.toLocaleString()} raised</span>
+                  <span>Goal: ₱{post.amountNeeded.toLocaleString()}</span>
+                </div>
+                <div className="progress-bar-bg">
+                  <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
+                </div>
+              </div>
 
-            <div className="input-group">
-              <label htmlFor="amount">Donation Amount (₱)</label>
-              <input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="1"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-                autoFocus
-              />
+              <p className="donation-instruction">
+                Enter the amount you wish to donate to help {post.title} reach its goal.
+              </p>
+
+              <div className="input-group">
+                <label htmlFor="amount">Donation Amount (₱)</label>
+                <input
+                  id="amount"
+                  type="number"
+                  step="0.01"
+                  min="1"
+                  placeholder="0.00"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+
+              {error && <div className="error-message">{error}</div>}
             </div>
 
-            {error && <div className="error-message">{error}</div>}
-          </div>
-
-          <div className="modal-footer">
-            <button type="button" className="cancel-btn" onClick={onClose} disabled={loading}>
-              Cancel
-            </button>
-            <button type="submit" className="confirm-btn" disabled={loading}>
-              {loading ? 'Processing...' : 'Confirm Donation'}
-            </button>
-          </div>
-        </form>
+            <div className="modal-footer">
+              <button type="button" className="cancel-btn" onClick={onClose} disabled={loading}>
+                Cancel
+              </button>
+              <button type="submit" className="confirm-btn" disabled={loading}>
+                {loading ? 'Processing...' : 'Confirm Donation'}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
