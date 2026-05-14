@@ -2,6 +2,9 @@ import { useState } from 'react';
 
 import './SalesAnalytics.css';
 
+import ProduceIcon from '../assets/Seller/Mystery Box/Produce.svg';
+import BakeryIcon from '../assets/Seller/Mystery Box/Bakery.svg';
+
 interface SalesAnalyticsProps {
   onBack: () => void;
 }
@@ -31,7 +34,7 @@ const PRODUCTS: Product[] = [
   {
     id: 'BXR-9031',
     name: 'Organic Veggie Box',
-    image: '🥗',
+    image: ProduceIcon,
     topRescuer: { initials: 'AW', name: 'Alex What' },
     frequency: '9 Rescues',
     frequencySub: 'Avg. weekly',
@@ -46,7 +49,7 @@ const PRODUCTS: Product[] = [
   {
     id: 'BXR-8842',
     name: 'Artisan Bakery',
-    image: '🍞',
+    image: BakeryIcon,
     topRescuer: { initials: 'SG', name: 'Sarah G?' },
     frequency: '8 Rescues',
     frequencySub: 'Monthly regular',
@@ -243,7 +246,7 @@ export default function SalesAnalytics({ onBack }: SalesAnalyticsProps) {
                         <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="#A1A1AA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       </button>
                       <div className="sa-product-thumb">
-                        <span className="sa-product-emoji">{product.image}</span>
+                        <img src={product.image} alt={product.name} className="sa-product-icon" width="28" height="28" />
                       </div>
                       <div className="sa-product-info">
                         <span className="sa-product-name">{product.name}</span>

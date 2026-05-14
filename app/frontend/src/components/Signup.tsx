@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import api from '../api/apis';
 import './Signup.css';
+import ImpactImage from '../assets/AUTH & ENTRY/Auth&Ent_stock1.png';
 
 interface SignupProps {
   onSignup: () => void;
@@ -371,7 +372,7 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
             </div>
 
             <div className="signup-impact-card">
-              <div className="impact-image" style={{ backgroundImage: 'url(https://placehold.co/400x300/2d6a4f/ffffff?text=Veggies)' }}>
+              <div className="impact-image" style={{ backgroundImage: `url(${ImpactImage})` }}>
                 <div className="impact-overlay">
                   <p>By joining, you've helped save over 4,000 lbs of food this month!</p>
                 </div>

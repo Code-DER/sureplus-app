@@ -2,6 +2,13 @@ import { useState } from 'react'
 import './ProductDetail.css'
 import type { FoodItem } from '../types/food'
 
+import MinusIcon from '../assets/BUYER/minus.svg'
+import PlusIcon from '../assets/BUYER/plus.svg'
+import CartIcon from '../assets/BUYER/Cart Icon.svg'
+import ExpiryIcon from '../assets/BUYER/Expiry Icon.svg'
+import VeganIcon from '../assets/BUYER/vegan.svg'
+import FoodSavedIcon from '../assets/BUYER/Food Saved.svg'
+
 // Re-exported so ListingsFeed can use it via the same import path it always has
 export type { FoodItem as FoodListingFull }
 
@@ -86,7 +93,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
                     className="allergen-tag"
                     style={listing.matchedAllergenIDs.length > 0 ? { borderColor: '#FFA726', background: '#FFF8F0' } : {}}
                   >
-                    <span className="icon-placeholder" style={{ width: 12, height: 12, background: '#0F5238' }} />
+                    <img src={VeganIcon} alt="Allergen" width="12" height="12" />
                     <span>{name}</span>
                   </div>
                 ))}
@@ -108,7 +115,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
                 aria-label="Decrease quantity"
                 disabled={qty <= 1}
               >
-                <span className="icon-placeholder" style={{ width: 14, height: 2, background: '#191C1A' }} />
+                <img src={MinusIcon} alt="Minus" width="14" height="2" />
               </button>
               <span className="qty-value">{qty}</span>
               <button
@@ -117,7 +124,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
                 aria-label="Increase quantity"
                 disabled={qty >= listing.stockQuantity}
               >
-                <span className="icon-placeholder" style={{ width: 14, height: 14, background: '#191C1A' }} />
+                <img src={PlusIcon} alt="Plus" width="14" height="14" />
               </button>
             </div>
           </div>
@@ -135,7 +142,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
               onBack()
             }}
           >
-            <span className="icon-placeholder" style={{ width: 20, height: 20, background: '#FFFFFF' }} />
+            <img src={CartIcon} alt="Cart" width="20" height="20" />
             <span>Add to Order</span>
           </button>
         </div>
@@ -145,7 +152,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
       <div className="detail-info-cards">
         <div className="info-card">
           <div className="info-card-icon">
-            <span className="icon-placeholder" style={{ width: 18, height: 20, background: '#0F5238' }} />
+            <img src={ExpiryIcon} alt="Expiry" width="18" height="20" />
           </div>
           <div className="info-card-content">
             <span className="info-card-label">Expiry Date</span>
@@ -155,7 +162,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
 
         <div className="info-card">
           <div className="info-card-icon">
-            <span className="icon-placeholder" style={{ width: 16, height: 20, background: '#0F5238' }} />
+            <img src={FoodSavedIcon} alt="Stock" width="16" height="20" />
           </div>
           <div className="info-card-content">
             <span className="info-card-label">Stock Available</span>

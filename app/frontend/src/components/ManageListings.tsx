@@ -3,6 +3,10 @@ import { useState } from 'react';
 import './ManageListings.css';
 import EditListing from './EditListing';
 
+import BakeryIcon from '../assets/Seller/Mystery Box/Bakery.svg';
+import ProduceIcon from '../assets/Seller/Mystery Box/Produce.svg';
+import DeliIcon from '../assets/Seller/Mystery Box/Deli.svg';
+
 interface ManageListingsProps {
   onBack: () => void;
 }
@@ -31,7 +35,7 @@ const MOCK_ITEMS: ListingItem[] = [
     expiryText: '2h 45m left',
     expiryPercent: 30,
     expiryUrgent: false,
-    image: '🍞',
+    image: BakeryIcon,
   },
   {
     id: 2,
@@ -43,7 +47,7 @@ const MOCK_ITEMS: ListingItem[] = [
     expiryText: '6h 20m left',
     expiryPercent: 75,
     expiryUrgent: false,
-    image: '🥗',
+    image: ProduceIcon,
   },
   {
     id: 3,
@@ -55,7 +59,7 @@ const MOCK_ITEMS: ListingItem[] = [
     expiryText: 'Expiring soon!',
     expiryPercent: 95,
     expiryUrgent: true,
-    image: '🍱',
+    image: DeliIcon,
   },
 ];
 
@@ -167,7 +171,7 @@ export default function ManageListings({ onBack }: ManageListingsProps) {
               {/* Item Details */}
               <div className="ml-item-details" onClick={() => setEditingItem(item)} style={{ cursor: 'pointer' }}>
                 <div className="ml-item-thumb">
-                  <span className="ml-item-emoji">{item.image}</span>
+                  <img src={item.image} alt={item.name} className="ml-item-icon" width="32" height="32" />
                 </div>
                 <div className="ml-item-info">
                   <span className="ml-item-name">{item.name}</span>

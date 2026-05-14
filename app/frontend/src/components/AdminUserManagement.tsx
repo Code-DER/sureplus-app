@@ -3,9 +3,20 @@ import './AdminUserManagement.css';
 
 const USERS_PER_PAGE = 10;
 
-const USERS = [
+interface User {
+  id: number;
+  initials?: string;
+  avatar?: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  dateJoined: string;
+}
+
+const USERS: User[] = [
   { id: 1,  initials: 'VC', name: 'Vic Calag',        email: 'vicc@greenmarket.com',       role: 'Seller',   status: 'Active',   dateJoined: 'Oct 12, 2025' },
-  { id: 2,  avatar: 'https://placehold.co/80x80/191C1A/FFFFFF?text=BU',
+  { id: 2,  initials: 'BU',
                              name: 'Buddha',            email: 'buddhaxdana@love.org',        role: 'Recycler', status: 'Active',   dateJoined: 'Nov 05, 2025' },
   { id: 3,  initials: 'LA', name: 'Levi Ackerman',    email: 'leevi@foodrescue.net',        role: 'Buyer',    status: 'Inactive', dateJoined: 'Jan 18, 2026' },
   { id: 4,  initials: 'DJ', name: 'Dana Jill',        email: 'dj@farmfresh.co',             role: 'Seller',   status: 'Active',   dateJoined: 'Feb 11, 2026' },
@@ -165,7 +176,7 @@ export default function AdminUserManagement() {
 
           <div className="profile-header">
             <div className="profile-avatar-lg-wrapper">
-              <img src="https://placehold.co/80x80/191C1A/FFFFFF?text=BU" alt="Buddha" className="profile-avatar-lg" />
+              <div className="user-initials-lg">BU</div>
               <div className="profile-status-indicator"></div>
             </div>
             <h3 className="profile-name">Buddha</h3>
