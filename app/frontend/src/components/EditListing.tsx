@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 import './EditListing.css';
 
+import BakeryIcon from '../assets/Seller/Mystery Box/Bakery.svg';
+
 interface EditListingProps {
   item: {
     id: number;
@@ -192,7 +194,7 @@ export default function EditListing({ item, onBack }: EditListingProps) {
           <div className="el-card el-media-card">
             <div className="el-media-image">
               <div className="el-media-placeholder">
-                <span style={{ fontSize: '80px' }}>🍞</span>
+                <img src={BakeryIcon} alt="Product" style={{ width: '80px', height: '80px' }} />
               </div>
               <div className="el-media-overlay">
                 <svg width="20" height="18" viewBox="0 0 20 18" fill="none"><path d="M1 14l5-5 4 4 4-6 5 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>

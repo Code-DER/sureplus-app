@@ -1,4 +1,9 @@
-// No imports needed from react if not using hooks/types
+import TotalRevenueIcon from '../assets/ADMIN/Dashboard/total revenue.svg';
+import TotalUsersIcon from '../assets/ADMIN/Dashboard/total users.svg';
+import TotalPartnersIcon from '../assets/ADMIN/Dashboard/total partners.svg';
+import FoodRescuedIcon from '../assets/ADMIN/Dashboard/food rescued.svg';
+import BulkRescueIcon from '../assets/ADMIN/Dashboard/bulk rescue order.svg';
+import NewPartnerIcon from '../assets/ADMIN/Dashboard/new parter registered.svg';
 
 const ACTIVITIES = [
   {
@@ -6,7 +11,7 @@ const ACTIVITIES = [
     event: 'New Bulk Rescue Order',
     subEvent: 'Order #88241 — "Green Market Co."',
     actor: 'Osamu Dazai',
-    actorAvatar: 'https://placehold.co/32x32/191C1A/FFFFFF?text=OD',
+    actorInitials: 'OD',
     status: 'Processed',
     statusType: 'success',
     time: '2 mins ago'
@@ -16,7 +21,7 @@ const ACTIVITIES = [
     event: 'New Partner Registered',
     subEvent: '"Urban Harvest Organic"',
     actor: 'Levi Ackerman',
-    actorAvatar: 'https://placehold.co/32x32/191C1A/FFFFFF?text=LA',
+    actorInitials: 'LA',
     status: 'Pending Review',
     statusType: 'neutral',
     time: '14 mins ago'
@@ -26,7 +31,7 @@ const ACTIVITIES = [
     event: 'System Update Deployed',
     subEvent: 'Version 2.4.0 — Search Optimization',
     actor: 'Toji Fushiguro',
-    actorAvatar: 'https://placehold.co/32x32/191C1A/FFFFFF?text=TF',
+    actorInitials: 'TF',
     status: 'Automatic',
     statusType: 'neutral',
     time: '1 hour ago'
@@ -42,7 +47,7 @@ export default function AdminDashboardHome() {
         <div className="admin-stat-card">
           <div className="stat-header">
             <span className="stat-icon-wrapper">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#707973" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2"></circle></svg>
+              <img src={TotalRevenueIcon} alt="" width="20" height="20" />
             </span>
             <span className="stat-badge positive">↗ +12.5%</span>
           </div>
@@ -53,7 +58,7 @@ export default function AdminDashboardHome() {
         <div className="admin-stat-card">
           <div className="stat-header">
             <span className="stat-icon-wrapper">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#707973" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+              <img src={TotalUsersIcon} alt="" width="20" height="20" />
             </span>
             <span className="stat-badge positive">↗ +8.2%</span>
           </div>
@@ -64,7 +69,7 @@ export default function AdminDashboardHome() {
         <div className="admin-stat-card">
           <div className="stat-header">
             <span className="stat-icon-wrapper">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#707973" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+              <img src={TotalPartnersIcon} alt="" width="20" height="20" />
             </span>
             <span className="stat-badge negative">↘ -2.1%</span>
           </div>
@@ -75,7 +80,7 @@ export default function AdminDashboardHome() {
         <div className="admin-stat-card dark">
           <div className="stat-header">
             <span className="stat-icon-wrapper dark-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>
+              <img src={FoodRescuedIcon} alt="" width="20" height="20" />
             </span>
             <span className="stat-badge highlight">⚡ High Impact</span>
           </div>
@@ -157,8 +162,8 @@ export default function AdminDashboardHome() {
                 <td>
                   <div className="td-event">
                     <div className="event-icon">
-                      {activity.id === 1 && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F5238" strokeWidth="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>}
-                      {activity.id === 2 && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#404943" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>}
+                      {activity.id === 1 && <img src={BulkRescueIcon} alt="" width="16" height="16" />}
+                      {activity.id === 2 && <img src={NewPartnerIcon} alt="" width="16" height="16" />}
                       {activity.id === 3 && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#404943" strokeWidth="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>}
                     </div>
                     <div className="event-info">
@@ -169,7 +174,7 @@ export default function AdminDashboardHome() {
                 </td>
                 <td>
                   <div className="td-actor">
-                    <img src={activity.actorAvatar} alt={activity.actor} />
+                    <span className="actor-initials">{activity.actorInitials}</span>
                     <span>{activity.actor}</span>
                   </div>
                 </td>

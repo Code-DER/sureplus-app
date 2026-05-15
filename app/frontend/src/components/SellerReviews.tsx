@@ -17,7 +17,7 @@ const MOCK_REVIEWS = [
     name: 'Qin Shi Huang',
     date: 'April 25, 2026',
     order: 'Order #RE-44921-X',
-    avatar: 'https://placehold.co/48x48/191C1A/FFFFFF?text=QH',
+    initials: 'QH',
     rating: 5,
     text: 'The vegetables were incredibly fresh! I was surprised at the variety in the mystery box. The staff at the pickup point were very friendly and had everything ready to go. Great value for money.',
     badges: ['FRESH PRODUCE', 'FRIENDLY STAFF']
@@ -27,7 +27,7 @@ const MOCK_REVIEWS = [
     name: 'Buddha',
     date: 'October 22, 2025',
     order: 'Order #RE-43882-B',
-    avatar: 'https://placehold.co/48x48/191C1A/FFFFFF?text=BU',
+    initials: 'BU',
     rating: 4,
     text: "Hi. I'm Lynn from Las Vegas. Mowdels. Were hiring new promohtional mowdels to work en Las Vegas, Yuwezay. Are you etin to tweynty one yirs old?",
     badges: ['EASY TO FIND']
@@ -101,7 +101,7 @@ export default function SellerReviews({ onBack }: SellerReviewsProps) {
           <div className="review-card" key={review.id}>
             <div className="review-header">
               <div className="review-author">
-                <img src={review.avatar} alt={review.name} className="review-avatar" />
+                <div className="review-avatar-initials">{review.initials}</div>
                 <div className="review-author-info">
                   <h3>{review.name}</h3>
                   <span className="review-meta">{review.date} • {review.order}</span>

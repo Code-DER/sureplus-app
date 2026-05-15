@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import './AdminPartnerTagging.css';
 
+import BakeryImg from '../assets/ADMIN/Partner tagging/Bakery.svg';
+import CommunityImg from '../assets/ADMIN/Partner tagging/community.svg';
+
 const PARTNERS = [
   {
     id: 1,
-    image: 'https://placehold.co/192x266/C8A97A/FFFFFF?text=Bakery',
+    image: BakeryImg,
     badgeText: 'SELLER',
     badgeType: 'seller',
     name: 'Harvest Crust Artisan Bakery',
@@ -22,7 +25,7 @@ const PARTNERS = [
   },
   {
     id: 2,
-    image: 'https://placehold.co/192x224/7BBF7A/FFFFFF?text=Kitchen',
+    image: CommunityImg,
     badgeText: 'PENDING',
     badgeType: 'pending',
     name: 'Unity Soup Kitchen & Pantry',
