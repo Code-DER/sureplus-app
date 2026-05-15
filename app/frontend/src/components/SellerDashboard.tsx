@@ -152,13 +152,16 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
   return (
     <div className="seller-page">
       {/* ===== TOP HEADER BAR ===== */}
-      <header className="seller-header">
+      <header className="seller-dashboard-header">
         <div className="seller-header-left">
           <span className="seller-header-title">Overview Dashboard</span>
         </div>
         <div className="seller-header-right">
           <button className="seller-icon-btn" aria-label="Notifications">
             <svg width="16" height="20" viewBox="0 0 16 20" fill="none"><path d="M8 20c1.1 0 2-.9 2-2H6c0 1.1.9 2 2 2zm6-6V9c0-3.07-1.63-5.64-4.5-6.32V2C9.5 1.17 8.83.5 8 .5S6.5 1.17 6.5 2v.68C3.64 3.36 2 5.92 2 9v5l-2 2v1h16v-1l-2-2z" fill="#6B7280"/></svg>
+          </button>
+          <button className="seller-icon-btn" aria-label="Cart">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 16C4.9 16 4.01 16.9 4.01 18C4.01 19.1 4.9 20 6 20C7.1 20 8 19.1 8 18C8 16.9 7.1 16 6 16ZM0 0V2H2L5.6 9.59L4.25 12.04C4.09 12.32 4 12.65 4 13C4 14.1 4.9 15 6 15H18V13H6.42C6.28 13 6.17 12.89 6.17 12.75L6.2 12.63L7.1 11H14.55C15.3 11 15.96 10.59 16.3 9.97L19.88 3.48C19.96 3.34 20 3.17 20 3C20 2.45 19.55 2 19 2H4.21L3.27 0H0ZM16 16C14.9 16 14.01 16.9 14.01 18C14.01 19.1 14.9 20 16 20C17.1 20 18 19.1 18 18C18 16.9 17.1 16 16 16Z" fill="#6B7280"/></svg>
           </button>
           <div className="seller-avatar" onClick={onSwitchRole} title="Switch to Buyer">
             <span>{initials}</span>
