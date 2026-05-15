@@ -104,9 +104,13 @@ export const notificationsAPI = {
 };
 
 export const purchaseAPI = {
-    createPurchase: (data: any) => api.post('/purchase', data),
-    completePurchase: (purchaseID: string) => api.put('/purchase/${purchaseID}/complete'),
-    getSellerPurchases: (sellerID: string) => api.get('/purchase/seller/${sellerID')
+    createPurchase: (data) => api.post('/purchases/purchase', data),
+
+    completePurchase: (purchaseID: string) =>
+        api.put(`/purchases/purchase/${purchaseID}/complete`),
+
+    getSellerPurchases: (sellerID: string) =>
+        api.get(`/purchases/purchase/seller/${sellerID}`)
 };
 
 export default api;

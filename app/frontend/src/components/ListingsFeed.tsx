@@ -9,6 +9,7 @@ import CharityPostsFeed from './CharityPostsFeed'
 import SocialImpactView from './SocialImpactView'
 import { foodAPI } from '../api/apis'
 import type { FoodItem } from '../types/food'
+import { purchaseAPI } from '../api/apis'
 
 import ExpiryIcon from '../assets/BUYER/Expiry Icon.svg'
 import CartIcon from '../assets/BUYER/Cart Icon.svg'
@@ -99,6 +100,34 @@ export default function ListingsFeed() {
 
   const removeFromOrder = (id: string) => {
     setOrderItems((prev) => prev.filter((o) => o.id !== id))
+  }
+
+  const handleConfirmOrder = async () => {
+    try {
+      const payload = {
+        paymentMethod,
+        items: orderItems.map(item => ({
+          foodID: item.id,
+          quantity: item.qty
+        }))
+      }
+
+      const response = await purchaseAPI.createPurchase(payload)
+
+      console.log("Purchase success:", response.data)
+
+      setShowSuccess(true)
+      setOrderItems([])
+
+    } catch (error: any) {
+        console.log("FULL ERROR:", error)
+        console.log("RESPONSE:", error?.response?.data)
+
+        alert(
+          error?.response?.data?.detail ||
+          "Failed to place order"
+        )
+    }
   }
 
   return (
@@ -355,7 +384,7 @@ export default function ListingsFeed() {
               <button
                 className="confirm-btn"
                 disabled={orderItems.length === 0}
-                onClick={() => setShowSuccess(true)}
+                onClick={handleConfirmOrder}
               >
                 <span>Confirm Order</span>
                 <img src={CartIcon} alt="Cart" width="13" height="13" />

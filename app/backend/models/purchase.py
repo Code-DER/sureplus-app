@@ -11,7 +11,7 @@ class PurchaseItemCreate(BaseModel):
     quantity: int
 
 class PurchaseBase(BaseModel):
-    paymentMethod: Literal["Cash" , "Online Payment"] = "Cash"
+    paymentMethod: Literal["GCash" , "Cash on Delivery", "Maya"] = "GCash"
 
 class PurchaseCreate(PurchaseBase):
     items: List[PurchaseItemCreate]
