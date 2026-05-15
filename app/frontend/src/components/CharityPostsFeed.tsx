@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import type { CharityPost } from '../api/types';
 import { charityPostAPI } from '../api/apis';
 import CharityPostCard from './CharityPostCard';
@@ -18,7 +18,7 @@ const CharityPostsFeed: React.FC = () => {
 
   // Pagination & Search
   const [search, setSearch] = useState('');
-  const [offset, setOffset] = useState(0);
+  const offsetRef = useRef(0);
   const [hasMore, setHasMore] = useState(true);
   const LIMIT = 6;
 
@@ -26,12 +26,12 @@ const CharityPostsFeed: React.FC = () => {
     try {
       if (isInitial) {
         setLoading(true);
-        setOffset(0);
+        offsetRef.current = 0;
       } else {
         setLoadingMore(true);
       }
 
-      const currentOffset = isInitial ? 0 : offset;
+      const currentOffset = isInitial ? 0 : offsetRef.current;
       const response = await charityPostAPI.getAllPosts({
         limit: LIMIT,
         offset: currentOffset,
@@ -46,7 +46,7 @@ const CharityPostsFeed: React.FC = () => {
       }
 
       setHasMore(newPosts.length === LIMIT);
-      setOffset(currentOffset + newPosts.length);
+      offsetRef.current = currentOffset + newPosts.length;
       setError(null);
     } catch (err) {
       setError('Failed to load charity posts. Please try again later.');
@@ -57,21 +57,16 @@ const CharityPostsFeed: React.FC = () => {
     }
   };
 
+  // Handle search and tab switch with a single effect to avoid double fetch
   useEffect(() => {
-    if (activeTab === 'posts') {
+    if (activeTab !== 'posts') return;
+    
+    const timer = setTimeout(() => {
       fetchPosts(true);
-    }
-  }, [activeTab]);
-
-  // Handle search with a small delay
-  useEffect(() => {
-    if (activeTab === 'posts') {
-      const timer = setTimeout(() => {
-        fetchPosts(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [search]);
+    }, search ? 500 : 0);
+    
+    return () => clearTimeout(timer);
+  }, [activeTab, search]);
 
   const handleLoadMore = () => {
     if (!loadingMore && hasMore) {

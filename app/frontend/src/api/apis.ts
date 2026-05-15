@@ -78,10 +78,27 @@ export const charityPostAPI = {
     getAllPosts: (params?: { limit?: number, offset?: number, search?: string }) => api.get('/charity-posts/', { params }),
     getPostsByUser: (userId: string) => api.get(`/charity-posts/by-user/${userId}`),
     getPostById: (charityId: string) => api.get(`/charity-posts/${charityId}`),
-    createPost: (data: { title: string, description?: string, amountNeeded: number }) => api.post('/charity-posts/', data),
-    updatePost: (charityId: string, data: Partial<{ title: string, description: string, amountNeeded: number }>) => api.put(`/charity-posts/${charityId}`, data),
+    createPost: (data: { 
+        title: string, 
+        description?: string, 
+        donationMode: "money" | "food" | "both", 
+        amountNeeded?: number, 
+        foodGoalKg?: number 
+    }) => api.post('/charity-posts/', data),
+    updatePost: (charityId: string, data: Partial<{ 
+        title: string, 
+        description: string, 
+        amountNeeded: number, 
+        foodGoalKg: number,
+        status: "active" | "funded" | "closed"
+    }>) => api.put(`/charity-posts/${charityId}`, data),
     deletePost: (charityId: string) => api.delete(`/charity-posts/${charityId}`),
-    donateToPost: (charityId: string, amount: number) => api.post(`/charity-posts/${charityId}/donate`, { amount }),
+    donateToPost: (charityId: string, donation: {
+        donationType: "money" | "food",
+        amount?: number,
+        foodID?: string,
+        quantity?: number
+    }) => api.post(`/charity-posts/${charityId}/donate`, donation),
 };
 
 // Social Impact API functions

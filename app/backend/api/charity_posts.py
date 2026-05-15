@@ -2,8 +2,10 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
 from uuid import UUID
 
+from database import supabase_admin
 from models.charity_post import CharityPostCreate, CharityPostUpdate, CharityPostResponse, CharityPostDonateRequest
-from services import charity_post_service
+from models.donation import DonationResponse
+from services import charity_post_service, social_impact_service
 from api.dependency import get_current_user, require_role
 
 router = APIRouter()
@@ -93,7 +95,86 @@ async def donate_to_post(
     current_user: dict = Depends(require_role("buyer"))
 ):
     """Auth required (buyer role) endpoint to donate to a charity post."""
-    response = charity_post_service.increment_donation(str(charity_id), donation.amount)
-    if not response.data:
-        raise HTTPException(status_code=400, detail="Failed to process donation")
-    return response.data[0]
+    post_id = str(charity_id)
+    user_id = current_user["userID"]
+
+    if donation.donationType == 'money':
+        response = charity_post_service.donate_money(post_id, donation.amount)
+        if not response.data:
+            raise HTTPException(status_code=400, detail="Failed to process money donation")
+        
+        charity_post_service.record_donation(
+            post_id, user_id, 'money', amount=donation.amount
+        )
+        return response.data[0]
+
+    else:  # food
+        # Look up weightKg to store in Donation record
+        food_res = supabase_admin.table("Food") \
+            .select("weightKg") \
+            .eq("foodID", str(donation.foodID)) \
+            .single().execute()
+        if not food_res.data:
+            raise HTTPException(status_code=404, detail="Food item not found")
+        food_kg = food_res.data["weightKg"] * donation.quantity
+
+        response = charity_post_service.donate_food(
+            post_id, str(donation.foodID), donation.quantity
+        )
+        if not response.data:
+            raise HTTPException(status_code=400, detail="Failed to process food donation")
+        
+        # Record the donation and get the donationID
+        record_res = charity_post_service.record_donation(
+            post_id, user_id, 'food',
+            food_id=str(donation.foodID), quantity=donation.quantity, food_kg=food_kg
+        )
+        if record_res.data:
+            new_donation_id = record_res.data[0]["donationID"]
+            social_impact_service.create_food_donation_impact(
+                donation_id=new_donation_id,
+                rescued_kg=food_kg
+            )
+
+        return response.data[0]
+
+@router.get("/donations/my-donations", response_model=List[DonationResponse])
+async def get_my_donations(
+    current_user: dict = Depends(get_current_user)
+):
+    """Auth required endpoint to get the current user's donation history."""
+    response = charity_post_service.fetch_donations_by_user(current_user["userID"])
+    
+    # Map joined data to model fields
+    donations = []
+    for d in response.data:
+        d["postTitle"] = d.get("CharityPost", {}).get("title")
+        donations.append(d)
+        
+    return donations
+
+@router.get("/{charity_id}/donations", response_model=List[DonationResponse])
+async def get_post_donations(
+    charity_id: UUID,
+    current_user: dict = Depends(require_role("charity"))
+):
+    """Auth required (charity role) endpoint to get all donations for a post with ownership check."""
+    # Ownership check
+    post_response = charity_post_service.fetch_post_by_id(str(charity_id))
+    if not post_response.data:
+        raise HTTPException(status_code=404, detail="Charity post not found")
+    
+    if post_response.data["userID"] != current_user["userID"]:
+        raise HTTPException(status_code=403, detail="Forbidden: You do not own this post")
+    
+    response = charity_post_service.fetch_donations_by_post(str(charity_id))
+    
+    # Map joined data to model fields
+    donations = []
+    for d in response.data:
+        user = d.get("User")
+        if user:
+            d["donorName"] = f"{user.get('firstName', '')} {user.get('lastName', '')}".strip()
+        donations.append(d)
+        
+    return donations

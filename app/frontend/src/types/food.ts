@@ -12,6 +12,7 @@ export interface FoodItem {
   isEdible: boolean;
   price: number;
   stockQuantity: number;
+  weightKg: number;
   expirationDate: string | null;
   createdAt: string | null;
   allergens: FoodAllergen[];

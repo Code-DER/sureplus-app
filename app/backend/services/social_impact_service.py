@@ -37,6 +37,19 @@ def create_impact(purchase_id: str):
     metrics = compute_metrics(purchase_id)
     return supabase_admin.table("SocialImpact").insert(metrics).execute()
 
+def create_food_donation_impact(donation_id: str, rescued_kg: float):
+    """
+    Create a social impact record for a food donation.
+    """
+    carbon_offset = rescued_kg * CO2_PER_KG
+    people_fed = math.floor(rescued_kg / KG_PER_MEAL)
+    return supabase_admin.table("SocialImpact").insert({
+        "donationID": donation_id,
+        "carbonOffset": carbon_offset,
+        "rescuedKilos": rescued_kg,
+        "peopleFed": people_fed,
+    }).execute()
+
 def fetch_impact_by_purchase(purchase_id: str):
     """
     Fetch the social impact record for a specific purchase.
@@ -49,19 +62,41 @@ def fetch_impact_by_purchase(purchase_id: str):
 
 def fetch_summary_by_user(user_id: str):
     """
-    Fetch and aggregate social impact metrics for a specific user.
+    Fetch and aggregate social impact metrics for a specific user (purchases + donations).
     """
-    # Join path: SocialImpact -> Purchase -> filter by userID
-    response = supabase_admin.table("SocialImpact") \
-        .select("*, Purchase!inner(userID)") \
-        .eq("Purchase.userID", user_id) \
+    # 1. Purchase-based impact
+    purchase_res = supabase_admin.table("Purchase") \
+        .select("purchaseID") \
+        .eq("userID", user_id) \
         .execute()
+    purchase_ids = [r["purchaseID"] for r in purchase_res.data]
     
-    rows = response.data
-    summary = {
-        "totalCarbonOffset": sum(row["carbonOffset"] for row in rows),
-        "totalRescuedKilos": sum(row["rescuedKilos"] for row in rows),
-        "totalPeopleFed": sum(row["peopleFed"] for row in rows),
-        "purchaseCount": len(rows)
+    purchase_impact = []
+    if purchase_ids:
+        pi_res = supabase_admin.table("SocialImpact") \
+            .select("*").in_("purchaseID", purchase_ids).execute()
+        purchase_impact = pi_res.data
+
+    # 2. Donation-based impact
+    donation_res = supabase_admin.table("Donation") \
+        .select("donationID") \
+        .eq("userID", user_id) \
+        .eq("donationType", "food") \
+        .execute()
+    donation_ids = [r["donationID"] for r in donation_res.data]
+    
+    donation_impact = []
+    if donation_ids:
+        di_res = supabase_admin.table("SocialImpact") \
+            .select("*").in_("donationID", donation_ids).execute()
+        donation_impact = di_res.data
+
+    all_rows = purchase_impact + donation_impact
+    
+    return {
+        "totalCarbonOffset": sum(row["carbonOffset"] for row in all_rows),
+        "totalRescuedKilos": sum(row["rescuedKilos"] for row in all_rows),
+        "totalPeopleFed": sum(row["peopleFed"] for row in all_rows),
+        "purchaseCount": len(purchase_ids),
+        "donationCount": len(donation_ids)
     }
-    return summary

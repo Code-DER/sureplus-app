@@ -2,7 +2,6 @@
 Models for charity organizations.
 """
 from pydantic import BaseModel
-
 from uuid import UUID
 from models.user import UserResponse
 

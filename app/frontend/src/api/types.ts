@@ -29,8 +29,12 @@ export interface CharityPost {
   userID: string;
   title: string;
   description?: string;
+  donationMode: "money" | "food" | "both";
   currentAmount: number;
-  amountNeeded: number;
+  amountNeeded: number | null;
+  currentFoodKg: number;
+  foodGoalKg: number | null;
+  status: "active" | "funded" | "closed";
   createdAt: string;
 }
 

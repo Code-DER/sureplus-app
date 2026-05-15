@@ -11,6 +11,36 @@ interface CharityPostCardProps {
   onDelete?: (post: CharityPost) => void;
 }
 
+const ProgressBar: React.FC<{
+  label: string;
+  current: number;
+  goal: number;
+  unit: string;
+  unitPosition?: 'prefix' | 'suffix';
+}> = ({ label, current, goal, unit, unitPosition = 'prefix' }) => {
+  const progress = goal > 0 ? Math.min((current / goal) * 100, 100) : 0;
+  
+  const formatValue = (val: number) => {
+    const formatted = val.toLocaleString();
+    return unitPosition === 'prefix' ? `${unit}${formatted}` : `${formatted} ${unit}`;
+  };
+
+  return (
+    <div className="charity-post-progress-section">
+      <div className="progress-info">
+        <span className="current-amount">{formatValue(current)}</span>
+        <span className="target-amount">{label} Goal: {formatValue(goal)}</span>
+      </div>
+      <div className="progress-bar-container">
+        <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+      </div>
+      <div className="progress-footer">
+        <span className="progress-percentage">{Math.round(progress)}% funded</span>
+      </div>
+    </div>
+  );
+};
+
 const CharityPostCard: React.FC<CharityPostCardProps> = ({ 
   post, 
   onDonate, 
@@ -19,12 +49,13 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
   onEdit, 
   onDelete 
 }) => {
-  const progress = Math.min((post.currentAmount / post.amountNeeded) * 100, 100);
-
   return (
     <div className="charity-post-card">
       <div className="charity-post-header">
-        <h3 className="charity-post-title">{post.title}</h3>
+        <div className="title-group">
+          <h3 className="charity-post-title">{post.title}</h3>
+          <span className={`status-badge ${post.status}`}>{post.status}</span>
+        </div>
         {isOwner && (
           <div className="charity-post-actions">
             <button className="action-btn edit" onClick={() => onEdit?.(post)} aria-label="Edit Post">
@@ -49,19 +80,29 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
         {post.description || 'No description provided.'}
       </p>
 
-      <div className="charity-post-progress-section">
-        <div className="progress-info">
-          <span className="current-amount">₱{post.currentAmount.toLocaleString()}</span>
-          <span className="target-amount">Goal: ₱{post.amountNeeded.toLocaleString()}</span>
-        </div>
-        <div className="progress-bar-container">
-          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
-        </div>
-        <span className="progress-percentage">{Math.round(progress)}% funded</span>
+      <div className="progress-bars">
+        {(post.donationMode === 'money' || post.donationMode === 'both') && post.amountNeeded !== null && (
+          <ProgressBar 
+            label="Funds"
+            current={post.currentAmount}
+            goal={post.amountNeeded}
+            unit="₱"
+            unitPosition="prefix"
+          />
+        )}
+        {(post.donationMode === 'food' || post.donationMode === 'both') && post.foodGoalKg !== null && (
+          <ProgressBar 
+            label="Food"
+            current={post.currentFoodKg}
+            goal={post.foodGoalKg}
+            unit="kg"
+            unitPosition="suffix"
+          />
+        )}
       </div>
 
       <div className="charity-post-footer">
-        {!isOwner && onDonate && (
+        {!isOwner && onDonate && post.status === 'active' && (
           <button className="donate-btn" onClick={() => onDonate(post)}>
             Donate Now
           </button>

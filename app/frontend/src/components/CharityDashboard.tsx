@@ -139,14 +139,39 @@ interface ModalProps {
 }
 
 const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) => {
-  const [formData, setFormData] = useState({ title: '', description: '', amountNeeded: '' });
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    donationMode: 'money' | 'food' | 'both';
+    amountNeeded: string;
+    foodGoalKg: string;
+  }>({ 
+    title: '', 
+    description: '', 
+    donationMode: 'money',
+    amountNeeded: '',
+    foodGoalKg: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.amountNeeded) {
-      setError('Title and Amount Needed are required.');
+    
+    const { title, donationMode, amountNeeded, foodGoalKg } = formData;
+    
+    if (!title) {
+      setError('Title is required.');
+      return;
+    }
+
+    if ((donationMode === 'money' || donationMode === 'both') && !amountNeeded) {
+      setError('Amount Needed is required.');
+      return;
+    }
+
+    if ((donationMode === 'food' || donationMode === 'both') && !foodGoalKg) {
+      setError('Food Goal is required.');
       return;
     }
 
@@ -155,7 +180,9 @@ const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) =>
       await charityPostAPI.createPost({
         title: formData.title,
         description: formData.description,
-        amountNeeded: parseFloat(formData.amountNeeded)
+        donationMode: formData.donationMode,
+        amountNeeded: (donationMode === 'money' || donationMode === 'both') ? parseFloat(amountNeeded) : undefined,
+        foodGoalKg: (donationMode === 'food' || donationMode === 'both') ? parseFloat(foodGoalKg) : undefined
       });
       onSuccess();
     } catch {
@@ -192,17 +219,48 @@ const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) =>
                 placeholder="Describe what this donation will be used for..."
               />
             </div>
+
             <div className="form-group">
-              <label>Amount Needed (₱)</label>
-              <input 
-                type="number" 
-                value={formData.amountNeeded} 
-                onChange={e => setFormData({...formData, amountNeeded: e.target.value})} 
-                placeholder="0.00"
-                min="1"
-                required 
-              />
+              <label>Donation Mode</label>
+              <select 
+                value={formData.donationMode} 
+                onChange={e => setFormData({...formData, donationMode: e.target.value as 'money' | 'food' | 'both'})}
+              >
+                <option value="money">Money only</option>
+                <option value="food">Food only</option>
+                <option value="both">Money + Food</option>
+              </select>
             </div>
+
+            {(formData.donationMode === 'money' || formData.donationMode === 'both') && (
+              <div className="form-group">
+                <label>Amount Needed (₱)</label>
+                <input 
+                  type="number" 
+                  value={formData.amountNeeded} 
+                  onChange={e => setFormData({...formData, amountNeeded: e.target.value})} 
+                  placeholder="0.00"
+                  min="1"
+                  required 
+                />
+              </div>
+            )}
+
+            {(formData.donationMode === 'food' || formData.donationMode === 'both') && (
+              <div className="form-group">
+                <label>Food Goal (kg)</label>
+                <input 
+                  type="number" 
+                  value={formData.foodGoalKg} 
+                  onChange={e => setFormData({...formData, foodGoalKg: e.target.value})} 
+                  placeholder="0.00"
+                  min="0.1"
+                  step="0.1"
+                  required 
+                />
+              </div>
+            )}
+
             {error && <p className="modal-error">{error}</p>}
           </div>
           <div className="modal-footer">
@@ -225,7 +283,9 @@ const EditCharityPostModal: React.FC<EditModalProps> = ({ post, onClose, onSucce
   const [formData, setFormData] = useState({ 
     title: post.title, 
     description: post.description || '', 
-    amountNeeded: post.amountNeeded.toString() 
+    amountNeeded: post.amountNeeded?.toString() || '',
+    foodGoalKg: post.foodGoalKg?.toString() || '',
+    status: post.status
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -237,7 +297,9 @@ const EditCharityPostModal: React.FC<EditModalProps> = ({ post, onClose, onSucce
       await charityPostAPI.updatePost(post.charityID, {
         title: formData.title,
         description: formData.description,
-        amountNeeded: parseFloat(formData.amountNeeded)
+        amountNeeded: (post.donationMode === 'money' || post.donationMode === 'both') ? parseFloat(formData.amountNeeded) : undefined,
+        foodGoalKg: (post.donationMode === 'food' || post.donationMode === 'both') ? parseFloat(formData.foodGoalKg) : undefined,
+        status: formData.status
       });
       onSuccess();
     } catch {
@@ -272,16 +334,46 @@ const EditCharityPostModal: React.FC<EditModalProps> = ({ post, onClose, onSucce
                 onChange={e => setFormData({...formData, description: e.target.value})} 
               />
             </div>
+
             <div className="form-group">
-              <label>Amount Needed (₱)</label>
-              <input 
-                type="number" 
-                value={formData.amountNeeded} 
-                onChange={e => setFormData({...formData, amountNeeded: e.target.value})} 
-                min="1"
-                required 
-              />
+              <label>Status</label>
+              <select 
+                value={formData.status} 
+                onChange={e => setFormData({...formData, status: e.target.value as 'active' | 'funded' | 'closed'})}
+              >
+                <option value="active">Active</option>
+                <option value="funded">Funded</option>
+                <option value="closed">Closed</option>
+              </select>
             </div>
+
+            {(post.donationMode === 'money' || post.donationMode === 'both') && (
+              <div className="form-group">
+                <label>Amount Needed (₱)</label>
+                <input 
+                  type="number" 
+                  value={formData.amountNeeded} 
+                  onChange={e => setFormData({...formData, amountNeeded: e.target.value})} 
+                  min="1"
+                  required 
+                />
+              </div>
+            )}
+
+            {(post.donationMode === 'food' || post.donationMode === 'both') && (
+              <div className="form-group">
+                <label>Food Goal (kg)</label>
+                <input 
+                  type="number" 
+                  value={formData.foodGoalKg} 
+                  onChange={e => setFormData({...formData, foodGoalKg: e.target.value})} 
+                  min="0.1"
+                  step="0.1"
+                  required 
+                />
+              </div>
+            )}
+
             {error && <p className="modal-error">{error}</p>}
           </div>
           <div className="modal-footer">

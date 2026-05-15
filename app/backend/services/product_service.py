@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 FOOD_COLUMNS = (
     "foodID, userID, foodName, description, picture, isEdible, "
-    "price, stockQuantity, expirationDate, createdAt"
+    "price, stockQuantity, weightKg, expirationDate, createdAt"
 )
 ALLERGEN_COLUMNS = "allergenID, name"
 

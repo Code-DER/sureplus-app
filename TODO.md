@@ -19,7 +19,7 @@ since this feature changes the shape of all three.
 
 ---
 
-### FD-1 · DB — Add donation mode + food goal tracking to `CharityPost`
+### FD-1 · DB — Add donation mode + food goal tracking to `CharityPost` (Done)
 
 **New migration:**
 
@@ -47,7 +47,7 @@ ALTER TABLE "CharityPost" ALTER COLUMN "amountNeeded" DROP NOT NULL;
 
 ---
 
-### FD-2 · DB — `Donation` table must support both donation types
+### FD-2 · DB — `Donation` table must support both donation types (Done)
 
 This replaces the simpler design in **L-1**. The `Donation` table needs to be a
 discriminated record — one row = one donation event, and its type determines which
@@ -89,7 +89,7 @@ CREATE POLICY "Charities can view donations to their posts"
 
 ---
 
-### FD-3 · DB — Two atomic RPCs: one for money, one for food
+### FD-3 · DB — Two atomic RPCs: one for money, one for food (Done)
 
 **Money RPC** (update of the existing `increment_charity_amount` — see also L-2):
 
@@ -150,7 +150,7 @@ END; $$;
 
 ---
 
-### FD-4 · Backend models — Update `CharityPost` models
+### FD-4 · Backend models — Update `CharityPost` models (Done)
 
 **File:** `app/backend/models/charity_post.py`
 
@@ -217,7 +217,7 @@ class CharityPostDonateRequest(BaseModel):
 
 ---
 
-### FD-5 · Backend service — Update `charity_post_service.py`
+### FD-5 · Backend service — Update `charity_post_service.py` (Done)
 
 Replace `increment_donation` with two typed methods:
 
@@ -251,7 +251,7 @@ def record_donation(post_id: str, user_id: str, donation_type: str,
 
 ---
 
-### FD-6 · Backend API — Update the donate endpoint
+### FD-6 · Backend API — Update the donate endpoint (Done)
 
 **File:** `app/backend/api/charity_posts.py`
 
@@ -305,7 +305,7 @@ async def donate_to_post(
 
 ---
 
-### FD-7 · SocialImpact — Count food donations toward the donor's impact
+### FD-7 · SocialImpact — Count food donations toward the donor's impact (Done)
 
 Currently `SocialImpact` only links to a `purchaseID`. Food donations also rescue food,
 so donors should see their donated kilos reflected in `SocialImpactView`.
@@ -379,7 +379,7 @@ def fetch_summary_by_user(user_id: str):
 
 ---
 
-### FD-8 · Frontend — `CharityPost` type and `CharityPostCreate` form
+### FD-8 · Frontend — `CharityPost` type and `CharityPostCreate` form (Done)
 
 **File:** `app/frontend/src/api/types.ts`
 
@@ -424,7 +424,7 @@ const [donationMode, setDonationMode] = useState<'money' | 'food' | 'both'>('mon
 
 ---
 
-### FD-9 · Frontend — `DonateModal` — branch on donation type
+### FD-9 · Frontend — `DonateModal` — branch on donation type (Done)
 
 **File:** `app/frontend/src/components/DonateModal.tsx`
 
@@ -456,7 +456,7 @@ charityPostAPI.donateToPost(post.charityID, {
 
 ---
 
-### FD-10 · Frontend — `CharityPostCard` — dual progress bar
+### FD-10 · Frontend — `CharityPostCard` — dual progress bar (Done)
 
 **File:** `app/frontend/src/components/CharityPostCard.tsx`
 
@@ -491,7 +491,7 @@ to avoid duplication.
 
 ---
 
-### FD-11 · Business rule — campaign "funded" status with dual goals
+### FD-11 · Business rule — campaign "funded" status with dual goals (Done)
 
 **Relates to L-3 (campaign lifecycle)**
 
@@ -519,7 +519,7 @@ END IF;
 
 ## 🔴 BUGS — Fix These First
 
-### B-1 · Negative / zero donations are accepted
+### B-1 · Negative / zero donations are accepted (Done)
 
 **File:** `app/backend/models/charity_post.py` · `CharityPostDonateRequest`
 
@@ -642,7 +642,7 @@ const fetchPosts = async (isInitial = true) => {
 
 ---
 
-### B-5 · `CharityPost.amountNeeded` allows zero → divide-by-zero in progress bar
+### B-5 · `CharityPost.amountNeeded` allows zero → divide-by-zero in progress bar (Done)
 
 **File:** `app/backend/models/charity_post.py` · `CharityPostCreate`
 
@@ -662,7 +662,7 @@ class CharityPostCreate(BaseModel):
 
 ---
 
-### B-6 · `Charity.organizationName` is nullable in DB but required in Pydantic model
+### B-6 · `Charity.organizationName` is nullable in DB but required in Pydantic model (Done)
 
 **File:** `app/supabase/migrations/20260425000000_initial_schema.sql` + `app/backend/models/charity.py`
 
@@ -706,7 +706,7 @@ ALTER TABLE "CharityApplication"
 
 ## 🟡 BUSINESS LOGIC — These Need Decisions + Implementation
 
-### L-1 · No donation history / audit trail
+### L-1 · No donation history / audit trail (Done)
 
 **Files:** `charity_posts.py`, `charity_post_service.py`
 
@@ -723,7 +723,7 @@ of _who_ donated, _when_, or _how much_. This means:
 
 ---
 
-### L-2 · Overfunding is not prevented
+### L-2 · Overfunding is not prevented (Done)
 
 **Files:** `charity_post_service.py` · `increment_charity_amount` RPC
 
@@ -736,7 +736,7 @@ donations. There is no cap enforced at the DB, service, or API level.
 
 ---
 
-### L-3 · No campaign status / lifecycle — a funded post stays "open" forever
+### L-3 · No campaign status / lifecycle — a funded post stays "open" forever (Done)
 
 **Files:** `models/charity_post.py`, `initial_schema.sql`
 
@@ -750,7 +750,7 @@ way to explicitly close or archive a campaign.
 
 ---
 
-### L-4 · Buyer receives no notification when their social impact is computed
+### L-4 · Buyer receives no notification when their social impact is computed (Done)
 
 **Files:** `purchase_service.py`, `social_impact_service.py`, `notification_service.py`
 
@@ -774,7 +774,7 @@ notification_service.send_notification(
 
 ---
 
-### L-5 · Direct DB access in API layer (`social_impact.py`)
+### L-5 · Direct DB access in API layer (`social_impact.py`) (Done)
 
 **File:** `app/backend/api/social_impact.py`
 
@@ -797,7 +797,7 @@ Then call `purchase_service.fetch_purchase_owner(...)` from the API.
 
 ---
 
-### L-6 · Non-atomic purchase flow — partial stock deduction on failure
+### L-6 · Non-atomic purchase flow — partial stock deduction on failure (Done)
 
 **File:** `app/backend/services/purchase_service.py`
 
@@ -912,8 +912,9 @@ useEffect(() => {
 | F-3 | Add success toast in `CharityDashboard`              | `CharityDashboard.tsx`                    | XS     |
 | F-1 | Hide email in `CharityProfileView`                   | `CharityProfileView.tsx`                  | XS     |
 | F-2 | Hide donate button for non-buyers                    | `CharityPostCard.tsx`                     | S      |
-| L-5 | Move ownership check to `purchase_service`           | `social_impact.py`, `purchase_service.py` | S      |
-| L-4 | Notify buyer on impact creation                      | `purchase_service.py`                     | S      |
+| L-5 | Move ownership check to `purchase_service`           | `social_impact.py`, `purchase_service.py` | S      | [DONE] |
+| L-4 | Notify buyer on impact creation                      | `purchase_service.py`                     | S      | [DONE] |
+
 
 **Phase 2 — Money + Food donation feature (replaces L-1, L-2, L-3 individually)**
 
@@ -921,22 +922,25 @@ useEffect(() => {
 
 | #       | Task                                                                                        | File(s)                               | Effort |
 | ------- | ------------------------------------------------------------------------------------------- | ------------------------------------- | ------ |
-| FD-1    | Add `donationMode`, `foodGoalKg`, `currentFoodKg`, `status` columns to `CharityPost`        | migration                             | S      |
-| FD-2    | Create `Donation` table (money + food discriminated)                                        | migration                             | S      |
-| FD-3    | Replace `increment_charity_amount` with `donate_money_to_post` + `donate_food_to_post` RPCs | migration                             | M      |
-| FD-4    | Update `CharityPost` Pydantic models (create/update/response/donate request)                | `models/charity_post.py`              | M      |
-| B-1+B-5 | Validators for amount/goals now covered by FD-4 `model_validator`                           | `models/charity_post.py`              | —      |
-| FD-5    | Update `charity_post_service.py` with typed donate + record_donation methods                | `charity_post_service.py`             | S      |
-| FD-6    | Update donate endpoint to branch on `donationType`                                          | `charity_posts.py`                    | M      |
-| FD-7    | Extend `SocialImpact` to accept `donationID`; update `fetch_summary_by_user`                | migration, `social_impact_service.py` | M      |
-| FD-8    | Update `CharityPost` TS type + create/edit form in `CharityDashboard`                       | `types.ts`, `CharityDashboard.tsx`    | M      |
-| FD-9    | Update `DonateModal` to branch on `donationMode` (money / food / both tabs)                 | `DonateModal.tsx`                     | L      |
-| FD-10   | Update `CharityPostCard` for dual progress bars                                             | `CharityPostCard.tsx`                 | S      |
-| FD-11   | Auto-transition `status` to `'funded'` in RPCs when both goals are met                      | migration (update RPCs)               | S      |
+| FD-1    | Add `donationMode`, `foodGoalKg`, `currentFoodKg`, `status` columns to `CharityPost`        | migration                             | S      | [DONE] |
+ | FD-2    | Create `Donation` table (money + food discriminated)                                        | migration                             | S      | [DONE] |
+
+| FD-3    | Replace `increment_charity_amount` with `donate_money_to_post` + `donate_food_to_post` RPCs | migration                             | M      | [DONE] |
+| FD-4    | Update `CharityPost` Pydantic models (create/update/response/donate request)                | `models/charity_post.py`              | M      | [DONE] |
+| B-1+B-5 | Validators for amount/goals now covered by FD-4 `model_validator`                           | `models/charity_post.py`              | —      | [DONE] |
+
+| FD-5    | Update `charity_post_service.py` with typed donate + record_donation methods                | `charity_post_service.py`             | S      | [DONE] |
+| FD-6    | Update donate endpoint to branch on `donationType`                                          | `charity_posts.py`                    | M      | [DONE] |
+
+| FD-7    | Extend `SocialImpact` to accept `donationID`; update `fetch_summary_by_user`                | migration, `social_impact_service.py` | M      | [DONE] |
+| FD-8    | Update `CharityPost` TS type + create/edit form in `CharityDashboard`                       | `types.ts`, `CharityDashboard.tsx`    | M      | [DONE] |
+| FD-9    | Update `DonateModal` to branch on `donationMode` (money / food / both tabs)                 | `DonateModal.tsx`                     | L      | [DONE] |
+| FD-10   | Update `CharityPostCard` for dual progress bars                                             | `CharityPostCard.tsx`                 | S      | [DONE] |
+| FD-11   | Auto-transition `status` to `'funded'` in RPCs when both goals are met                      | migration (update RPCs)               | S      | [DONE] |
 
 **Phase 3 — Large refactors (do last)**
 
 | #   | Task                                           | File(s)                         | Effort |
 | --- | ---------------------------------------------- | ------------------------------- | ------ |
-| L-6 | Make `create_purchase` atomic                  | `purchase_service.py` / new RPC | L      |
+| L-6 | Make `create_purchase` atomic                  | `purchase_service.py` / new RPC | L      | [DONE] |
 | N-1 | Rename `charityID` → `postID` in `CharityPost` | migration + full codebase       | XL     |

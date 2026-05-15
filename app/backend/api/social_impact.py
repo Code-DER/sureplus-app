@@ -3,9 +3,8 @@ from uuid import UUID
 from typing import List
 
 from models.social_impact import SocialImpactResponse, SocialImpactSummary
-from services import social_impact_service
+from services import social_impact_service, purchase_service
 from api.dependency import get_current_user
-from database import supabase_admin
 
 router = APIRouter()
 
@@ -18,17 +17,13 @@ async def get_impact_by_purchase(
     Fetch social impact for a specific purchase.
     Ownership check: only the buyer of the purchase can see its impact.
     """
-    # Ownership check
-    purchase_response = supabase_admin.table("Purchase") \
-        .select("userID") \
-        .eq("purchaseID", str(purchase_id)) \
-        .single() \
-        .execute()
+    # Ownership check via service layer (L-5)
+    owner_id = purchase_service.fetch_purchase_owner(str(purchase_id))
     
-    if not purchase_response.data:
+    if not owner_id:
         raise HTTPException(status_code=404, detail="Purchase not found")
     
-    if purchase_response.data["userID"] != current_user["userID"]:
+    if owner_id != current_user["userID"]:
         raise HTTPException(status_code=403, detail="Forbidden: You do not own this purchase")
     
     impact_response = social_impact_service.fetch_impact_by_purchase(str(purchase_id))
