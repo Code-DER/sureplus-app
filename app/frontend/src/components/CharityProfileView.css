@@ -20,8 +20,8 @@
 .charity-logo-large {
   width: 120px;
   height: 120px;
-  background: white;
-  color: #66B018;
+  background: #FE6902;
+  color: #FFFFFF;
   border-radius: 24px;
   display: flex;
   align-items: center;
@@ -29,6 +29,7 @@
   font-size: 3rem;
   font-weight: 800;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  user-select: none;
 }
 
 .charity-info-text h1 {

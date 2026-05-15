@@ -63,22 +63,8 @@
   background: #F2F4F0;
 }
 
-.seller-avatar {
-  width: 33px;
-  height: 33px;
-  border-radius: 50%;
-  background: #66B018;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.seller-header-avatar {
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-}
-
-.seller-avatar span {
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
 }
 
 

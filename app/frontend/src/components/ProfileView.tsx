@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import './ProfileView.css';
 import EditProfileView from './EditProfileView';
+import UserAvatar from './UserAvatar';
 import { userAPI, charityAPI, socialImpactAPI } from '../api/apis';
 
 import CheckmarkIcon from '../assets/Global Profile System/Checkmark.svg';
@@ -184,7 +185,12 @@ export default function ProfileView() {
         {/* User Hero Card */}
         <div className="profile-user-card">
           <div className="profile-avatar-wrapper">
-            <div className="avatar-image"></div>
+            <UserAvatar
+              firstName={profile.firstName}
+              lastName={profile.lastName}
+              size={128}
+              style={{ border: '4px solid #FFD4AE' }}
+            />
             <div className="avatar-check-badge">
               <img src={CheckmarkIcon} alt="Verified" width="16" height="16" />
             </div>

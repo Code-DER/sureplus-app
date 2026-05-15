@@ -58,18 +58,8 @@
   color: white;
 }
 
-.profile-avatar {
-  width: 33px;
-  height: 33px;
-  border-radius: 50%;
-  background: #66B018;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+.charity-header-avatar {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .charity-dashboard-main {

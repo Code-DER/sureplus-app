@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { CharityProfile, CharityPost } from '../api/types';
 import { charityAPI, charityPostAPI } from '../api/apis';
 import CharityPostCard from './CharityPostCard';
+import UserAvatar from './UserAvatar';
 import './CharityDashboard.css';
 
 interface CharityDashboardProps {
@@ -71,7 +72,12 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
         </div>
         <div className="header-right">
           <button className="switch-role-btn" onClick={onSwitchRole}>Switch to Buyer</button>
-          <div className="profile-avatar">{profile?.firstName[0]}{profile?.lastName[0]}</div>
+          <UserAvatar
+            firstName={profile?.firstName}
+            lastName={profile?.lastName}
+            size={33}
+            className="charity-header-avatar"
+          />
         </div>
       </header>
 
