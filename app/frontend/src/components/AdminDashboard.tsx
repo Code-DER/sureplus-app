@@ -4,6 +4,7 @@ import AdminDashboardHome from './AdminDashboardHome';
 import AdminUserManagement from './AdminUserManagement';
 import AdminPartnerTagging from './AdminPartnerTagging';
 import AdminReports from './AdminReports';
+import AdminInbox from './AdminInbox';
 
 import StoreLogo from '../assets/ADMIN/Store Logo.svg';
 import NotificationIcon from '../assets/ADMIN/notification.svg';
@@ -20,6 +21,7 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
+  void onSwitchRole;
   const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'partners' | 'reports' | 'inbox'>('dashboard');
 
   return (
@@ -95,11 +97,7 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
         {activeTab === 'users'     && <AdminUserManagement />}
         {activeTab === 'partners'  && <AdminPartnerTagging />}
         {activeTab === 'reports'   && <AdminReports />}
-        {activeTab !== 'dashboard' && activeTab !== 'users' && activeTab !== 'partners' && activeTab !== 'reports' && (
-          <div className="admin-dashboard-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            <h3>Feature Under Development</h3>
-          </div>
-        )}
+        {activeTab === 'inbox'     && <AdminInbox />}
       </div>
     </div>
   );

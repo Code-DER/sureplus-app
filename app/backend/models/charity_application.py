@@ -9,8 +9,8 @@ class CharityApplicationCreate(BaseModel):
 class CharityApplicationResponse(BaseModel):
     applicationID: UUID
     userID: UUID
-    purpose: str
-    govID: str
+    purpose: Optional[str] = None
+    govID: Optional[str] = None
     status: str
 
 class CharityApplicationReview(BaseModel):
