@@ -10,7 +10,8 @@ DonationMode = Literal['money', 'food', 'both']
 
 class CharityPostCreate(BaseModel):
     title: str
-    description: Optional[str] = None
+    description: Optional[str] = Field(default=None, max_length=1000)
+    imageUrl: Optional[str] = None
     donationMode: DonationMode = 'money'
     amountNeeded: Optional[float] = Field(default=None, gt=0)
     foodGoalKg: Optional[float] = Field(default=None, gt=0)
@@ -25,7 +26,8 @@ class CharityPostCreate(BaseModel):
 
 class CharityPostUpdate(BaseModel):
     title: Optional[str] = None
-    description: Optional[str] = None
+    description: Optional[str] = Field(default=None, max_length=1000)
+    imageUrl: Optional[str] = None
     amountNeeded: Optional[float] = Field(default=None, gt=0)
     foodGoalKg: Optional[float] = Field(default=None, gt=0)
     status: Optional[Literal['active', 'funded', 'closed']] = None
@@ -36,6 +38,7 @@ class CharityPostResponse(BaseModel):
     userID: UUID
     title: str
     description: Optional[str] = None
+    imageUrl: Optional[str] = None
     donationMode: str = 'money'
     currentAmount: float = 0.0
     amountNeeded: Optional[float] = None

@@ -81,6 +81,7 @@ export const charityPostAPI = {
     createPost: (data: { 
         title: string, 
         description?: string, 
+        imageUrl?: string,
         donationMode: "money" | "food" | "both", 
         amountNeeded?: number, 
         foodGoalKg?: number 
@@ -88,6 +89,7 @@ export const charityPostAPI = {
     updatePost: (charityId: string, data: Partial<{ 
         title: string, 
         description: string, 
+        imageUrl: string,
         amountNeeded: number, 
         foodGoalKg: number,
         status: "active" | "funded" | "closed"
@@ -129,6 +131,19 @@ export const notificationsAPI = {
     getMyNotifications: () => api.get('/notifications/list'),
     markNotificationAsRead: (notificationId: string) => api.patch(`/notifications/${notificationId}/read`),
     markAllNotificationsAsRead: () => api.patch('/notifications/read-all'),
+};
+
+// Uploads API functions
+export const uploadsAPI = {
+    uploadImage: (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return api.post('/uploads/image', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    },
 };
 
 export default api;

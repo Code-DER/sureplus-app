@@ -76,6 +76,12 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
         )}
       </div>
       
+      {post.imageUrl && (
+        <div className="charity-post-image">
+          <img src={post.imageUrl} alt={post.title} />
+        </div>
+      )}
+
       <p className="charity-post-description">
         {post.description || 'No description provided.'}
       </p>

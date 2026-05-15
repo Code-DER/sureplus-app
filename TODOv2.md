@@ -7,21 +7,27 @@
 
 ## 1. Feature Compliance Gaps (PDF vs. Codebase)
 
-### 1.1 Charity Post — Image Upload
+### 1.1 Charity Post — Image Upload [DONE]
 
 **[PDF]** The spec states charity posts can include a picture alongside their description and target amount.
 
 - `CharityPost` table and `CharityPostCreate` model have **no image field**.
-- **TODO:** Add an `imageUrl` (or `imageBase64`) column to `CharityPost`. Update `CharityPostCreate`, `CharityPostResponse`, and `CharityPostUpdate` models. Add image upload UI to the create/edit post modal in `CharityDashboard`. Display the image in `CharityPostCard` and `CharityProfileView`.
+- **COMPLETED:**
+  - Added `imageUrl` column to `CharityPost` table via migration.
+  - Updated `CharityPostCreate`, `CharityPostResponse`, and `CharityPostUpdate` models in `models/charity_post.py`.
+  - Added true file upload UI to create/edit modals in `CharityDashboard.tsx` using `uploadsAPI`.
+  - Displayed post image in `CharityPostCard.tsx`.
 
 ---
 
-### 1.2 Charity Post — 1000-Character Description Limit
+### 1.2 Charity Post — 1000-Character Description Limit [DONE]
 
 **[PDF]** Spec says description has a maximum of 1000 characters.
 
 - `CharityPostCreate.description` is `Optional[str]` with no length constraint.
-- **TODO:** Add `Field(max_length=1000)` to `description` in `CharityPostCreate` and `CharityPostUpdate`. Add a live character counter (`{n}/1000`) in the post creation/edit modal UI.
+- **COMPLETED:**
+  - Added `Field(max_length=1000)` to `description` in Pydantic models.
+  - Added live character counter and validation in `CharityDashboard.tsx` modals.
 
 ---
 

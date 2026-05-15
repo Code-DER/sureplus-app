@@ -29,6 +29,7 @@ export interface CharityPost {
   userID: string;
   title: string;
   description?: string;
+  imageUrl?: string;
   donationMode: "money" | "food" | "both";
   currentAmount: number;
   amountNeeded: number | null;

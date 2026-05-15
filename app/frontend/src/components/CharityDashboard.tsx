@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { CharityProfile, CharityPost } from '../api/types';
-import { charityAPI, charityPostAPI } from '../api/apis';
+import { charityAPI, charityPostAPI, uploadsAPI } from '../api/apis';
 import CharityPostCard from './CharityPostCard';
 import './CharityDashboard.css';
 
@@ -142,18 +142,39 @@ const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) =>
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
+    imageUrl: string;
     donationMode: 'money' | 'food' | 'both';
     amountNeeded: string;
     foodGoalKg: string;
   }>({ 
     title: '', 
     description: '', 
+    imageUrl: '',
     donationMode: 'money',
     amountNeeded: '',
     foodGoalKg: ''
   });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+    try {
+      const res = await uploadsAPI.uploadImage(file);
+      setFormData(prev => ({ ...prev, imageUrl: res.data.imageUrl }));
+    } catch (err) {
+      console.error('Upload failed:', err);
+      setError('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,6 +201,7 @@ const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) =>
       await charityPostAPI.createPost({
         title: formData.title,
         description: formData.description,
+        imageUrl: formData.imageUrl || undefined,
         donationMode: formData.donationMode,
         amountNeeded: (donationMode === 'money' || donationMode === 'both') ? parseFloat(amountNeeded) : undefined,
         foodGoalKg: (donationMode === 'food' || donationMode === 'both') ? parseFloat(foodGoalKg) : undefined
@@ -212,12 +234,42 @@ const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) =>
               />
             </div>
             <div className="form-group">
-              <label>Description (Optional)</label>
+              <div className="label-with-counter">
+                <label>Description (Optional)</label>
+                <span className={`char-counter ${formData.description.length > 1000 ? 'error' : ''}`}>
+                  {formData.description.length}/1000
+                </span>
+              </div>
               <textarea 
                 value={formData.description} 
                 onChange={e => setFormData({...formData, description: e.target.value})} 
                 placeholder="Describe what this donation will be used for..."
+                maxLength={1000}
               />
+            </div>
+
+            <div className="form-group">
+              <label>Post Image</label>
+              <div className="file-upload-container">
+                {formData.imageUrl && (
+                  <div className="image-preview">
+                    <img src={formData.imageUrl} alt="Preview" />
+                    <button type="button" className="remove-img-btn" onClick={() => setFormData(prev => ({...prev, imageUrl: ''}))}>&times;</button>
+                  </div>
+                )}
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                />
+                {!formData.imageUrl && (
+                  <button type="button" className="upload-btn" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                    {uploading ? 'Uploading...' : 'Upload Image'}
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="form-group">
@@ -265,7 +317,7 @@ const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) =>
           </div>
           <div className="modal-footer">
             <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="confirm-btn" disabled={loading}>
+            <button type="submit" className="confirm-btn" disabled={loading || uploading || formData.description.length > 1000}>
               {loading ? 'Creating...' : 'Create Post'}
             </button>
           </div>
@@ -283,12 +335,32 @@ const EditCharityPostModal: React.FC<EditModalProps> = ({ post, onClose, onSucce
   const [formData, setFormData] = useState({ 
     title: post.title, 
     description: post.description || '', 
+    imageUrl: post.imageUrl || '',
     amountNeeded: post.amountNeeded?.toString() || '',
     foodGoalKg: post.foodGoalKg?.toString() || '',
     status: post.status
   });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+    try {
+      const res = await uploadsAPI.uploadImage(file);
+      setFormData(prev => ({ ...prev, imageUrl: res.data.imageUrl }));
+    } catch (err) {
+      console.error('Upload failed:', err);
+      setError('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -297,6 +369,7 @@ const EditCharityPostModal: React.FC<EditModalProps> = ({ post, onClose, onSucce
       await charityPostAPI.updatePost(post.charityID, {
         title: formData.title,
         description: formData.description,
+        imageUrl: formData.imageUrl,
         amountNeeded: (post.donationMode === 'money' || post.donationMode === 'both') ? parseFloat(formData.amountNeeded) : undefined,
         foodGoalKg: (post.donationMode === 'food' || post.donationMode === 'both') ? parseFloat(formData.foodGoalKg) : undefined,
         status: formData.status
@@ -328,11 +401,41 @@ const EditCharityPostModal: React.FC<EditModalProps> = ({ post, onClose, onSucce
               />
             </div>
             <div className="form-group">
-              <label>Description (Optional)</label>
+              <div className="label-with-counter">
+                <label>Description (Optional)</label>
+                <span className={`char-counter ${formData.description.length > 1000 ? 'error' : ''}`}>
+                  {formData.description.length}/1000
+                </span>
+              </div>
               <textarea 
                 value={formData.description} 
                 onChange={e => setFormData({...formData, description: e.target.value})} 
+                maxLength={1000}
               />
+            </div>
+
+            <div className="form-group">
+              <label>Post Image</label>
+              <div className="file-upload-container">
+                {formData.imageUrl && (
+                  <div className="image-preview">
+                    <img src={formData.imageUrl} alt="Preview" />
+                    <button type="button" className="remove-img-btn" onClick={() => setFormData(prev => ({...prev, imageUrl: ''}))}>&times;</button>
+                  </div>
+                )}
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                />
+                {!formData.imageUrl && (
+                  <button type="button" className="upload-btn" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                    {uploading ? 'Uploading...' : 'Upload Image'}
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="form-group">
@@ -378,7 +481,7 @@ const EditCharityPostModal: React.FC<EditModalProps> = ({ post, onClose, onSucce
           </div>
           <div className="modal-footer">
             <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="confirm-btn" disabled={loading}>
+            <button type="submit" className="confirm-btn" disabled={loading || uploading || formData.description.length > 1000}>
               {loading ? 'Saving Changes...' : 'Save Changes'}
             </button>
           </div>
