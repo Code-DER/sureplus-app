@@ -223,9 +223,9 @@ export default function CreateNewListing({ onBack, onCreated }: CreateNewListing
           <div className="cnl-media-header">
             <div className="cnl-camera-icon-circle">
               <svg width="33" height="30" viewBox="0 0 24 22" fill="none">
-                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11z" stroke="#0F5238" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <circle cx="12" cy="13" r="4" stroke="#0F5238" strokeWidth="2"/>
-                <path d="M18 3h2m-1-1v2" stroke="#0F5238" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11z" stroke="#66B018" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="12" cy="13" r="4" stroke="#66B018" strokeWidth="2"/>
+                <path d="M18 3h2m-1-1v2" stroke="#66B018" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
             <h3 className="cnl-media-title">Add Photo *</h3>
@@ -261,7 +261,7 @@ export default function CreateNewListing({ onBack, onCreated }: CreateNewListing
               ) : (
                 <div className="cnl-upload-placeholder">
                   {isUploadingImage ? (
-                    <span className="cnl-upload-text" style={{ color: '#0F5238' }}>Uploading…</span>
+                    <span className="cnl-upload-text" style={{ color: '#66B018' }}>Uploading…</span>
                   ) : (
                     <>
                       <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
@@ -276,7 +276,7 @@ export default function CreateNewListing({ onBack, onCreated }: CreateNewListing
             </div>
           </div>
           {pictureUrl && !isUploadingImage && (
-            <p style={{ fontSize: 12, color: '#0F5238', marginTop: 6 }}>✓ Image uploaded</p>
+            <p style={{ fontSize: 12, color: '#66B018', marginTop: 6 }}>✓ Image uploaded</p>
           )}
         </div>
 
@@ -293,7 +293,7 @@ export default function CreateNewListing({ onBack, onCreated }: CreateNewListing
                   aria-label="Decrease quantity"
                   type="button"
                 >
-                  <svg width="14" height="2" viewBox="0 0 14 2" fill="none"><rect width="14" height="2" rx="1" fill="#0F5238"/></svg>
+                  <svg width="14" height="2" viewBox="0 0 14 2" fill="none"><rect width="14" height="2" rx="1" fill="#66B018"/></svg>
                 </button>
                 <span className="cnl-qty-value">{quantity}</span>
                 <button

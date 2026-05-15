@@ -141,7 +141,7 @@ export default function ManageListings({ onBack, sellerId }: ManageListingsProps
         <div className="ml-header-left">
           <nav className="ml-breadcrumb">
             <button className="ml-breadcrumb-link" onClick={onBack}>Dashboard</button>
-            <svg className="ml-breadcrumb-sep" width="5" height="8" viewBox="0 0 5 8" fill="none"><path d="M1 1l3 3-3 3" stroke="#0F5238" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg className="ml-breadcrumb-sep" width="5" height="8" viewBox="0 0 5 8" fill="none"><path d="M1 1l3 3-3 3" stroke="#66B018" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             <span className="ml-breadcrumb-current">Manage Listings</span>
           </nav>
           <h1 className="ml-title">Active Listings</h1>

@@ -7,7 +7,8 @@ import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
 import CharityPostsFeed from './CharityPostsFeed'
 import SocialImpactView from './SocialImpactView'
-import { foodAPI } from '../api/apis'
+import { foodAPI, userAPI } from '../api/apis'
+import UserAvatar from './UserAvatar'
 import type { FoodItem } from '../types/food'
 
 import ExpiryIcon from '../assets/BUYER/Expiry Icon.svg'
@@ -62,6 +63,12 @@ export default function ListingsFeed() {
     fetchListings()
     return () => { cancelled = true }
   }, [safeForMe])
+
+  // ── Nav profile for avatar ────────────────────────────────────────────────
+  const [navProfile, setNavProfile] = useState<{ firstName?: string; lastName?: string } | null>(null)
+  useEffect(() => {
+    userAPI.getMyProfile().then(r => setNavProfile(r.data)).catch(() => {})
+  }, [])
 
   // ── Order state ───────────────────────────────────────────────────────────
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
@@ -127,7 +134,12 @@ export default function ListingsFeed() {
                 <path d="M5.15 4L7.55 9H14.55L17.3 4H5.15ZM4.2 2H18.95C19.3333 2 19.625 2.1708 19.8333 2.5125C20.0333 2.8542 20.0333 3.2 19.85 3.55L16.3 9.95C16.1167 10.2833 15.875 10.5417 15.5625 10.725C15.25 10.9083 14.9167 11 14.55 11H7.1L6 13H18V15H6C5.25 15 4.6833 14.6708 4.3 14.0125C3.9167 13.3542 3.9 12.7 4.25 12.05L5.6 9.6L2 2H0V0H3.25L4.2 2ZM7.55 9H14.55H7.55Z" />
               </svg>
             </button>
-            <div className="avatar" aria-label="User profile" />
+            <UserAvatar
+              firstName={navProfile?.firstName}
+              lastName={navProfile?.lastName}
+              size={32}
+              className="navbar-avatar"
+            />
 
             {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
           </div>

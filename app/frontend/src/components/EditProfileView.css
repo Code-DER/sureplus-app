@@ -8,7 +8,7 @@
 .btn-back-profile {
   background: transparent;
   border: none;
-  color: #0F5238;
+  color: #66B018;
   font-size: 16px;
   font-weight: 600;
   display: flex;
@@ -26,7 +26,7 @@
 .arrow-left-icon {
   width: 16px;
   height: 16px;
-  background: #0F5238;
+  background: #66B018;
   /* Ideally use an SVG mask for icons here, for now using block color */
 }
 
@@ -57,51 +57,6 @@
   gap: 24px;
 }
 
-.photo-avatar-wrapper {
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-
-.photo-avatar-image {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-color: #2D6A4F;
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Work Sans', sans-serif;
-  font-weight: 700;
-  font-size: 32px;
-}
-
-.photo-avatar-image::after {
-  content: 'TM';
-}
-
-.btn-edit-photo {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 28px;
-  height: 28px;
-  background: #FE6B00;
-  border: 2px solid white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-}
-
-.pencil-icon {
-  width: 12px;
-  height: 12px;
-  background: white;
-}
 
 .photo-edit-info h3 {
   margin: 0 0 4px 0;

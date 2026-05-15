@@ -81,7 +81,7 @@ export default function AdminReports() {
               </svg>
             </div>
             <span className="rp-badge rp-badge--up">
-              <svg width="8" height="5" viewBox="0 0 8 5"><path d="M4 0L8 5H0z" fill="#0F5238"/></svg>
+              <svg width="8" height="5" viewBox="0 0 8 5"><path d="M4 0L8 5H0z" fill="#66B018"/></svg>
               +8.4%
             </span>
           </div>
@@ -119,7 +119,7 @@ export default function AdminReports() {
               </svg>
             </div>
             <span className="rp-badge rp-badge--up">
-              <svg width="8" height="5" viewBox="0 0 8 5"><path d="M4 0L8 5H0z" fill="#0F5238"/></svg>
+              <svg width="8" height="5" viewBox="0 0 8 5"><path d="M4 0L8 5H0z" fill="#66B018"/></svg>
               +5.2%
             </span>
           </div>
@@ -140,7 +140,7 @@ export default function AdminReports() {
               </svg>
             </div>
             <span className="rp-badge rp-badge--up">
-              <svg width="7" height="5" viewBox="0 0 8 5"><path d="M4 0L8 5H0z" fill="#0F5238"/></svg>
+              <svg width="7" height="5" viewBox="0 0 8 5"><path d="M4 0L8 5H0z" fill="#66B018"/></svg>
               +2.9%
             </span>
           </div>
@@ -227,7 +227,7 @@ export default function AdminReports() {
             {/* Legend overlay */}
             <div className="rp-legend">
               <div className="rp-legend-item">
-                <span className="rp-legend-dot" style={{ background: '#0F5238' }}></span>
+                <span className="rp-legend-dot" style={{ background: '#66B018' }}></span>
                 FOOD RESCUED
               </div>
               <div className="rp-legend-item">
