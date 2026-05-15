@@ -64,3 +64,19 @@ export interface CharityApplication {
 }
 
 export interface CharityApplicationResponse extends CharityApplication {}
+
+export interface Donation {
+  donationID: string;
+  postID: string;
+  userID: string | null;
+  donationType: 'money' | 'food';
+  amount?: number;
+  foodID?: string;
+  quantity?: number;
+  foodKg?: number;
+  status: 'completed' | 'refunded';
+  createdAt: string;
+  // Joined info
+  donorName?: string;
+  postTitle?: string;
+}

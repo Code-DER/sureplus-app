@@ -152,3 +152,13 @@ def fetch_donations_by_user(user_id: str):
             .order("createdAt", desc=True),
         "Failed to fetch user donations"
     )
+
+def fetch_donation_owner(donation_id: str):
+    """
+    Fetch the userID of the donor for a specific donation.
+    """
+    res = _execute(
+        supabase_admin.table("Donation")             .select("userID")             .eq("donationID", donation_id)             .single(),
+        "Failed to fetch donation owner"
+    )
+    return res.data.get("userID") if res.data else None

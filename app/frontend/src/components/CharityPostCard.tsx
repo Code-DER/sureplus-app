@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { CharityPost } from '../api/types';
+import DonationHistory from './DonationHistory';
 import './CharityPostCard.css';
 
 interface CharityPostCardProps {
@@ -49,6 +50,8 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
   onEdit, 
   onDelete 
 }) => {
+  const [showDonations, setShowDonations] = useState(false);
+
   return (
     <div className="charity-post-card">
       <div className="charity-post-header">
@@ -108,6 +111,14 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
       </div>
 
       <div className="charity-post-footer">
+        {isOwner && (
+          <button 
+            className={`view-donations-btn ${showDonations ? 'active' : ''}`}
+            onClick={() => setShowDonations(!showDonations)}
+          >
+            {showDonations ? 'Hide Donations' : 'View Donations'}
+          </button>
+        )}
         {!isOwner && onDonate && post.status === 'active' && (
           <button className="donate-btn" onClick={() => onDonate(post)}>
             Donate Now
@@ -119,6 +130,12 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
           </button>
         )}
       </div>
+
+      {isOwner && showDonations && (
+        <div className="charity-post-donations-drawer">
+          <DonationHistory postID={post.charityID} />
+        </div>
+      )}
     </div>
   );
 };

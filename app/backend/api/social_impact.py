@@ -3,7 +3,7 @@ from uuid import UUID
 from typing import List
 
 from models.social_impact import SocialImpactResponse, SocialImpactSummary
-from services import social_impact_service, purchase_service
+from services import social_impact_service, purchase_service, charity_post_service
 from api.dependency import get_current_user
 
 router = APIRouter()
@@ -29,6 +29,29 @@ async def get_impact_by_purchase(
     impact_response = social_impact_service.fetch_impact_by_purchase(str(purchase_id))
     if not impact_response.data:
         raise HTTPException(status_code=404, detail="Social impact record not found for this purchase")
+    
+    return impact_response.data
+
+@router.get("/donation/{donation_id}", response_model=SocialImpactResponse)
+async def get_impact_by_donation(
+    donation_id: UUID,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Fetch social impact for a specific donation.
+    Ownership check: only the donor can see its impact.
+    """
+    owner_id = charity_post_service.fetch_donation_owner(str(donation_id))
+    
+    if not owner_id:
+        raise HTTPException(status_code=404, detail="Donation not found")
+    
+    if owner_id != current_user["userID"]:
+        raise HTTPException(status_code=403, detail="Forbidden: You do not own this donation")
+    
+    impact_response = social_impact_service.fetch_impact_by_donation(str(donation_id))
+    if not impact_response.data:
+        raise HTTPException(status_code=404, detail="Social impact record not found for this donation")
     
     return impact_response.data
 

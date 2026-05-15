@@ -100,3 +100,9 @@ def fetch_summary_by_user(user_id: str):
         "purchaseCount": len(purchase_ids),
         "donationCount": len(donation_ids)
     }
+
+def fetch_impact_by_donation(donation_id: str):
+    """
+    Fetch the social impact record for a specific donation.
+    """
+    return supabase_admin.table("SocialImpact")         .select("*")         .eq("donationID", donation_id)         .single()         .execute()

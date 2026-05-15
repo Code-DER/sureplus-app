@@ -101,12 +101,25 @@ export const charityPostAPI = {
         foodID?: string,
         quantity?: number
     }) => api.post(`/charity-posts/${charityId}/donate`, donation),
+    getDonationsByPost: (charityId: string) => api.get(`/charity-posts/${charityId}/donations`),
+    getMyDonations: () => api.get('/charity-posts/donations/my-donations'),
 };
 
 // Social Impact API functions
 export const socialImpactAPI = {
     getImpactByPurchase: (purchaseId: string) => api.get(`/social-impact/purchase/${purchaseId}`),
     getMyImpactSummary: () => api.get('/social-impact/summary'),
+};
+
+// Ratings API functions
+export const ratingsAPI = {
+    rate: (data: { 
+        purchaseID?: string, 
+        donationID?: string, 
+        rating: number, 
+        comment?: string 
+    }) => api.post('/ratings/', data),
+    getSellerRatings: (sellerId: string) => api.get(`/ratings/seller/${sellerId}`),
 };
 
 // Purchase API functions

@@ -163,3 +163,48 @@
 .view-profile-btn:hover {
   background-color: #F0FDF4;
 }
+
+.view-donations-btn {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-donations-btn:hover {
+  background-color: #e5e7eb;
+}
+
+.view-donations-btn.active {
+  background-color: #374151;
+  color: white;
+  border-color: #374151;
+}
+
+.charity-post-donations-drawer {
+  margin-top: 10px;
+  border-top: 1px dashed #e5e7eb;
+  padding-top: 10px;
+  animation: slide-down 0.3s ease-out;
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.status-badge.active { background-color: #e0f2fe; color: #0369a1; }
+.status-badge.funded { background-color: #dcfce7; color: #15803d; }
+.status-badge.closed { background-color: #f3f4f6; color: #4b5563; }
