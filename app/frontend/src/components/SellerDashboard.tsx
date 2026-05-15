@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import './SellerDashboard.css';
 import CreateNewListing from './CreateNewListing';
@@ -6,9 +6,33 @@ import ManageListings from './ManageListings';
 import MysteryBox from './MysteryBox';
 import SalesAnalytics from './SalesAnalytics';
 import SellerReviews from './SellerReviews';
+import { userAPI, foodAPI, notificationsAPI, purchasesAPI } from '../api/apis';
+import type { FoodItem } from '../types/food';
 
 interface SellerDashboardProps {
   onSwitchRole: () => void;
+}
+
+interface UserProfile {
+  userID: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
+interface Purchase {
+  purchaseID: string;
+  totalPrice: number;
+  status: string;
+  purchaseDate?: string;
+}
+
+interface Notification {
+  notificationID: string;
+  title?: string;
+  message?: string;
+  type?: string;
+  createdAt?: string;
 }
 
 type SidebarTab = 'dashboard' | 'manage-listings' | 'create-new' | 'mystery-box' | 'sales-reports' | 'reviews';
@@ -43,47 +67,87 @@ const SIDEBAR_ITEMS: { id: SidebarTab; label: string }[] = [
   { id: 'reviews', label: 'Reviews' },
 ];
 
-const MOCK_LISTINGS = [
-  {
-    name: 'Bell Peppers ni ano',
-    quantity: '24 pcs',
-    price: '₱120.00',
-    status: 'active' as const,
-  },
-  {
-    name: 'Pandesal ni Zoro',
-    quantity: '48 bags',
-    price: '₱80.50',
-    status: 'expiring' as const,
-  },
-  {
-    name: 'Organic Mangoes',
-    quantity: '36 pcs',
-    price: '₱150.00',
-    status: 'sold out' as const,
-  },
-];
-
-const MOCK_FEED = [
-  {
-    type: 'sale' as const,
-    text: 'Bell Peppers — 3 units sold',
-    time: '2 minutes ago',
-  },
-  {
-    type: 'expiring' as const,
-    text: 'Pandesal batch expires in 6h',
-    time: '15 min ago',
-  },
-  {
-    type: 'info' as const,
-    text: 'New review from @maria_buyer',
-    time: '1 hour ago',
-  },
-];
-
 export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) {
   const [activeTab, setActiveTab] = useState<SidebarTab>('dashboard');
+
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [listings, setListings] = useState<FoodItem[]>([]);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const triggerRefresh = useCallback(() => setRefreshKey((k) => k + 1), []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDashboardData() {
+      setLoading(true);
+      try {
+        const profileRes = await userAPI.getMyProfile();
+        if (cancelled) return;
+        const p = profileRes.data as UserProfile;
+        setProfile(p);
+
+        const [listingsRes, notifsRes] = await Promise.allSettled([
+          foodAPI.list({ seller_id: p.userID, include_expired: true }),
+          notificationsAPI.getMyNotifications(),
+        ]);
+
+        if (cancelled) return;
+        if (listingsRes.status === 'fulfilled') setListings(listingsRes.value.data);
+        if (notifsRes.status === 'fulfilled') setNotifications(notifsRes.value.data);
+
+        const purchasesRes = await purchasesAPI.getSellerPurchases(p.userID).catch(() => null);
+        if (!cancelled && purchasesRes) setPurchases(purchasesRes.data);
+      } catch {
+        // profile fetch failure is critical; sub-data failures are silent
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadDashboardData();
+    return () => { cancelled = true; };
+  }, [refreshKey]);
+
+  const sellerId = profile?.userID ?? '';
+  const initials = profile
+    ? `${profile.firstName[0] ?? ''}${profile.lastName[0] ?? ''}`.toUpperCase()
+    : '…';
+
+  const activeListings = listings.filter((l) => l.stockQuantity > 0);
+  const expiringCount = listings.filter((l) => {
+    if (!l.expirationDate) return false;
+    const ms = new Date(l.expirationDate).getTime() - Date.now();
+    return ms > 0 && ms < 24 * 60 * 60 * 1000;
+  }).length;
+
+  const completedPurchases = purchases.filter((p) => p.status === 'completed');
+  const totalSales = completedPurchases.reduce((sum, p) => sum + Number(p.totalPrice), 0);
+
+  const recentListings = [...listings]
+    .sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())
+    .slice(0, 5);
+
+  function feedType(n: Notification): 'sale' | 'expiring' | 'info' {
+    const t = (n.type ?? '').toLowerCase();
+    if (t.includes('sale') || t.includes('purchase') || t.includes('order')) return 'sale';
+    if (t.includes('expir')) return 'expiring';
+    return 'info';
+  }
+
+  function timeAgo(dateStr?: string): string {
+    if (!dateStr) return '';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  }
 
   return (
     <div className="seller-page">
@@ -96,11 +160,8 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
           <button className="seller-icon-btn" aria-label="Notifications">
             <svg width="16" height="20" viewBox="0 0 16 20" fill="none"><path d="M8 20c1.1 0 2-.9 2-2H6c0 1.1.9 2 2 2zm6-6V9c0-3.07-1.63-5.64-4.5-6.32V2C9.5 1.17 8.83.5 8 .5S6.5 1.17 6.5 2v.68C3.64 3.36 2 5.92 2 9v5l-2 2v1h16v-1l-2-2z" fill="#6B7280"/></svg>
           </button>
-          <button className="seller-icon-btn" aria-label="Cart">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 22a1 1 0 100-2 1 1 0 000 2zm11 0a1 1 0 100-2 1 1 0 000 2zM1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </button>
           <div className="seller-avatar" onClick={onSwitchRole} title="Switch to Buyer">
-            <span>TM</span>
+            <span>{initials}</span>
           </div>
         </div>
       </header>
@@ -141,15 +202,30 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
         {/* ===== MAIN CONTENT ===== */}
         <main className="seller-main">
           {activeTab === 'create-new' ? (
-            <CreateNewListing onBack={() => setActiveTab('dashboard')} />
+            <CreateNewListing
+              onBack={() => setActiveTab('dashboard')}
+              onCreated={() => { triggerRefresh(); setActiveTab('manage-listings'); }}
+            />
           ) : activeTab === 'manage-listings' ? (
-            <ManageListings onBack={() => setActiveTab('dashboard')} />
+            <ManageListings
+              onBack={() => setActiveTab('dashboard')}
+              sellerId={sellerId}
+            />
           ) : activeTab === 'mystery-box' ? (
             <MysteryBox onBack={() => setActiveTab('dashboard')} />
           ) : activeTab === 'sales-reports' ? (
-            <SalesAnalytics onBack={() => setActiveTab('dashboard')} />
+            <SalesAnalytics onBack={() => setActiveTab('dashboard')} sellerId={sellerId} />
           ) : activeTab === 'reviews' ? (
-            <SellerReviews onBack={() => setActiveTab('dashboard')} />
+            <SellerReviews
+              onBack={() => setActiveTab('dashboard')}
+              sellerId={sellerId}
+            />
+          ) : (
+          <>
+          {loading ? (
+            <div style={{ padding: '60px 24px', textAlign: 'center', color: '#707973' }}>
+              Loading dashboard…
+            </div>
           ) : (
           <>
           {/* Statistics Bento Grid */}
@@ -162,26 +238,26 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
                 </div>
               </div>
               <div className="stat-card-body">
-                <h3 className="stat-card-value">₱2,840.50</h3>
+                <h3 className="stat-card-value">
+                  {purchases.length === 0 ? '₱0.00' : `₱${totalSales.toFixed(2)}`}
+                </h3>
                 <div className="stat-card-trend up">
-                  <svg width="12" height="7" viewBox="0 0 12 7" fill="none"><path d="M1 6l5-5 5 5" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  <span>+12.5% from last week</span>
+                  <span>{completedPurchases.length} completed order{completedPurchases.length !== 1 ? 's' : ''}</span>
                 </div>
               </div>
             </div>
 
             <div className="stat-card">
               <div className="stat-card-header">
-                <span className="stat-card-label">Food Saved</span>
+                <span className="stat-card-label">Expiring Soon</span>
                 <div className="stat-card-icon orange-bg">
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="#EA580C" strokeWidth="2"/><path d="M12 6v6l4 2" stroke="#EA580C" strokeWidth="2" strokeLinecap="round"/></svg>
                 </div>
               </div>
               <div className="stat-card-body">
-                <h3 className="stat-card-value">142 kg</h3>
+                <h3 className="stat-card-value">{expiringCount} Items</h3>
                 <div className="stat-card-trend warning">
-                  <svg width="11" height="13" viewBox="0 0 11 13" fill="none"><path d="M5.5 1v11M1 7l4.5 5L10 7" stroke="#A04100" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  <span>Goal: 200 kg this month</span>
+                  <span>Expiring within 24 hours</span>
                 </div>
               </div>
             </div>
@@ -194,9 +270,9 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
                 </div>
               </div>
               <div className="stat-card-body">
-                <h3 className="stat-card-value">18 Items</h3>
+                <h3 className="stat-card-value">{activeListings.length} Items</h3>
                 <div className="stat-card-trend neutral">
-                  <span>4 expiring within 24h</span>
+                  <span>{listings.length} total listing{listings.length !== 1 ? 's' : ''}</span>
                 </div>
               </div>
             </div>
@@ -208,38 +284,63 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
             <section className="listings-table-section">
               <div className="section-header">
                 <h3>Recent Listings</h3>
-                <button className="btn-see-all">See all</button>
+                <button className="btn-see-all" onClick={() => setActiveTab('manage-listings')}>See all</button>
               </div>
               <div className="listings-table-card">
-                <table className="listings-table">
-                  <thead>
-                    <tr>
-                      <th>PRODUCT</th>
-                      <th>QUANTITY</th>
-                      <th>PRICE</th>
-                      <th>STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {MOCK_LISTINGS.map((item, idx) => (
-                      <tr key={idx}>
-                        <td>
-                          <div className="product-cell">
-                            <div className="product-thumb"></div>
-                            <span>{item.name}</span>
-                          </div>
-                        </td>
-                        <td className="qty-cell">{item.quantity}</td>
-                        <td className="price-cell">{item.price}</td>
-                        <td>
-                          <span className={`status-badge ${item.status.replace(' ', '-')}`}>
-                            {item.status}
-                          </span>
-                        </td>
+                {recentListings.length === 0 ? (
+                  <p style={{ padding: '24px', color: '#707973', fontSize: 14, textAlign: 'center' }}>
+                    No listings yet.{' '}
+                    <button onClick={() => setActiveTab('create-new')} style={{ background: 'none', border: 'none', color: '#0F5238', cursor: 'pointer', textDecoration: 'underline' }}>
+                      Create your first listing
+                    </button>
+                  </p>
+                ) : (
+                  <table className="listings-table">
+                    <thead>
+                      <tr>
+                        <th>PRODUCT</th>
+                        <th>QUANTITY</th>
+                        <th>PRICE</th>
+                        <th>STATUS</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {recentListings.map((item) => {
+                        const isExpired = item.expirationDate && new Date(item.expirationDate) < new Date();
+                        const status: 'active' | 'expiring' | 'sold out' =
+                          item.stockQuantity === 0 ? 'sold out'
+                          : isExpired ? 'expiring'
+                          : 'active';
+                        return (
+                          <tr key={item.foodID}>
+                            <td>
+                              <div className="product-cell">
+                                {item.picture ? (
+                                  <img
+                                    src={item.picture}
+                                    alt={item.foodName}
+                                    className="product-thumb"
+                                    style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 4 }}
+                                  />
+                                ) : (
+                                  <div className="product-thumb" />
+                                )}
+                                <span>{item.foodName}</span>
+                              </div>
+                            </td>
+                            <td className="qty-cell">{item.stockQuantity} pcs</td>
+                            <td className="price-cell">₱{Number(item.price).toFixed(2)}</td>
+                            <td>
+                              <span className={`status-badge ${status.replace(' ', '-')}`}>
+                                {status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </section>
 
@@ -251,11 +352,18 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
                 <div className="impact-tracker-card">
                   <div className="impact-tracker-decoration"></div>
                   <h4>You're making a difference!</h4>
-                  <p>142 kg of food rescued so far. Keep going to hit your 200 kg monthly goal.</p>
+                  <p>
+                    {activeListings.length > 0
+                      ? `${activeListings.length} active listing${activeListings.length !== 1 ? 's' : ''} helping reduce food waste.`
+                      : 'Start listing surplus food to make an impact.'}
+                  </p>
                   <div className="impact-progress-track">
-                    <div className="impact-progress-bar" style={{ width: '75%' }}></div>
+                    <div
+                      className="impact-progress-bar"
+                      style={{ width: `${Math.min(listings.length * 5, 100)}%` }}
+                    />
                   </div>
-                  <span className="impact-progress-label">75% of monthly goal</span>
+                  <span className="impact-progress-label">{listings.length} listing{listings.length !== 1 ? 's' : ''} created</span>
                 </div>
               </section>
 
@@ -263,19 +371,25 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
               <section className="live-feed-section">
                 <h4 className="feed-heading">LIVE FEED</h4>
                 <div className="feed-list">
-                  {MOCK_FEED.map((item, idx) => (
-                    <div className="feed-item" key={idx}>
-                      <div className={`feed-dot ${item.type}`}></div>
-                      <div className="feed-text">
-                        <span className="feed-main">{item.text}</span>
-                        <span className="feed-time">{item.time}</span>
+                  {notifications.length === 0 ? (
+                    <p style={{ fontSize: 13, color: '#A0ADA9', padding: '8px 0' }}>No recent activity.</p>
+                  ) : (
+                    notifications.slice(0, 5).map((n) => (
+                      <div className="feed-item" key={n.notificationID}>
+                        <div className={`feed-dot ${feedType(n)}`}></div>
+                        <div className="feed-text">
+                          <span className="feed-main">{n.title ?? n.message ?? 'Notification'}</span>
+                          <span className="feed-time">{timeAgo(n.createdAt)}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </section>
             </div>
           </div>
+          </>
+          )}
           </>
           )}
         </main>
@@ -283,4 +397,3 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
     </div>
   );
 }
-

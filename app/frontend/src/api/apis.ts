@@ -4,7 +4,7 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
 });
 
-// Add token to all  requests
+// Add token to all requests
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -18,7 +18,6 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Token expired or invalid
             localStorage.removeItem('token');
             localStorage.removeItem('token_type');
             window.location.href = '/login';
@@ -63,15 +62,38 @@ export const socialImpactAPI = {
     getMyImpactSummary: () => api.get('/social-impact/summary'),
 };
 
-// Food API functions
+// Food / Product API functions
 export const foodAPI = {
-  list: (params?: {
-    safe_for_me?: boolean;
-    edible_only?: boolean;
-    include_expired?: boolean;
-    seller_id?: string;
-  }) => api.get('/products/', { params }),
-  get: (foodId: string) => api.get(`/products/${foodId}`),
+    list: (params?: {
+        safe_for_me?: boolean;
+        edible_only?: boolean;
+        include_expired?: boolean;
+        seller_id?: string;
+    }) => api.get('/products/', { params }),
+    get: (foodId: string) => api.get(`/products/${foodId}`),
+    create: (data: Record<string, unknown>) => api.post('/products/', data),
+    update: (foodId: string, data: Record<string, unknown>) => api.patch(`/products/${foodId}`, data),
+    delete: (foodId: string) => api.delete(`/products/${foodId}`),
+    uploadImage: (file: File) => {
+        const form = new FormData();
+        form.append('file', file);
+        return api.post('/products/upload-image', form);
+    },
+};
+
+// Safety / Allergens API functions
+export const safetyAPI = {
+    listAllergens: () => api.get('/safety/allergens'),
+};
+
+// Purchases API functions
+export const purchasesAPI = {
+    getSellerPurchases: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}`),
+};
+
+// Ratings API functions
+export const ratingsAPI = {
+    getSellerRatings: (sellerId: string) => api.get(`/ratings/rating/seller/${sellerId}`),
 };
 
 // Notifications API functions
