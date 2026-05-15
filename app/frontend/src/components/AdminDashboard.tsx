@@ -13,6 +13,7 @@ import UserManagementIcon from '../assets/ADMIN/user management.svg';
 import PartnerTaggingIcon from '../assets/ADMIN/Partner Tagging.svg';
 import ReportsIcon from '../assets/ADMIN/Reports.svg';
 import InboxIcon from '../assets/ADMIN/inbox.svg';
+import LogoutIcon from '../assets/Global Profile System/Logout Icon.svg';
 
 interface AdminDashboardProps {
   onSwitchRole: (role: 'buyer' | 'seller' | 'admin') => void;
@@ -75,11 +76,16 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
             <img src={InboxIcon} alt="" width="20" height="16" />
             Inbox
           </button>
+          <button className={'admin-nav-item'} onClick={() => {localStorage.clear(); window.location.href = '/';}}>
+            <img src={LogoutIcon} alt="Logout" width="18" height="18" />
+            Logout
+          </button>
           
-          <button className="btn-back-to-app" onClick={() => onSwitchRole('buyer')}>
+          {/* Remove for now */}
+          {/* <button className="btn-back-to-app" onClick={() => onSwitchRole('buyer')}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             Back to App
-          </button>
+          </button> */}
         </nav>
       </div>
 

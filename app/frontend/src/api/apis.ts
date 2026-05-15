@@ -1,4 +1,24 @@
 import axios from "axios";
+import { jwtDecode, type JwtPayload } from 'jwt-decode'
+
+interface SureplusJwtPayload extends JwtPayload {
+    userID: string;
+    role: string;
+}
+
+export const getAuthUser = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+    return null;
+    }
+
+    try {
+        const decoded = jwtDecode<SureplusJwtPayload>(token);
+        return decoded;
+    } catch {
+        return null;
+    }
+};
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
