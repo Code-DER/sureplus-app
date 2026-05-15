@@ -8,7 +8,7 @@
 .btn-back-profile {
   background: transparent;
   border: none;
-  color: #0F5238;
+  color: #66B018;
   font-size: 16px;
   font-weight: 600;
   display: flex;
@@ -26,7 +26,7 @@
 .arrow-left-icon {
   width: 16px;
   height: 16px;
-  background: #0F5238;
+  background: #66B018;
   /* Ideally use an SVG mask for icons here, for now using block color */
 }
 
@@ -67,7 +67,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: #2D6A4F;
+  background-color: #66B018;
   color: #FFFFFF;
   display: flex;
   align-items: center;

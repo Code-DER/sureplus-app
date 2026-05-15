@@ -25,7 +25,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 24px;
   font-weight: 800;
-  color: #2D6A4F;
+  color: #66B018;
   letter-spacing: -0.6px;
 }
 
@@ -44,8 +44,8 @@
 
 .switch-role-btn {
   background: transparent;
-  border: 1px solid #2D6A4F;
-  color: #2D6A4F;
+  border: 1px solid #66B018;
+  color: #66B018;
   padding: 8px 16px;
   border-radius: 12px;
   font-weight: 600;
@@ -54,7 +54,7 @@
 }
 
 .switch-role-btn:hover {
-  background: #2D6A4F;
+  background: #66B018;
   color: white;
 }
 
@@ -62,7 +62,7 @@
   width: 33px;
   height: 33px;
   border-radius: 50%;
-  background: #2D6A4F;
+  background: #66B018;
   color: white;
   display: flex;
   align-items: center;
@@ -135,7 +135,7 @@
 }
 
 .empty-posts button {
-  background-color: #0F5238;
+  background-color: #66B018;
   color: white;
   border: none;
   padding: 10px 20px;

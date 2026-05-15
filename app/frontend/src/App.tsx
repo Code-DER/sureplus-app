@@ -84,7 +84,7 @@ function App() {
           <button 
             onClick={() => setView('seller')}
             style={{
-              background: '#0F5238', color: 'white', border: 'none', 
+              background: '#66B018', color: 'white', border: 'none', 
               padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
               fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
             }}
@@ -96,7 +96,7 @@ function App() {
           <button 
             onClick={() => setView('charity')}
             style={{
-              background: '#0F5238', color: 'white', border: 'none', 
+              background: '#66B018', color: 'white', border: 'none', 
               padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
               fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
             }}

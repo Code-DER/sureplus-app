@@ -20,7 +20,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 20px;
-  background: #0F5238;
+  background: #66B018;
   border: none;
   border-radius: 8px;
   font-family: 'Work Sans', sans-serif;
@@ -52,7 +52,7 @@
 }
 
 .rp-stat-card--featured {
-  border: 2px solid #0F5238;
+  border: 2px solid #66B018;
 }
 
 .rp-stat-row {
@@ -74,7 +74,7 @@
 }
 
 .rp-stat-icon--green {
-  background: #2D6A4F;
+  background: #66B018;
   width: 41px;
   height: 41px;
 }
@@ -90,7 +90,7 @@
   font-size: 11px;
 }
 
-.rp-badge--up   { background: #B1F0CE; color: #0F5238; }
+.rp-badge--up   { background: #B1F0CE; color: #66B018; }
 .rp-badge--down { background: #FFDAD6; color: #BA1A1A; }
 
 .rp-stat-name {
@@ -103,7 +103,7 @@
   padding-top: 12px;
 }
 
-.rp-stat-name--green { color: #0F5238; }
+.rp-stat-name--green { color: #66B018; }
 
 .rp-stat-val {
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -192,7 +192,7 @@
 
 .rp-period-btn--active {
   background: #FFFFFF;
-  color: #0F5238;
+  color: #66B018;
   box-shadow: 0px 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -250,7 +250,7 @@
 
 /* Impact Milestone */
 .rp-milestone-card {
-  background: linear-gradient(135deg, #0F5238 0%, #2D6A4F 100%);
+  background: linear-gradient(135deg, #66B018 0%, #66B018 100%);
   border-radius: 12px;
   padding: 32px;
   display: flex;
@@ -342,7 +342,7 @@
   font-family: 'Work Sans', sans-serif;
   font-weight: 700;
   font-size: 12px;
-  color: #0F5238;
+  color: #66B018;
 }
 
 /* ── Transaction Log ── */
@@ -406,7 +406,7 @@
   align-items: center;
   gap: 8px;
   padding: 6px 16px;
-  background: #0F5238;
+  background: #66B018;
   border: none;
   border-radius: 8px;
   font-family: 'Work Sans', sans-serif;
@@ -472,7 +472,7 @@
 .rp-type-badge--seller {
   background: #ECFDF5;
   border: 1px solid rgba(15,82,56,0.2);
-  color: #0F5238;
+  color: #66B018;
 }
 
 .rp-type-badge--pending {
@@ -488,7 +488,7 @@
   font-size: 14px;
 }
 
-.rp-status--completed { color: #0F5238; }
+.rp-status--completed { color: #66B018; }
 .rp-status--pending   { color: #94A3B8; }
 
 /* Footer */
@@ -529,7 +529,7 @@
 .rp-pg-btn:hover { background: #F1F5F9; }
 
 .rp-pg-btn--active {
-  border-color: #0F5238;
-  color: #0F5238;
+  border-color: #66B018;
+  color: #66B018;
   font-weight: 600;
 }

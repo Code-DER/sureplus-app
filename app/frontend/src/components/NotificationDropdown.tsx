@@ -44,7 +44,7 @@ interface Notification {
 // ]
 
 const TYPE_CONFIG: Record<Notification['type'], { label: string; iconColor: string; iconBg: string }> = {
-  new_listing: { label: 'New Listing:', iconColor: '#0F5238', iconBg: 'green' },
+  new_listing: { label: 'New Listing:', iconColor: '#66B018', iconBg: 'green' },
   deal:        { label: 'Daily Deal:', iconColor: '#A04100', iconBg: 'orange' },
   order_complete: { label: 'Order Complete:', iconColor: '#005050', iconBg: 'teal' },
 }

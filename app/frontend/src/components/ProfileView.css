@@ -36,7 +36,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: #2D6A4F;
+  background-color: #66B018;
   color: #FFFFFF;
   display: flex;
   align-items: center;
@@ -87,7 +87,7 @@
 
 .role-pill {
   background: #B1F0CE;
-  color: #0F5238;
+  color: #66B018;
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 12px;
@@ -124,7 +124,7 @@
 }
 
 .rescuer-impact-card {
-  background: #2D6A4F;
+  background: #66B018;
   border-radius: 50px;
   padding: 16px 32px;
   display: flex;
@@ -240,7 +240,7 @@
 .pin-icon {
   width: 16px;
   height: 20px;
-  background: #0F5238;
+  background: #66B018;
 }
 
 .address-value p {
@@ -287,7 +287,7 @@
 }
 
 .stat-value.green {
-  color: #0F5238;
+  color: #66B018;
 }
 
 .stat-value.teal {
@@ -325,7 +325,7 @@
 .shield-icon-green {
   width: 20px;
   height: 20px;
-  background: #0F5238;
+  background: #66B018;
 }
 
 .settings-info h4 {
@@ -547,7 +547,7 @@
 
 .btn-seller-submit {
   flex: 2;
-  background: #0F5238;
+  background: #66B018;
   color: white;
   border: none;
   border-radius: 24px;
@@ -581,7 +581,7 @@
   height: 56px;
   border-radius: 50%;
   background: #B1F0CE;
-  color: #0F5238;
+  color: #66B018;
   font-size: 28px;
   font-weight: 700;
   display: flex;
@@ -635,7 +635,7 @@
 
 .seller-type-badge {
   background: #B1F0CE;
-  color: #0F5238;
+  color: #66B018;
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 12px;

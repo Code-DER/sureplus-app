@@ -35,7 +35,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 24px;
   font-weight: 800;
-  color: #2D6A4F;
+  color: #66B018;
   letter-spacing: -0.6px;
 }
 
@@ -65,7 +65,7 @@
   width: 33px;
   height: 33px;
   border-radius: 50%;
-  background: #2D6A4F;
+  background: #66B018;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,7 +112,7 @@
 .sidebar-logo {
   width: 40px;
   height: 40px;
-  background: #0F5238;
+  background: #66B018;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -334,7 +334,7 @@
 .btn-see-all {
   background: transparent;
   border: none;
-  color: #0F5238;
+  color: #66B018;
   font-family: 'Work Sans', sans-serif;
   font-size: 14px;
   cursor: pointer;
@@ -416,7 +416,7 @@
   font-family: 'Work Sans', sans-serif;
   font-size: 16px;
   font-weight: 600;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .status-badge {
@@ -470,7 +470,7 @@
 }
 
 .impact-tracker-card {
-  background: #0F5238;
+  background: #66B018;
   border-radius: 16px;
   padding: 24px;
   color: white;

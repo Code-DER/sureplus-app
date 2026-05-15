@@ -37,7 +37,7 @@
 }
 
 .cnl-breadcrumb-link:hover {
-  color: #0F5238;
+  color: #66B018;
 }
 
 .cnl-breadcrumb-sep {
@@ -57,7 +57,7 @@
   font-weight: 700;
   font-size: 40px;
   line-height: 48px;
-  color: #0F5238;
+  color: #66B018;
   margin: 8px 0 0 0;
 }
 
@@ -92,7 +92,7 @@
   font-weight: 700;
   font-size: 30px;
   line-height: 36px;
-  color: #0F5238;
+  color: #66B018;
   margin: 0 0 24px 0;
 }
 
@@ -101,7 +101,7 @@
   font-weight: 600;
   font-size: 22px;
   line-height: 34px;
-  color: #0F5238;
+  color: #66B018;
   margin: 0 0 24px 0;
 }
 
@@ -152,7 +152,7 @@
 }
 
 .cnl-input:focus {
-  border-color: #0F5238;
+  border-color: #66B018;
 }
 
 .cnl-textarea {
@@ -178,7 +178,7 @@
 }
 
 .cnl-textarea:focus {
-  border-color: #0F5238;
+  border-color: #66B018;
 }
 
 /* Category + Date Row */
@@ -220,7 +220,7 @@
 }
 
 .cnl-select:focus {
-  border-color: #0F5238;
+  border-color: #66B018;
 }
 
 .cnl-select-chevron {
@@ -295,7 +295,7 @@
 }
 
 .cnl-upload-dashed:hover {
-  border-color: #0F5238;
+  border-color: #66B018;
   background: #ECF0EA;
 }
 
@@ -367,7 +367,7 @@
 }
 
 .cnl-qty-plus {
-  background: #0F5238;
+  background: #66B018;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -470,7 +470,7 @@
 }
 
 .cnl-chip:hover {
-  border-color: #0F5238;
+  border-color: #66B018;
   background: #F8FAF6;
 }
 

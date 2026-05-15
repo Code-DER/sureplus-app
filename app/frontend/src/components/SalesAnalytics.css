@@ -31,7 +31,7 @@
   font-weight: 500;
   font-size: 16px;
   line-height: 16px;
-  color: #0F5238;
+  color: #66B018;
   padding: 0;
   transition: opacity 0.15s;
 }
@@ -45,7 +45,7 @@
   font-weight: 600;
   font-size: 16px;
   line-height: 16px;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .sa-title {
@@ -113,7 +113,7 @@
   line-height: 16px;
 }
 
-.sa-badge-green { background: rgba(177, 240, 206, 0.3); color: #0F5238; }
+.sa-badge-green { background: rgba(177, 240, 206, 0.3); color: #66B018; }
 .sa-badge-orange { background: #FFEDD5; color: #EA580C; }
 .sa-badge-teal { background: rgba(147, 242, 242, 0.3); color: #005050; }
 
@@ -271,7 +271,7 @@
   flex-direction: column;
   padding: 32px 24px;
   gap: 24px;
-  background: #0F5238;
+  background: #66B018;
   border-radius: 12px;
 }
 
@@ -521,7 +521,7 @@
   font-family: 'Work Sans', sans-serif;
   font-weight: 700;
   font-size: 12px;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .sa-rescuer-name {
@@ -551,7 +551,7 @@
   font-weight: 400;
   font-size: 11px;
   line-height: 13px;
-  color: #0F5238;
+  color: #66B018;
 }
 
 /* Rescue Contribution Cell */
@@ -686,7 +686,7 @@
   font-family: 'Work Sans', sans-serif;
   font-weight: 700;
   font-size: 10px;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .sa-sub-name {
@@ -704,7 +704,7 @@
 
 .sa-sub-rescues {
   font-weight: 700;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .sa-sub-weight {
@@ -756,8 +756,8 @@
 }
 
 .sa-page-btn.active {
-  background: #0F5238;
-  border-color: #0F5238;
+  background: #66B018;
+  border-color: #66B018;
   color: #FFFFFF;
 }
 

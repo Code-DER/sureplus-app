@@ -14,7 +14,7 @@
   font-family: 'Work Sans', sans-serif;
   font-size: 16px;
   margin-bottom: 32px;
-  color: #0F5238;
+  color: #66B018;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -31,7 +31,7 @@
 }
 
 .breadcrumb-link:hover {
-  color: #0F5238;
+  color: #66B018;
 }
 
 .breadcrumb-separator {
@@ -114,7 +114,7 @@
 }
 
 .metric-header span:last-child {
-  color: #0F5238;
+  color: #66B018;
 }
 
 .metric-track {
@@ -127,7 +127,7 @@
 
 .metric-fill {
   height: 100%;
-  background-color: #0F5238;
+  background-color: #66B018;
   border-radius: 9999px;
 }
 
@@ -238,7 +238,7 @@
 .btn-load-more {
   background: #FFFFFF;
   border: 1px solid #BFC9C1;
-  color: #0F5238;
+  color: #66B018;
   padding: 12px 32px;
   border-radius: 9999px;
   font-family: 'Work Sans', sans-serif;
@@ -251,12 +251,12 @@
 
 .btn-load-more:hover {
   background: #F8F9FA;
-  border-color: #0F5238;
+  border-color: #66B018;
 }
 
 /* Promo Banner */
 .promo-banner {
-  background: #0F5238;
+  background: #66B018;
   border-radius: 12px;
   display: flex;
   overflow: hidden;
@@ -293,7 +293,7 @@
 
 .btn-read-guide {
   background: #FFFFFF;
-  color: #0F5238;
+  color: #66B018;
   border: none;
   padding: 8px 24px;
   height: 36px;
@@ -398,7 +398,7 @@
 
 .promo-metric-fill {
   height: 100%;
-  background: #0F5238;
+  background: #66B018;
   border-radius: 2px;
   opacity: 0.8;
 }

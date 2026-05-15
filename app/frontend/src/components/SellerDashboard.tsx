@@ -290,7 +290,7 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
                 {recentListings.length === 0 ? (
                   <p style={{ padding: '24px', color: '#707973', fontSize: 14, textAlign: 'center' }}>
                     No listings yet.{' '}
-                    <button onClick={() => setActiveTab('create-new')} style={{ background: 'none', border: 'none', color: '#0F5238', cursor: 'pointer', textDecoration: 'underline' }}>
+                    <button onClick={() => setActiveTab('create-new')} style={{ background: 'none', border: 'none', color: '#66B018', cursor: 'pointer', textDecoration: 'underline' }}>
                       Create your first listing
                     </button>
                   </p>
