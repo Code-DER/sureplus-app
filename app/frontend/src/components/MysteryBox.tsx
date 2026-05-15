@@ -56,7 +56,7 @@ export default function MysteryBox({ onBack }: MysteryBoxProps) {
       <div className="mb-header-section">
         <nav className="mb-breadcrumb">
           <button className="mb-breadcrumb-link" onClick={onBack}>Dashboard</button>
-          <svg className="mb-breadcrumb-sep" width="5" height="8" viewBox="0 0 5 8" fill="none"><path d="M1 1l3 3-3 3" stroke="#0F5238" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <svg className="mb-breadcrumb-sep" width="5" height="8" viewBox="0 0 5 8" fill="none"><path d="M1 1l3 3-3 3" stroke="#66B018" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           <span className="mb-breadcrumb-current">Mystery Box</span>
         </nav>
         <h1 className="mb-title">Mystery Box Setup</h1>
@@ -72,7 +72,7 @@ export default function MysteryBox({ onBack }: MysteryBoxProps) {
           {/* Box Configuration Card */}
           <div className="mb-card mb-box-config">
             <div className="mb-card-heading">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 1l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1 2-4z" stroke="#0F5238" strokeWidth="1.5" strokeLinejoin="round"/><path d="M5 15l1.5 3 3 .5-2 2 .5 3-3-1.5L2 20.5l.5-3-2-2 3-.5L5 12z" stroke="#0F5238" strokeWidth="1.2" strokeLinejoin="round"/><path d="M17 13l1 2 2 .5-1.5 1.5.5 2-2-1-2 1 .5-2L14 15.5l2-.5 1-2z" stroke="#0F5238" strokeWidth="1" strokeLinejoin="round"/></svg>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 1l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1 2-4z" stroke="#66B018" strokeWidth="1.5" strokeLinejoin="round"/><path d="M5 15l1.5 3 3 .5-2 2 .5 3-3-1.5L2 20.5l.5-3-2-2 3-.5L5 12z" stroke="#66B018" strokeWidth="1.2" strokeLinejoin="round"/><path d="M17 13l1 2 2 .5-1.5 1.5.5 2-2-1-2 1 .5-2L14 15.5l2-.5 1-2z" stroke="#66B018" strokeWidth="1" strokeLinejoin="round"/></svg>
               <span>Box Configuration</span>
             </div>
 

@@ -48,7 +48,7 @@
   font-size: 24px;
   line-height: 32px;
   letter-spacing: -0.6px;
-  color: #2D6A4F;
+  color: #66B018;
   margin-right: 31px;
 }
 
@@ -76,7 +76,7 @@
 
 .nav-link.active {
   font-weight: 700;
-  color: #2D6A4F;
+  color: #66B018;
   padding: 0; /* Aligning exactly with Figma spec */
   background: transparent;
 }
@@ -140,7 +140,7 @@
   margin: 0;
 }
 
-.text-green { color: #0F5238; }
+.text-green { color: #66B018; }
 .text-orange { color: #FE6B00; }
 
 .hero-subtext {
@@ -165,7 +165,7 @@
   font-weight: 700;
   font-size: 40px;
   line-height: 44px;
-  color: #0F5238;
+  color: #66B018;
   margin: 0;
 }
 
@@ -194,7 +194,7 @@
 }
 
 .selected-seller {
-  border: 2px solid #0F5238;
+  border: 2px solid #66B018;
 }
 
 .selected-buyer {
@@ -213,7 +213,7 @@
 }
 
 .bg-seller-inactive { background: #B1F0CE; }
-.bg-seller-active { background: #0F5238; }
+.bg-seller-active { background: #66B018; }
 
 .bg-buyer-inactive { background: #FFEDD5; }
 .bg-buyer-active { background: #FE6B00; }

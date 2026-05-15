@@ -29,7 +29,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 800;
   font-size: 24px;
-  color: #2D6A4F;
+  color: #66B018;
   letter-spacing: -0.6px;
   margin: 0;
 }
@@ -100,7 +100,7 @@
 .admin-brand-icon {
   width: 40px;
   height: 40px;
-  background: #0F5238;
+  background: #66B018;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -172,14 +172,14 @@
 .admin-nav-item.active {
   padding: 12px 16px 12px 12px;
   background: rgba(177, 240, 206, 0.21);
-  border-left: 4px solid #0F5238;
+  border-left: 4px solid #66B018;
   border-radius: 8px;
-  color: #0F5238;
+  color: #66B018;
   font-weight: 600;
 }
 
 .admin-nav-item.active svg {
-  color: #0F5238;
+  color: #66B018;
 }
 
 .btn-back-to-app {
@@ -258,7 +258,7 @@
 }
 
 .admin-stat-card.dark {
-  background: #2D6A4F;
+  background: #66B018;
   border: none;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
@@ -471,7 +471,7 @@
   height: 100%;
   border-radius: 50%;
   background: conic-gradient(
-    #2D6A4F 0% 45%, 
+    #66B018 0% 45%, 
     #94A3B8 45% 75%, 
     #E2E8F0 75% 100%
   );

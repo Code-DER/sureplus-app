@@ -1,6 +1,6 @@
 .role-selector-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0F5238 0%, #2D6A4F 50%, #1B4332 100%);
+  background: linear-gradient(135deg, #66B018 0%, #66B018 50%, #1B4332 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,7 +24,7 @@
 .role-logo-icon {
   width: 56px;
   height: 56px;
-  background: #0F5238;
+  background: #66B018;
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -43,7 +43,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 32px;
   font-weight: 800;
-  color: #0F5238;
+  color: #66B018;
   margin: 0;
 }
 
@@ -87,7 +87,7 @@
 }
 
 .role-option.buyer-option:hover {
-  border-color: #2D6A4F;
+  border-color: #66B018;
 }
 
 .role-option.seller-option:hover {
@@ -105,7 +105,7 @@
 }
 
 .buyer-icon-bg {
-  background: #2D6A4F;
+  background: #66B018;
 }
 
 .seller-icon-bg {
@@ -132,7 +132,7 @@
   padding-top: 8px;
   font-size: 14px;
   font-weight: 700;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .seller-option .role-cta {

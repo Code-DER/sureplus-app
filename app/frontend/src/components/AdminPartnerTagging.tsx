@@ -17,7 +17,7 @@ const PARTNERS = [
     tags: ['Organic', 'Bakery', 'Zero Waste Certified'],
     avatars: [
       { initials: 'JD', bg: '#E2E8F0', color: '#191C1A' },
-      { initials: 'MR', bg: '#D1FAE5', color: '#0F5238' },
+      { initials: 'MR', bg: '#D1FAE5', color: '#66B018' },
       { initials: 'VC', bg: '#F1F5F9', color: '#1E293B' },
     ],
     footerNote: 'Verification documents received 2 days ago',
@@ -117,12 +117,12 @@ export default function AdminPartnerTagging() {
                 <div className="pt-tags-row">
                   {partner.tags.map((tag, i) => (
                     <span className="pt-applied-tag" key={i}>
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#0F5238" strokeWidth="2">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#66B018" strokeWidth="2">
                         <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
                       </svg>
                       {tag}
                       <button className="pt-tag-remove">
-                        <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#0F5238" strokeWidth="3">
+                        <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#66B018" strokeWidth="3">
                           <line x1="18" y1="6" x2="6" y2="18"></line>
                           <line x1="6"  y1="6" x2="18" y2="18"></line>
                         </svg>
@@ -156,7 +156,7 @@ export default function AdminPartnerTagging() {
                 ) : (
                   <div className="pt-notify">
                     <div className="pt-notify-icon">
-                      <svg width="13" height="11" viewBox="0 0 24 24" fill="none" stroke="#0F5238" strokeWidth="2">
+                      <svg width="13" height="11" viewBox="0 0 24 24" fill="none" stroke="#66B018" strokeWidth="2">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.08 6.08l.96-.96a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path>
                       </svg>
                     </div>
@@ -182,7 +182,7 @@ export default function AdminPartnerTagging() {
         <div className="pt-filter-card">
           <div className="pt-filter-heading">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" fill="#0F5238"/>
+              <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" fill="#66B018"/>
             </svg>
             <span>Quick Filters</span>
           </div>

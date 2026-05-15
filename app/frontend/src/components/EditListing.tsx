@@ -129,7 +129,7 @@ export default function EditListing({ item, onBack, onSaved }: EditListingProps)
       <div className="el-header">
         <div className="el-header-left">
           <button className="el-back-btn" onClick={onBack}>
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M8 5H2M2 5l3-3M2 5l3 3" stroke="#0F5238" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M8 5H2M2 5l3-3M2 5l3 3" stroke="#66B018" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             Back to Inventory
           </button>
           <h1 className="el-title">Edit Listing</h1>
@@ -162,7 +162,7 @@ export default function EditListing({ item, onBack, onSaved }: EditListingProps)
           {/* Item Details Card */}
           <div className="el-card el-item-details-card">
             <div className="el-card-heading">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="20" height="20" rx="4" stroke="#0F5238" strokeWidth="2"/><path d="M7 7h8M7 11h8M7 15h5" stroke="#0F5238" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="20" height="20" rx="4" stroke="#66B018" strokeWidth="2"/><path d="M7 7h8M7 11h8M7 15h5" stroke="#66B018" strokeWidth="1.5" strokeLinecap="round"/></svg>
               <span>Item Details</span>
             </div>
 
@@ -220,7 +220,7 @@ export default function EditListing({ item, onBack, onSaved }: EditListingProps)
                   onClick={() => setQuantity(Math.max(0, quantity - 1))}
                   type="button"
                 >
-                  <svg width="14" height="2" viewBox="0 0 14 2" fill="none"><rect width="14" height="2" rx="1" fill="#0F5238"/></svg>
+                  <svg width="14" height="2" viewBox="0 0 14 2" fill="none"><rect width="14" height="2" rx="1" fill="#66B018"/></svg>
                 </button>
                 <div className="el-qty-display">
                   <span className="el-qty-number">{quantity}</span>
@@ -231,7 +231,7 @@ export default function EditListing({ item, onBack, onSaved }: EditListingProps)
                   onClick={() => setQuantity(quantity + 1)}
                   type="button"
                 >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect y="6" width="14" height="2" rx="1" fill="#0F5238"/><rect x="6" width="2" height="14" rx="1" fill="#0F5238"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect y="6" width="14" height="2" rx="1" fill="#66B018"/><rect x="6" width="2" height="14" rx="1" fill="#66B018"/></svg>
                 </button>
               </div>
             </div>
