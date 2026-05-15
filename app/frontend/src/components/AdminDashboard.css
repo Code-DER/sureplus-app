@@ -678,6 +678,21 @@
   object-fit: cover;
 }
 
+.actor-initials {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: #191C1A;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  flex-shrink: 0;
+}
+
 .td-actor span {
   font-family: 'Work Sans', sans-serif;
   font-size: 16px;

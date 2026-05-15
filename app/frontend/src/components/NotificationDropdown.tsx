@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { notificationsAPI } from '../api/apis'
 import './NotificationDropdown.css'
 
+import BellIcon from '../assets/BUYER/Notif bell Icon.svg'
+
 interface Notification {
   id: number
   type: 'new_listing' | 'deal' | 'order_complete' | string
@@ -134,9 +136,11 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
               <div key={n.id} className="notif-item">
                 {/* Colored icon */}
                 <div className={`notif-icon ${cfg.iconBg}`}>
-                  <span
-                    className="icon-placeholder"
-                    style={{ width: 18, height: 18, background: cfg.iconColor, borderRadius: 4 }}
+                  <img
+                    src={BellIcon}
+                    alt="Notification"
+                    width="18"
+                    height="18"
                   />
                 </div>
 

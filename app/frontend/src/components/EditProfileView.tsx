@@ -2,6 +2,11 @@ import { useState } from 'react';
 import './EditProfileView.css';
 import { userAPI, charityAPI } from '../api/apis';
 
+import BackIcon from '../assets/Global Profile System/Back Icon.svg';
+import PenIcon from '../assets/Global Profile System/Pen Icon.svg';
+import PrivSecuIcon from '../assets/Global Profile System/Priv & Secu Icon.svg';
+import EcoIcon from '../assets/Global Profile System/Eco Icon.svg';
+
 interface UserProfile {
   userID: string;
   firstName: string;
@@ -133,7 +138,7 @@ export default function EditProfileView({ profile, sellerProfile, charityProfile
   return (
     <div className="edit-profile-view">
       <button className="btn-back-profile" onClick={onBack}>
-        <span className="icon-placeholder arrow-left-icon"></span>
+        <img src={BackIcon} alt="Back" width="16" height="16" />
         Back to profile
       </button>
 
@@ -145,7 +150,7 @@ export default function EditProfileView({ profile, sellerProfile, charityProfile
             <div className="photo-avatar-wrapper">
               <div className="photo-avatar-image"></div>
               <button className="btn-edit-photo" aria-label="Edit Photo">
-                <span className="icon-placeholder pencil-icon"></span>
+                <img src={PenIcon} alt="Edit" width="16" height="16" />
               </button>
             </div>
             <div className="photo-edit-info">
@@ -306,7 +311,7 @@ export default function EditProfileView({ profile, sellerProfile, charityProfile
         <div className="edit-side-col">
           <div className="security-card">
             <div className="security-icon-wrapper">
-              <span className="icon-placeholder shield-icon-white"></span>
+              <img src={PrivSecuIcon} alt="Security" width="24" height="24" />
             </div>
             <h2>Account Security</h2>
             <p>Manage your account preferences and password in one place.</p>
@@ -364,7 +369,7 @@ export default function EditProfileView({ profile, sellerProfile, charityProfile
           {/* DECIDE ON WHAT ENDPOINT TO PLACE HERE */}
           {/* <div className="impact-progress-card">
             <div className="impact-header">
-              <span className="icon-placeholder leaf-icon-orange"></span>
+              <img src={EcoIcon} alt="Eco" width="24" height="24" />
               <h3>Rescue Impact</h3>
             </div>
             <div className="impact-stats-row">
