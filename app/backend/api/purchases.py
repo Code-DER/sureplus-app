@@ -4,7 +4,8 @@ from api.dependency import get_current_user
 from services.purchase_service import (
     create_purchase,
     complete_purchase,
-    get_seller_purchase_list
+    get_seller_purchase_list,
+    get_seller_orders,
 )
 
 router = APIRouter(prefix="/purchase")
@@ -18,6 +19,10 @@ def complete(purchase_id: str):
     return complete_purchase(purchase_id)
 
 
-@router.get("/seller/{seller_id}")
-def seller_orders(seller_id: str):
+@router.get("/purchase/seller/{seller_id}")
+def seller_purchases(seller_id: str):
     return get_seller_purchase_list(seller_id)
+
+@router.get("/purchase/seller/{seller_id}/orders")
+def seller_orders(seller_id: str):
+    return get_seller_orders(seller_id)

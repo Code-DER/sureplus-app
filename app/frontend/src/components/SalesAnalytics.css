@@ -597,6 +597,16 @@
   color: #1E40AF;
 }
 
+.sa-loyalty-amber {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.sa-loyalty-red {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
 /* =============================
    Expanded Sub-table
    ============================= */

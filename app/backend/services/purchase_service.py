@@ -154,3 +154,80 @@ def get_seller_purchase_list(seller_id: str):
         .execute()
 
     return purchases_res.data
+
+
+def get_seller_orders(seller_id: str) -> list:
+    """
+    Return enriched order rows for a seller — one row per purchase item.
+    Each row includes buyer name, food name, quantity, per-item total, and status.
+    """
+    foods_res = supabase_admin.table("Food") \
+        .select("foodID, foodName") \
+        .eq("userID", seller_id) \
+        .execute()
+
+    food_map = {f["foodID"]: f["foodName"] for f in (foods_res.data or [])}
+    food_ids = list(food_map.keys())
+    if not food_ids:
+        return []
+
+    items_res = supabase_admin.table("PurchaseItems") \
+        .select("purchaseID, foodID, quantity, totalPerItem") \
+        .in_("foodID", food_ids) \
+        .execute()
+
+    items = items_res.data or []
+    if not items:
+        return []
+
+    purchase_ids = list({i["purchaseID"] for i in items})
+
+    purchases_res = supabase_admin.table("Purchase") \
+        .select("purchaseID, userID, status, purchaseDate") \
+        .in_("purchaseID", purchase_ids) \
+        .execute()
+    purchase_map = {p["purchaseID"]: p for p in (purchases_res.data or [])}
+
+    buyer_ids = list({p["userID"] for p in purchase_map.values() if p.get("userID")})
+    user_map: dict = {}
+    if buyer_ids:
+        users_res = supabase_admin.table("User") \
+            .select("userID, firstName, lastName") \
+            .in_("userID", buyer_ids) \
+            .execute()
+        user_map = {u["userID"]: u for u in (users_res.data or [])}
+
+    rows = []
+    for item in items:
+        purchase = purchase_map.get(item["purchaseID"], {})
+        buyer_id = purchase.get("userID")
+        buyer = user_map.get(buyer_id, {})
+        first = buyer.get("firstName") or ""
+        last  = buyer.get("lastName")  or ""
+        rows.append({
+            "purchaseID":  item["purchaseID"],
+            "buyerName":   f"{first} {last}".strip() or "Unknown",
+            "foodName":    food_map.get(item["foodID"], "Unknown"),
+            "quantity":    item.get("quantity", 0),
+            "totalPerItem": float(item.get("totalPerItem") or 0),
+            "status":      purchase.get("status", "unknown"),
+            "purchaseDate": purchase.get("purchaseDate"),
+        })
+
+    rows.sort(key=lambda r: r.get("purchaseDate") or "", reverse=True)
+    return rows
+
+def complete_purchase(purchase_id: str):
+    """
+    Mark a purchase as completed and trigger social impact calculation.
+    """
+    response = supabase_admin.table("Purchase") \
+        .update({"status": "completed"}) \
+        .eq("purchaseID", purchase_id) \
+        .execute()
+    
+    if response.data:
+        # Hook into Social Impact
+        social_impact_service.create_impact(purchase_id)
+    
+    return response
