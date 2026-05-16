@@ -142,8 +142,8 @@ export const charityApplicationsAPI = {
 export const adminAPI = {
     getStats: () => api.get('/admin/stats'),
     getUsers: (page = 1, limit = 10, role?: string) => api.get('/admin/users', { params: { page, limit, role } }),
-    updateUserRole: (userId: string, role: 'buyer' | 'seller' | 'charity' | 'admin') =>
-        api.patch(`/admin/users/${userId}/role`, { role }),
+    updateUserRole: (userId: string, role: 'buyer' | 'seller' | 'charity' | 'admin', employeeID?: string, adminType?: string) =>
+        api.patch(`/admin/users/${userId}/role`, { role, employeeID, adminType }),
     deleteUser: (userId: string) => api.delete(`/admin/users/${userId}`),
     getPendingApprovals: () => api.get('/admin/pending-approvals'),
     getSellers: () => api.get('/admin/sellers'),

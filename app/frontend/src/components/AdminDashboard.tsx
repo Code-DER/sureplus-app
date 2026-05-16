@@ -5,10 +5,11 @@ import AdminUserManagement from './AdminUserManagement';
 import AdminPartnerTagging from './AdminPartnerTagging';
 import AdminReports from './AdminReports';
 import AdminInbox from './AdminInbox';
+import NotificationDropdown from './NotificationDropdown';
 
 import StoreLogo from '../assets/ADMIN/Store Logo.svg';
 import NotificationIcon from '../assets/ADMIN/notification.svg';
-import QuestionIcon from '../assets/ADMIN/Question.svg';
+// import QuestionIcon from '../assets/ADMIN/Question.svg';
 import DashboardIcon from '../assets/ADMIN/Dashboard.svg';
 import UserManagementIcon from '../assets/ADMIN/user management.svg';
 import PartnerTaggingIcon from '../assets/ADMIN/Partner Tagging.svg';
@@ -23,6 +24,7 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
   void onSwitchRole;
   const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'partners' | 'reports' | 'inbox'>('dashboard');
+  const [showNotifs, setShowNotifs] = useState(false);
 
   return (
     <div className="admin-container">
@@ -33,12 +35,13 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
           <h2>Sureplus Admin</h2>
         </div>
         <div className="topbar-right">
-          <button className="icon-btn">
+          <button className="icon-btn" onClick={(e) => { e.stopPropagation(); setShowNotifs((v) => !v); }} aria-label="Notifications">
             <img src={NotificationIcon} alt="Notifications" width="20" height="20" />
           </button>
-          <button className="icon-btn">
+          {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
+          {/* <button className="icon-btn">
             <img src={QuestionIcon} alt="Help" width="20" height="20" />
-          </button>
+          </button> */}
           <div className="avatar-wrapper">
             <img src={StoreLogo} alt="Admin" className="admin-avatar" />
           </div>
