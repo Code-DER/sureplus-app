@@ -1,16 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import './AdminUserManagement.css';
 import { adminAPI, charityApplicationsAPI } from '../api/apis';
 
 const USERS_PER_PAGE = 10;
-type RoleFilter = 'all' | 'seller' | 'buyer' | 'charity' | 'admin';
+type RoleFilter = 'all' | 'seller' | 'buyer' | 'charity' | 'admin' | 'rider';
+type UserRole = 'buyer' | 'seller' | 'charity' | 'admin' | 'rider';
+
+const ALL_ROLES: UserRole[] = ['buyer', 'seller', 'rider', 'admin', 'charity'];
 
 type User = {
   userID: string;
   firstName: string;
   lastName: string;
   emailAddress: string;
-  role: 'buyer' | 'seller' | 'charity' | 'admin';
+  role: UserRole;
   barangay?: string;
   city?: string;
   createdAt?: string;
@@ -24,6 +27,13 @@ type PendingApproval = {
   organizationName?: string;
 };
 
+type ActivityLog = {
+  activityID: string;
+  actionType?: string;
+  description?: string;
+  timestamp: string;
+};
+
 export default function AdminUserManagement() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,6 +42,28 @@ export default function AdminUserManagement() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [userLogs, setUserLogs] = useState<ActivityLog[]>([]);
+  const [showLogs, setShowLogs] = useState(false);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+  const [addAdminForm, setAddAdminForm] = useState({ firstName: '', lastName: '', emailAddress: '', password: '' });
+  const [addAdminLoading, setAddAdminLoading] = useState(false);
+  const [addAdminError, setAddAdminError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!editingUserId) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setEditingUserId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [editingUserId]);
 
   const selectedUser = users.find((u) => u.userID === selectedUserId) || null;
   const totalPages = Math.max(1, Math.ceil(totalUsers / USERS_PER_PAGE));
@@ -62,10 +94,17 @@ export default function AdminUserManagement() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  const changeRole = async (user: User) => {
-    const order: User['role'][] = ['buyer', 'seller', 'charity', 'admin'];
-    const nextRole = order[(order.indexOf(user.role) + 1) % order.length];
-    await adminAPI.updateUserRole(user.userID, nextRole);
+  const applyRole = async (userId: string, newRole: User['role']) => {
+    await adminAPI.updateUserRole(userId, newRole);
+    setEditingUserId(null);
+    await loadData();
+  };
+
+  const deleteUser = async (user: User) => {
+    if (!window.confirm(`Delete ${user.firstName} ${user.lastName}? This cannot be undone.`)) return;
+    await adminAPI.deleteUser(user.userID);
+    setSelectedUserId(null);
+    setShowLogs(false);
     await loadData();
   };
 
@@ -74,25 +113,98 @@ export default function AdminUserManagement() {
     await loadData();
   };
 
+  const loadUserLogs = useCallback(async (userId: string) => {
+    setLogsLoading(true);
+    try {
+      const res = await adminAPI.getAdminActivity({ targetID: userId, limit: 20 });
+      setUserLogs(res.data ?? []);
+    } finally {
+      setLogsLoading(false);
+    }
+  }, []);
+
+  const toggleLogs = () => {
+    if (!selectedUser) return;
+    if (!showLogs) {
+      setShowLogs(true);
+      void loadUserLogs(selectedUser.userID);
+    } else {
+      setShowLogs(false);
+    }
+  };
+
+  const handleAddAdmin = async () => {
+    setAddAdminLoading(true);
+    setAddAdminError(null);
+    try {
+      await adminAPI.createAdmin(addAdminForm);
+      setShowAddAdminModal(false);
+      setAddAdminForm({ firstName: '', lastName: '', emailAddress: '', password: '' });
+      await loadData();
+    } catch (err: unknown) {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setAddAdminError(detail ?? 'Failed to create admin user.');
+    } finally {
+      setAddAdminLoading(false);
+    }
+  };
+
   return (
+    <>
+    {showAddAdminModal && (
+      <div className="modal-overlay" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>
+        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Add Admin</h3>
+            <button className="btn-icon-gray" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          {addAdminError && <p className="modal-error">{addAdminError}</p>}
+          <form onSubmit={(e) => { e.preventDefault(); void handleAddAdmin(); }}>
+            <div className="modal-field">
+              <label>First Name</label>
+              <input required placeholder="e.g. Juan" value={addAdminForm.firstName} onChange={(e) => setAddAdminForm((f) => ({ ...f, firstName: e.target.value }))} />
+            </div>
+            <div className="modal-field">
+              <label>Last Name</label>
+              <input required placeholder="e.g. Dela Cruz" value={addAdminForm.lastName} onChange={(e) => setAddAdminForm((f) => ({ ...f, lastName: e.target.value }))} />
+            </div>
+            <div className="modal-field">
+              <label>Email</label>
+              <input type="email" required placeholder="admin@sureplus.com" value={addAdminForm.emailAddress} onChange={(e) => setAddAdminForm((f) => ({ ...f, emailAddress: e.target.value }))} />
+            </div>
+            <div className="modal-field">
+              <label>Password</label>
+              <input type="password" required minLength={8} placeholder="Min. 8 characters" value={addAdminForm.password} onChange={(e) => setAddAdminForm((f) => ({ ...f, password: e.target.value }))} />
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="btn-action outline" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>Cancel</button>
+              <button type="submit" className="btn-action primary" disabled={addAdminLoading}>
+                {addAdminLoading ? 'Creating...' : 'Create Admin'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+
     <div className="user-management-grid">
       <div className="user-table-column">
         <div className="user-filters-row">
           <div className="filter-chips">
             <button className={`chip-btn ${roleFilter === 'all' ? 'active' : ''}`} onClick={() => { setRoleFilter('all'); setCurrentPage(1); }}>All Users</button>
-            <button className={`chip-btn ${roleFilter === 'seller' ? 'active' : ''}`} onClick={() => { setRoleFilter('seller'); setCurrentPage(1); }}>Sellers</button>
             <button className={`chip-btn ${roleFilter === 'buyer' ? 'active' : ''}`} onClick={() => { setRoleFilter('buyer'); setCurrentPage(1); }}>Buyers</button>
+            <button className={`chip-btn ${roleFilter === 'seller' ? 'active' : ''}`} onClick={() => { setRoleFilter('seller'); setCurrentPage(1); }}>Sellers</button>
+            <button className={`chip-btn ${roleFilter === 'rider' ? 'active' : ''}`} onClick={() => { setRoleFilter('rider'); setCurrentPage(1); }}>Riders</button>
             <button className={`chip-btn ${roleFilter === 'charity' ? 'active' : ''}`} onClick={() => { setRoleFilter('charity'); setCurrentPage(1); }}>Charities</button>
             <button className={`chip-btn ${roleFilter === 'admin' ? 'active' : ''}`} onClick={() => { setRoleFilter('admin'); setCurrentPage(1); }}>Admins</button>
           </div>
-          <button className="btn-invite" disabled>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <line x1="20" y1="8" x2="20" y2="14"></line>
-              <line x1="23" y1="11" x2="17" y2="11"></line>
+          <button className="btn-invite" onClick={() => setShowAddAdminModal(true)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Invite New User
+            Add Admin
           </button>
         </div>
 
@@ -131,12 +243,47 @@ export default function AdminUserManagement() {
                     </td>
                     <td><span className="user-date">{(user.createdAt || user.created_at) ? new Date((user.createdAt || user.created_at) as string).toLocaleDateString() : '-'}</span></td>
                     <td>
-                      <button className="btn-icon-gray" onClick={(e) => { e.stopPropagation(); void changeRole(user); }}>
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 20h9"></path>
-                          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                        </svg>
-                      </button>
+                      <div style={{ display: 'flex', gap: '4px', position: 'relative' }} ref={editingUserId === user.userID ? pickerRef : null}>
+                        <button
+                          className={`btn-icon-gray${editingUserId === user.userID ? ' btn-icon-gray--active' : ''}`}
+                          title="Options"
+                          onClick={(e) => { e.stopPropagation(); setEditingUserId(editingUserId === user.userID ? null : user.userID); }}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
+                          </svg>
+                        </button>
+
+                        {editingUserId === user.userID && (
+                          <div className="role-picker">
+                            <p className="role-picker-label">Assign role</p>
+                            {ALL_ROLES.map((role) => (
+                              <button
+                                key={role}
+                                className={`role-option${user.role === role ? ' role-option--active' : ''}`}
+                                onClick={(e) => { e.stopPropagation(); void applyRole(user.userID, role); }}
+                              >
+                                {role.charAt(0).toUpperCase() + role.slice(1)}
+                                {user.role === role && (
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ marginLeft: 'auto' }}>
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                  </svg>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        <button className="btn-icon-gray" title="Delete user" onClick={(e) => { e.stopPropagation(); void deleteUser(user); }} style={{ color: '#ef4444' }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14H6L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4h6v2"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -178,10 +325,33 @@ export default function AdminUserManagement() {
             <div className="detail-row"><span className="detail-label">Account Type</span><span className="detail-value">{selectedUser?.role || '-'}</span></div>
           </div>
           <div className="profile-actions">
-            <button className="btn-action outline" disabled>View Logs</button>
+            <button className="btn-action outline" onClick={toggleLogs} disabled={!selectedUser}>
+              {showLogs ? 'Hide Logs' : 'View Logs'}
+            </button>
             <button className="btn-action primary" disabled>Send Message</button>
           </div>
         </div>
+
+        {showLogs && (
+          <div className="pending-card">
+            <div className="pending-header">
+              <h3>Activity Logs</h3>
+              <span className="pending-badge">{userLogs.length}</span>
+            </div>
+            <div className="pending-list" style={{ maxHeight: '260px', overflowY: 'auto' }}>
+              {logsLoading && <p>Loading logs...</p>}
+              {!logsLoading && userLogs.length === 0 && <p>No activity recorded for this user.</p>}
+              {!logsLoading && userLogs.map((log) => (
+                <div className="pending-item" key={log.activityID}>
+                  <div className="pending-info">
+                    <h4>{log.description || log.actionType || 'Action'}</h4>
+                    <p>{new Date(log.timestamp).toLocaleString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="pending-card">
           <div className="pending-header">
@@ -206,5 +376,6 @@ export default function AdminUserManagement() {
         </div>
       </div>
     </div>
+    </>
   );
 }

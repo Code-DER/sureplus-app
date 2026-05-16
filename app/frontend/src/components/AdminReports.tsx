@@ -29,12 +29,6 @@ type Transaction = {
   quantity: number;
 };
 
-const BARANGAYS = [
-  { name: 'Mintal', score: '4.8' },
-  { name: 'Toril', score: '4.6' },
-  { name: 'Bago Oshiro', score: '4.1' },
-];
-
 const SVG_W = 560, CHART_H = 150, LABEL_Y = 170, PAD_X = 8;
 
 function buildChart(data: Array<{ label: string; rescue: number; revenue: number }>) {
@@ -233,33 +227,6 @@ export default function AdminReports() {
           </div>
         </div>
 
-        <div className="rp-right-col">
-          <div className="rp-milestone-card">
-            <svg width="24" height="30" viewBox="0 0 24 30" fill="none">
-              <path d="M12 2C6.48 2 2 6.48 2 12c0 7 10 16 10 16s10-9 10-16c0-5.52-4.48-10-10-10z" fill="#B1F0CE" />
-              <circle cx="12" cy="12" r="3.5" fill="rgba(0,0,0,0.15)" />
-            </svg>
-            <h3 className="rp-milestone-title">Impact Milestone</h3>
-            <p className="rp-milestone-text">
-              You've reached 85% of your quarterly food rescue target. Keep going!
-            </p>
-            <div className="rp-progress-track">
-              <div className="rp-progress-fill"></div>
-            </div>
-          </div>
-
-          <div className="rp-barangay-card">
-            <h3 className="rp-barangay-title">Top Performing Barangays</h3>
-            <div className="rp-barangay-list">
-              {BARANGAYS.map((b, i) => (
-                <div className="rp-barangay-item" key={i}>
-                  <span className="rp-barangay-name">{b.name}</span>
-                  <span className="rp-barangay-score">{b.score}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="rp-txlog">
