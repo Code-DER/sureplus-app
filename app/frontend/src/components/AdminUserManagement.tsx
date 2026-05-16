@@ -335,7 +335,7 @@ export default function AdminUserManagement() {
             <button className="btn-action outline" onClick={toggleLogs} disabled={!selectedUser}>
               {showLogs ? 'Hide Logs' : 'View Logs'}
             </button>
-            <button className="btn-action primary" disabled>Send Message</button>
+            {/* <button className="btn-action primary" disabled>Send Message</button> */}
           </div>
         </div>
 
