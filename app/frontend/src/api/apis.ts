@@ -123,6 +123,16 @@ export const notificationsAPI = {
     markAllNotificationsAsRead: () => api.patch('/notifications/read-all'),
 };
 
+export const purchaseAPI = {
+    createPurchase: (data) => api.post('/purchases/purchase', data),
+
+    completePurchase: (purchaseID: string) =>
+        api.put(`/purchases/purchase/${purchaseID}/complete`),
+
+    getSellerPurchases: (sellerID: string) =>
+        api.get(`/purchases/purchase/seller/${sellerID}`)
+};
+
 export const charityApplicationsAPI = {
     getPending: () => api.get('/charity-applications/pending'),
     review: (applicationId: string, data: { status: 'approved' | 'rejected'; organizationName?: string }) =>
