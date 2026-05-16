@@ -223,6 +223,64 @@
 .btn-icon-gray:hover {
   background: #F1F5F9;
 }
+.btn-icon-gray--active {
+  background: rgba(102, 176, 24, 0.12);
+  color: #66B018;
+}
+
+/* Role picker dropdown */
+.role-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+}
+
+.role-picker-label {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94A3B8;
+  padding: 4px 8px 6px;
+  margin: 0;
+}
+
+.role-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s;
+}
+.role-option:hover {
+  background: #F1F5F9;
+}
+.role-option--active {
+  background: rgba(102, 176, 24, 0.08);
+  color: #66B018;
+  font-weight: 600;
+}
 
 /* Pagination */
 .table-pagination {
@@ -637,4 +695,85 @@
   font-weight: 400;
   font-size: 12px;
   color: #94A3B8;
+}
+
+/* Add Admin Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 32px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0px 20px 60px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #191C1A;
+}
+
+.modal-error {
+  background: #FFF0F0;
+  border: 1px solid #FFDAD6;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  color: #BA1A1A;
+  margin: 0;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-field label {
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: #475569;
+}
+
+.modal-field input {
+  padding: 10px 14px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  color: #191C1A;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.modal-field input:focus {
+  border-color: #66B018;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 4px;
 }

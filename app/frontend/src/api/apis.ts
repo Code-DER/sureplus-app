@@ -132,8 +132,8 @@ export const charityApplicationsAPI = {
 export const adminAPI = {
     getStats: () => api.get('/admin/stats'),
     getUsers: (page = 1, limit = 10, role?: string) => api.get('/admin/users', { params: { page, limit, role } }),
-    updateUserRole: (userId: string, role: 'buyer' | 'seller' | 'charity' | 'admin') =>
-        api.patch(`/admin/users/${userId}/role`, { role }),
+    updateUserRole: (userId: string, role: 'buyer' | 'seller' | 'charity' | 'admin', employeeID?: string, adminType?: string) =>
+        api.patch(`/admin/users/${userId}/role`, { role, employeeID, adminType }),
     deleteUser: (userId: string) => api.delete(`/admin/users/${userId}`),
     getPendingApprovals: () => api.get('/admin/pending-approvals'),
     getSellers: () => api.get('/admin/sellers'),
@@ -141,7 +141,9 @@ export const adminAPI = {
     getRecentTransactions: (limit = 10) => api.get('/admin/reports/transactions', { params: { limit } }),
     getReportsOverview: () => api.get('/admin/reports/overview'),
     getBadActorsReport: (limit = 10) => api.get('/admin/reports/bad-actors', { params: { limit } }),
-    getAdminActivity: (params?: { actionType?: string; targetEntity?: string; userID?: string; limit?: number }) =>
+    createAdmin: (data: { firstName: string; lastName: string; emailAddress: string; password: string }) =>
+        api.post('/admin/users', data),
+    getAdminActivity: (params?: { actionType?: string; targetEntity?: string; userID?: string; targetID?: string; limit?: number }) =>
         api.get('/admin-activity/', { params }),
 };
 

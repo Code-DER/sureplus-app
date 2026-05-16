@@ -47,6 +47,23 @@
   gap: 16px;
 }
 
+.seller-dashboard-cta {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid #66B018;
+  background: #FFFFFF;
+  color: #066F35;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.seller-dashboard-cta:hover {
+  background: #ECFDF5;
+}
+
 .seller-icon-btn {
   width: 36px;
   height: 36px;

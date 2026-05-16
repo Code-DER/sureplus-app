@@ -10,6 +10,7 @@ def fetch_admin_activities(
     action_type: Optional[str] = None,
     target_entity: Optional[str] = None,
     admin_id: Optional[str] = None,
+    target_id: Optional[str] = None,
     limit: int = 100,
 ):
     query = supabase_admin.table("AdminActivity").select("*").order("timestamp", desc=True).limit(limit)
@@ -20,6 +21,8 @@ def fetch_admin_activities(
         query = query.eq("targetEntity", target_entity)
     if admin_id:
         query = query.eq("userID", admin_id)
+    if target_id:
+        query = query.eq("targetID", target_id)
 
     return query.execute()
 

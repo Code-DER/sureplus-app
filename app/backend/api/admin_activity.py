@@ -13,6 +13,7 @@ async def get_admin_activity_logs(
     actionType: Optional[str] = None,
     targetEntity: Optional[str] = None,
     userID: Optional[str] = None,
+    targetID: Optional[str] = None,
     limit: int = Query(default=100, ge=1, le=500),
     current_user: dict = Depends(require_role("admin")),
 ):
@@ -20,6 +21,7 @@ async def get_admin_activity_logs(
         action_type=actionType,
         target_entity=targetEntity,
         admin_id=userID,
+        target_id=targetID,
         limit=limit,
     )
     return response.data
