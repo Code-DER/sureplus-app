@@ -18,7 +18,6 @@ function App() {
   const [view, setView] = useState<'buyer' | 'seller' | 'admin' | 'charity'>(() => {
     const u = getAuthUser();
     if (u?.role === 'charity') return 'charity';
-    if (u?.role === 'seller') return 'seller';
     if (u?.role === 'admin') return 'admin';
     return 'buyer';
   });
@@ -28,7 +27,6 @@ function App() {
     const u = getAuthUser();
     if (u?.role === 'charity') setView('charity');
     else if (u?.role === 'admin') setView('admin');
-    else if (u?.role === 'seller') setView('seller');
     else setView('buyer');
   };
 
@@ -67,7 +65,10 @@ function App() {
 
   return (
     <>
-      <ListingsFeed />
+      <ListingsFeed
+        isSeller={isSeller}
+        onOpenSellerDashboard={() => setView('seller')}
+      />
     </>
   )
 }

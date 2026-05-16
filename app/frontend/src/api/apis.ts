@@ -76,8 +76,9 @@ export const charityAPI = {
 // Admin API functions
 export const adminAPI = {
     getStats: () => api.get('/admin/stats'),
-    getUsers: (params?: { role?: string, page?: number, limit?: number }) => api.get('/admin/users', { params }),
-    updateUserRole: (userId: string, role: string) => api.patch(`/admin/users/${userId}/role`, { role }),
+    getUsers: (page = 1, limit = 10, role?: string) => api.get('/admin/users', { params: { page, limit, role } }),
+    updateUserRole: (userId: string, role: 'buyer' | 'seller' | 'charity' | 'admin', employeeID?: string, adminType?: string) =>
+        api.patch(`/admin/users/${userId}/role`, { role, employeeID, adminType }),
     deleteUser: (userId: string) => api.delete(`/admin/users/${userId}`),
     getCharities: () => api.get('/admin/charities'),
     togglePartnerStatus: (userId: string, isPartner: boolean) => api.put(`/admin/charities/${userId}/partner`, { isPartner }),
@@ -201,6 +202,12 @@ export const uploadsAPI = {
             },
         });
     },
+};
+
+export const charityApplicationsAPI = {
+    getPending: () => api.get('/charity-applications/pending'),
+    review: (applicationId: string, data: { status: 'approved' | 'rejected'; organizationName?: string }) =>
+        api.put(`/charity-applications/${applicationId}/review`, data),
 };
 
 export default api;

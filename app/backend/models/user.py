@@ -85,3 +85,8 @@ class AdminCreateUserRequest(BaseModel):
     lastName: str
     emailAddress: EmailStr
     password: str = Field(..., min_length=8)
+
+class UpdateUserRoleRequest(BaseModel):
+    role: str
+    employeeID: Optional[str] = None
+    adminType: Optional[str] = None
