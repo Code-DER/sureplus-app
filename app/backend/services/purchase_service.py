@@ -12,7 +12,7 @@ def create_purchase(data: dict, user_id: str):
     # Process items
     for item in data["items"]:
         food_res = supabase_admin.table("Food") \
-            .select("foodID, price, stockQuantity") \
+            .select("foodID, price, stockQuantity, userID") \
             .eq("foodID", str(item["foodID"])) \
             .single() \
             .execute()
@@ -21,6 +21,9 @@ def create_purchase(data: dict, user_id: str):
             raise Exception(f"Food {item['foodID']} not found")
 
         food = food_res.data
+
+        if food["userID"] == user_id:
+            raise Exception("You cannot purchase your own listing")
 
         # Stock validation
         if food["stockQuantity"] < item["quantity"]:

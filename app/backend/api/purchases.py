@@ -19,10 +19,10 @@ def complete(purchase_id: str):
     return complete_purchase(purchase_id)
 
 
-@router.get("/purchase/seller/{seller_id}")
+@router.get("/seller/{seller_id}")
 def seller_purchases(seller_id: str):
     return get_seller_purchase_list(seller_id)
 
-@router.get("/purchase/seller/{seller_id}/orders")
+@router.get("/seller/{seller_id}/orders")
 def seller_orders(seller_id: str):
     return get_seller_orders(seller_id)
