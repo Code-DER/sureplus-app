@@ -141,7 +141,9 @@ export const adminAPI = {
     getRecentTransactions: (limit = 10) => api.get('/admin/reports/transactions', { params: { limit } }),
     getReportsOverview: () => api.get('/admin/reports/overview'),
     getBadActorsReport: (limit = 10) => api.get('/admin/reports/bad-actors', { params: { limit } }),
-    getAdminActivity: (params?: { actionType?: string; targetEntity?: string; userID?: string; limit?: number }) =>
+    createAdmin: (data: { firstName: string; lastName: string; emailAddress: string; password: string }) =>
+        api.post('/admin/users', data),
+    getAdminActivity: (params?: { actionType?: string; targetEntity?: string; userID?: string; targetID?: string; limit?: number }) =>
         api.get('/admin-activity/', { params }),
 };
 
