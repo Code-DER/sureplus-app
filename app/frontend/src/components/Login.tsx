@@ -85,7 +85,7 @@ export default function Login({ onLogin, onSwitchToSignup }: LoginProps) {
               <div className="form-group">
                 <div className="password-label-row">
                   <label>PASSWORD</label>
-                  <a href="#" className="forgot-password">Forgot Password?</a>
+                  {/* <a href="#" className="forgot-password">Forgot Password?</a> */}
                 </div>
                 <div className="input-wrapper password-input-wrapper">
                   <input 
