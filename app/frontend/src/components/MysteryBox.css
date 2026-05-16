@@ -31,7 +31,7 @@
   font-weight: 500;
   font-size: 16px;
   line-height: 16px;
-  color: #0F5238;
+  color: #66B018;
   padding: 0;
   transition: opacity 0.15s;
 }
@@ -45,7 +45,7 @@
   font-weight: 600;
   font-size: 16px;
   line-height: 16px;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .mb-title {
@@ -108,7 +108,7 @@
   font-weight: 600;
   font-size: 22px;
   line-height: 34px;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .mb-section-title {
@@ -116,7 +116,7 @@
   font-weight: 600;
   font-size: 22px;
   line-height: 34px;
-  color: #0F5238;
+  color: #66B018;
   margin: 0 0 8px 0;
 }
 
@@ -172,7 +172,7 @@
 }
 
 .mb-field-input:focus {
-  border-color: #0F5238;
+  border-color: #66B018;
 }
 
 .mb-field-row {
@@ -232,14 +232,14 @@
 }
 
 .mb-category-tile:hover {
-  border-color: #0F5238;
+  border-color: #66B018;
   background: rgba(15, 82, 56, 0.02);
 }
 
 .mb-category-tile.selected {
   background: rgba(15, 82, 56, 0.05);
-  border: 2px solid #0F5238;
-  color: #0F5238;
+  border: 2px solid #66B018;
+  color: #66B018;
 }
 
 .mb-tile-icon {
@@ -281,13 +281,13 @@
 }
 
 .mb-safety-chip:hover {
-  border-color: #0F5238;
+  border-color: #66B018;
 }
 
 .mb-safety-chip.selected {
   background: rgba(15, 82, 56, 0.05);
-  border: 1px solid #0F5238;
-  color: #0F5238;
+  border: 1px solid #66B018;
+  color: #66B018;
 }
 
 .mb-add-note-btn {
@@ -310,7 +310,7 @@
 }
 
 .mb-add-note-btn:hover {
-  border-color: #0F5238;
+  border-color: #66B018;
 }
 
 /* === Impact Sidebar === */
@@ -319,7 +319,7 @@
   flex-direction: column;
   padding: 24px;
   gap: 32px;
-  background: #2D6A4F;
+  background: #66B018;
   border-radius: 16px;
   box-shadow: 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 8px 10px -6px rgba(0, 0, 0, 0.1);
   position: relative;

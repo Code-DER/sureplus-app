@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import './EditProfileView.css';
 import { userAPI, charityAPI } from '../api/apis';
+import UserAvatar from './UserAvatar';
 
 import BackIcon from '../assets/Global Profile System/Back Icon.svg';
-import PenIcon from '../assets/Global Profile System/Pen Icon.svg';
 import PrivSecuIcon from '../assets/Global Profile System/Priv & Secu Icon.svg';
 import EcoIcon from '../assets/Global Profile System/Eco Icon.svg';
 
@@ -147,15 +147,10 @@ export default function EditProfileView({ profile, sellerProfile, charityProfile
           <h1>Edit Profile</h1>
 
           <div className="photo-edit-section">
-            <div className="photo-avatar-wrapper">
-              <div className="photo-avatar-image"></div>
-              <button className="btn-edit-photo" aria-label="Edit Photo">
-                <img src={PenIcon} alt="Edit" width="16" height="16" />
-              </button>
-            </div>
+            <UserAvatar firstName={profile.firstName} lastName={profile.lastName} size={80} />
             <div className="photo-edit-info">
               <h3>Profile Photo</h3>
-              <p>Recommended size: 400x400px. JPG or PNG.</p>
+              <p>Your avatar is automatically generated from your name.</p>
             </div>
           </div>
 

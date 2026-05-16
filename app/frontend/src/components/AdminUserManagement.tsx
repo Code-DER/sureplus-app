@@ -1,80 +1,214 @@
-import { useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import './AdminUserManagement.css';
+import { adminAPI, charityApplicationsAPI } from '../api/apis';
 
 const USERS_PER_PAGE = 10;
+type RoleFilter = 'all' | 'seller' | 'buyer' | 'charity' | 'admin' | 'rider';
+type UserRole = 'buyer' | 'seller' | 'charity' | 'admin' | 'rider';
 
-interface User {
-  id: number;
-  initials?: string;
-  avatar?: string;
-  name: string;
-  email: string;
-  role: string;
+const ALL_ROLES: UserRole[] = ['buyer', 'seller', 'rider', 'admin', 'charity'];
+
+type User = {
+  userID: string;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  role: UserRole;
+  barangay?: string;
+  city?: string;
+  createdAt?: string;
+  created_at?: string;
+};
+
+type PendingApproval = {
+  applicationID: string;
   status: string;
-  dateJoined: string;
-}
+  userID?: string;
+  organizationName?: string;
+};
 
-const USERS: User[] = [
-  { id: 1,  initials: 'VC', name: 'Vic Calag',        email: 'vicc@greenmarket.com',       role: 'Seller',   status: 'Active',   dateJoined: 'Oct 12, 2025' },
-  { id: 2,  initials: 'BU',
-                             name: 'Buddha',            email: 'buddhaxdana@love.org',        role: 'Recycler', status: 'Active',   dateJoined: 'Nov 05, 2025' },
-  { id: 3,  initials: 'LA', name: 'Levi Ackerman',    email: 'leevi@foodrescue.net',        role: 'Buyer',    status: 'Inactive', dateJoined: 'Jan 18, 2026' },
-  { id: 4,  initials: 'DJ', name: 'Dana Jill',        email: 'dj@farmfresh.co',             role: 'Seller',   status: 'Active',   dateJoined: 'Feb 11, 2026' },
-  { id: 5,  initials: 'MR', name: 'Maria Reyes',      email: 'maria@ecoloops.ph',           role: 'Buyer',    status: 'Active',   dateJoined: 'Mar 02, 2026' },
-  { id: 6,  initials: 'JT', name: 'Jake Torres',      email: 'jake@harvestlink.com',        role: 'Seller',   status: 'Inactive', dateJoined: 'Mar 15, 2026' },
-  { id: 7,  initials: 'SL', name: 'Sofia Lim',        email: 'sofia@greenloops.org',        role: 'Recycler', status: 'Active',   dateJoined: 'Mar 28, 2026' },
-  { id: 8,  initials: 'AC', name: 'Arlo Cruz',        email: 'arlo@freshroots.net',         role: 'Buyer',    status: 'Active',   dateJoined: 'Apr 03, 2026' },
-  { id: 9,  initials: 'NM', name: 'Nina Mendez',      email: 'nina@zerowaste.ph',           role: 'Seller',   status: 'Active',   dateJoined: 'Apr 10, 2026' },
-  { id: 10, initials: 'RP', name: 'Rico Padilla',     email: 'rico@urbanfarm.co',           role: 'Recycler', status: 'Inactive', dateJoined: 'Apr 17, 2026' },
-  { id: 11, initials: 'EV', name: 'Ella Villanueva',  email: 'ella@composthub.ph',          role: 'Buyer',    status: 'Active',   dateJoined: 'Apr 22, 2026' },
-  { id: 12, initials: 'CM', name: 'Carlos Magno',     email: 'carlos@greengate.com',        role: 'Seller',   status: 'Active',   dateJoined: 'Apr 29, 2026' },
-  { id: 13, initials: 'IR', name: 'Isabel Ramos',     email: 'isabel@rescuefood.net',       role: 'Recycler', status: 'Inactive', dateJoined: 'May 01, 2026' },
-  { id: 14, initials: 'BN', name: 'Ben Navarro',      email: 'ben@sproutcoop.org',          role: 'Buyer',    status: 'Active',   dateJoined: 'May 04, 2026' },
-  { id: 15, initials: 'GS', name: 'Grace Santos',     email: 'grace@leafcycle.ph',          role: 'Seller',   status: 'Active',   dateJoined: 'May 06, 2026' },
-];
-
-const PENDING_APPROVALS = [
-  { id: 1, name: 'Urban Harvest Co.', type: 'Seller Application' },
-  { id: 2, name: 'EcoCycle Ltd.',     type: 'Charity Application' },
-];
+type ActivityLog = {
+  activityID: string;
+  actionType?: string;
+  description?: string;
+  timestamp: string;
+};
 
 export default function AdminUserManagement() {
-  const [selectedUserId, setSelectedUserId] = useState(2);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>('all');
+  const [users, setUsers] = useState<User[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const totalPages = Math.ceil(USERS.length / USERS_PER_PAGE);
-  const pageStart  = (currentPage - 1) * USERS_PER_PAGE;
-  const pageUsers  = USERS.slice(pageStart, pageStart + USERS_PER_PAGE);
-  const showPagination = USERS.length > USERS_PER_PAGE;
+  const [userLogs, setUserLogs] = useState<ActivityLog[]>([]);
+  const [showLogs, setShowLogs] = useState(false);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+  const [addAdminForm, setAddAdminForm] = useState({ firstName: '', lastName: '', emailAddress: '', password: '' });
+  const [addAdminLoading, setAddAdminLoading] = useState(false);
+  const [addAdminError, setAddAdminError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!editingUserId) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setEditingUserId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [editingUserId]);
+
+  const selectedUser = users.find((u) => u.userID === selectedUserId) || null;
+  const totalPages = Math.max(1, Math.ceil(totalUsers / USERS_PER_PAGE));
+  const pageStart = (currentPage - 1) * USERS_PER_PAGE;
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [usersRes, pendingRes] = await Promise.all([
+        adminAPI.getUsers(currentPage, USERS_PER_PAGE, roleFilter === 'all' ? undefined : roleFilter),
+        charityApplicationsAPI.getPending(),
+      ]);
+      const fetchedUsers = usersRes.data?.users ?? [];
+      setUsers(fetchedUsers);
+      setTotalUsers(usersRes.data?.total ?? 0);
+      setPendingApprovals(pendingRes.data ?? []);
+      if (!selectedUserId && fetchedUsers.length > 0) setSelectedUserId(fetchedUsers[0].userID);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadData();
+  }, [currentPage, roleFilter]);
 
   const goTo = (page: number) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
+  const applyRole = async (userId: string, newRole: User['role']) => {
+    await adminAPI.updateUserRole(userId, newRole);
+    setEditingUserId(null);
+    await loadData();
+  };
+
+  const deleteUser = async (user: User) => {
+    if (!window.confirm(`Delete ${user.firstName} ${user.lastName}? This cannot be undone.`)) return;
+    await adminAPI.deleteUser(user.userID);
+    setSelectedUserId(null);
+    setShowLogs(false);
+    await loadData();
+  };
+
+  const reviewPending = async (applicationID: string, status: 'approved' | 'rejected') => {
+    await charityApplicationsAPI.review(applicationID, status === 'approved' ? { status, organizationName: 'Approved Organization' } : { status });
+    await loadData();
+  };
+
+  const loadUserLogs = useCallback(async (userId: string) => {
+    setLogsLoading(true);
+    try {
+      const res = await adminAPI.getAdminActivity({ targetID: userId, limit: 20 });
+      setUserLogs(res.data ?? []);
+    } finally {
+      setLogsLoading(false);
+    }
+  }, []);
+
+  const toggleLogs = () => {
+    if (!selectedUser) return;
+    if (!showLogs) {
+      setShowLogs(true);
+      void loadUserLogs(selectedUser.userID);
+    } else {
+      setShowLogs(false);
+    }
+  };
+
+  const handleAddAdmin = async () => {
+    setAddAdminLoading(true);
+    setAddAdminError(null);
+    try {
+      await adminAPI.createAdmin(addAdminForm);
+      setShowAddAdminModal(false);
+      setAddAdminForm({ firstName: '', lastName: '', emailAddress: '', password: '' });
+      await loadData();
+    } catch (err: unknown) {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setAddAdminError(detail ?? 'Failed to create admin user.');
+    } finally {
+      setAddAdminLoading(false);
+    }
+  };
+
   return (
+    <>
+    {showAddAdminModal && (
+      <div className="modal-overlay" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>
+        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Add Admin</h3>
+            <button className="btn-icon-gray" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          {addAdminError && <p className="modal-error">{addAdminError}</p>}
+          <form onSubmit={(e) => { e.preventDefault(); void handleAddAdmin(); }}>
+            <div className="modal-field">
+              <label>First Name</label>
+              <input required placeholder="e.g. Juan" value={addAdminForm.firstName} onChange={(e) => setAddAdminForm((f) => ({ ...f, firstName: e.target.value }))} />
+            </div>
+            <div className="modal-field">
+              <label>Last Name</label>
+              <input required placeholder="e.g. Dela Cruz" value={addAdminForm.lastName} onChange={(e) => setAddAdminForm((f) => ({ ...f, lastName: e.target.value }))} />
+            </div>
+            <div className="modal-field">
+              <label>Email</label>
+              <input type="email" required placeholder="admin@sureplus.com" value={addAdminForm.emailAddress} onChange={(e) => setAddAdminForm((f) => ({ ...f, emailAddress: e.target.value }))} />
+            </div>
+            <div className="modal-field">
+              <label>Password</label>
+              <input type="password" required minLength={8} placeholder="Min. 8 characters" value={addAdminForm.password} onChange={(e) => setAddAdminForm((f) => ({ ...f, password: e.target.value }))} />
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="btn-action outline" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>Cancel</button>
+              <button type="submit" className="btn-action primary" disabled={addAdminLoading}>
+                {addAdminLoading ? 'Creating...' : 'Create Admin'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+
     <div className="user-management-grid">
-
-      {/* Main Table */}
       <div className="user-table-column">
-
         <div className="user-filters-row">
           <div className="filter-chips">
-            <button className="chip-btn active">All Users</button>
-            <button className="chip-btn">Sellers</button>
-            <button className="chip-btn">Buyers</button>
-            <button className="chip-btn">Recyclers</button>
-            <button className="chip-btn">Pending Approval</button>
+            <button className={`chip-btn ${roleFilter === 'all' ? 'active' : ''}`} onClick={() => { setRoleFilter('all'); setCurrentPage(1); }}>All Users</button>
+            <button className={`chip-btn ${roleFilter === 'buyer' ? 'active' : ''}`} onClick={() => { setRoleFilter('buyer'); setCurrentPage(1); }}>Buyers</button>
+            <button className={`chip-btn ${roleFilter === 'seller' ? 'active' : ''}`} onClick={() => { setRoleFilter('seller'); setCurrentPage(1); }}>Sellers</button>
+            <button className={`chip-btn ${roleFilter === 'rider' ? 'active' : ''}`} onClick={() => { setRoleFilter('rider'); setCurrentPage(1); }}>Riders</button>
+            <button className={`chip-btn ${roleFilter === 'charity' ? 'active' : ''}`} onClick={() => { setRoleFilter('charity'); setCurrentPage(1); }}>Charities</button>
+            <button className={`chip-btn ${roleFilter === 'admin' ? 'active' : ''}`} onClick={() => { setRoleFilter('admin'); setCurrentPage(1); }}>Admins</button>
           </div>
-          <button className="btn-invite">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <line x1="20" y1="8" x2="20" y2="14"></line>
-              <line x1="23" y1="11" x2="17" y2="11"></line>
+          <button className="btn-invite" onClick={() => setShowAddAdminModal(true)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Invite New User
+            Add Admin
           </button>
         </div>
+
+        {loading && <p>Loading users...</p>}
 
         <div className="user-table-card">
           <div className="table-responsive">
@@ -89,40 +223,67 @@ export default function AdminUserManagement() {
                 </tr>
               </thead>
               <tbody>
-                {pageUsers.map(user => (
-                  <tr
-                    key={user.id}
-                    className={`user-row ${selectedUserId === user.id ? 'selected' : ''}`}
-                    onClick={() => setSelectedUserId(user.id)}
-                  >
+                {users.map((user) => (
+                  <tr key={user.userID} className={`user-row ${selectedUserId === user.userID ? 'selected' : ''}`} onClick={() => setSelectedUserId(user.userID)}>
                     <td>
                       <div className="td-user-info">
-                        {'avatar' in user && user.avatar ? (
-                          <img src={user.avatar} alt={user.name} className="user-avatar-sm" />
-                        ) : (
-                          <div className="user-initials-sm">{'initials' in user ? user.initials : ''}</div>
-                        )}
+                        <div className="user-initials-sm">{`${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`}</div>
                         <div className="user-text">
-                          <span className="user-name">{user.name}</span>
-                          <span className="user-email">{user.email}</span>
+                          <span className="user-name">{`${user.firstName} ${user.lastName}`}</span>
+                          <span className="user-email">{user.emailAddress}</span>
                         </div>
                       </div>
                     </td>
                     <td><span className="user-role-badge">{user.role}</span></td>
                     <td>
                       <div className="user-status">
-                        <span className={`status-dot ${user.status.toLowerCase()}`}></span>
-                        <span className={`status-text ${user.status.toLowerCase()}`}>{user.status}</span>
+                        <span className="status-dot active"></span>
+                        <span className="status-text active">Active</span>
                       </div>
                     </td>
-                    <td><span className="user-date">{user.dateJoined}</span></td>
+                    <td><span className="user-date">{(user.createdAt || user.created_at) ? new Date((user.createdAt || user.created_at) as string).toLocaleDateString() : '-'}</span></td>
                     <td>
-                      <button className="btn-icon-gray">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 20h9"></path>
-                          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                        </svg>
-                      </button>
+                      <div style={{ display: 'flex', gap: '4px', position: 'relative' }} ref={editingUserId === user.userID ? pickerRef : null}>
+                        <button
+                          className={`btn-icon-gray${editingUserId === user.userID ? ' btn-icon-gray--active' : ''}`}
+                          title="Options"
+                          onClick={(e) => { e.stopPropagation(); setEditingUserId(editingUserId === user.userID ? null : user.userID); }}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
+                          </svg>
+                        </button>
+
+                        {editingUserId === user.userID && (
+                          <div className="role-picker">
+                            <p className="role-picker-label">Assign role</p>
+                            {ALL_ROLES.map((role) => (
+                              <button
+                                key={role}
+                                className={`role-option${user.role === role ? ' role-option--active' : ''}`}
+                                onClick={(e) => { e.stopPropagation(); void applyRole(user.userID, role); }}
+                              >
+                                {role.charAt(0).toUpperCase() + role.slice(1)}
+                                {user.role === role && (
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ marginLeft: 'auto' }}>
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                  </svg>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        <button className="btn-icon-gray" title="Delete user" onClick={(e) => { e.stopPropagation(); void deleteUser(user); }} style={{ color: '#ef4444' }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14H6L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4h6v2"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -132,152 +293,89 @@ export default function AdminUserManagement() {
 
           <div className="table-pagination">
             <span className="pagination-info">
-              Showing {pageStart + 1}–{Math.min(pageStart + USERS_PER_PAGE, USERS.length)} of {USERS.length} users
+              Showing {users.length === 0 ? 0 : pageStart + 1}-{pageStart + users.length} of {totalUsers} users
             </span>
 
-            {showPagination && (
-              <div className="pagination-controls">
-                <button
-                  className="btn-page"
-                  onClick={() => goTo(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <button
-                    key={page}
-                    className={`btn-page ${currentPage === page ? 'active' : ''}`}
-                    onClick={() => goTo(page)}
-                  >
-                    {page}
-                  </button>
-                ))}
-
-                <button
-                  className="btn-page"
-                  onClick={() => goTo(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </button>
-              </div>
-            )}
+            <div className="pagination-controls">
+              <button className="btn-page" onClick={() => goTo(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button key={page} className={`btn-page ${currentPage === page ? 'active' : ''}`} onClick={() => goTo(page)}>{page}</button>
+              ))}
+              <button className="btn-page" onClick={() => goTo(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Right Sidebar */}
       <div className="user-sidebar-column">
-
         <div className="profile-summary-card">
           <div className="profile-bg-accent"></div>
-
           <div className="profile-header">
             <div className="profile-avatar-lg-wrapper">
-              <div className="user-initials-lg">BU</div>
+              <div className="user-initials-lg">{selectedUser ? `${selectedUser.firstName?.[0] || ''}${selectedUser.lastName?.[0] || ''}` : '--'}</div>
               <div className="profile-status-indicator"></div>
             </div>
-            <h3 className="profile-name">Buddha</h3>
-            <p className="profile-role">Primary Seller Partner</p>
-            <span className="profile-cert-badge">Certified Green Partner</span>
+            <h3 className="profile-name">{selectedUser ? `${selectedUser.firstName} ${selectedUser.lastName}` : 'No user selected'}</h3>
+            <p className="profile-role">{selectedUser?.role || '-'}</p>
+            <span className="profile-cert-badge">Platform User</span>
           </div>
-
-          <div className="profile-metrics">
-            <div className="metric-box">
-              <p className="metric-label">Impact Score</p>
-              <h4 className="metric-value green">842 kg</h4>
-              <p className="metric-sub">Rescued so far</p>
-            </div>
-            <div className="metric-box">
-              <p className="metric-label">Orders</p>
-              <h4 className="metric-value">128</h4>
-              <p className="metric-sub">Total processed</p>
-            </div>
-          </div>
-
           <div className="profile-details">
-            <div className="detail-row">
-              <span className="detail-label">Location</span>
-              <span className="detail-value">Sitio Basak</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Response Rate</span>
-              <span className="detail-value">98.5%</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Account Type</span>
-              <span className="detail-value">Organization</span>
-            </div>
+            <div className="detail-row"><span className="detail-label">Email</span><span className="detail-value">{selectedUser?.emailAddress || '-'}</span></div>
+            <div className="detail-row"><span className="detail-label">Location</span><span className="detail-value">{`${selectedUser?.barangay || ''} ${selectedUser?.city || ''}`.trim() || '-'}</span></div>
+            <div className="detail-row"><span className="detail-label">Account Type</span><span className="detail-value">{selectedUser?.role || '-'}</span></div>
           </div>
-
           <div className="profile-actions">
-            <button className="btn-action outline">View Logs</button>
-            <button className="btn-action primary">Send Message</button>
+            <button className="btn-action outline" onClick={toggleLogs} disabled={!selectedUser}>
+              {showLogs ? 'Hide Logs' : 'View Logs'}
+            </button>
+            <button className="btn-action primary" disabled>Send Message</button>
           </div>
         </div>
 
-        <div className="analytics-bento">
-          <div className="bento-header">
-            <div className="icon-box">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-                <polyline points="16 7 22 7 22 13"></polyline>
-              </svg>
+        {showLogs && (
+          <div className="pending-card">
+            <div className="pending-header">
+              <h3>Activity Logs</h3>
+              <span className="pending-badge">{userLogs.length}</span>
             </div>
-            <span className="bento-title">REAL-TIME GROWTH</span>
+            <div className="pending-list" style={{ maxHeight: '260px', overflowY: 'auto' }}>
+              {logsLoading && <p>Loading logs...</p>}
+              {!logsLoading && userLogs.length === 0 && <p>No activity recorded for this user.</p>}
+              {!logsLoading && userLogs.map((log) => (
+                <div className="pending-item" key={log.activityID}>
+                  <div className="pending-info">
+                    <h4>{log.description || log.actionType || 'Action'}</h4>
+                    <p>{new Date(log.timestamp).toLocaleString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="bento-content">
-            <h2 className="bento-value">+12.4%</h2>
-            <p className="bento-subtitle">New user signups this month</p>
-          </div>
-          <div className="bento-chart-placeholder">
-            <div className="bento-bar" style={{height: '40%', opacity: 0.2}}></div>
-            <div className="bento-bar" style={{height: '60%', opacity: 0.3}}></div>
-            <div className="bento-bar" style={{height: '45%', opacity: 0.4}}></div>
-            <div className="bento-bar" style={{height: '80%', opacity: 0.6}}></div>
-            <div className="bento-bar" style={{height: '70%', opacity: 0.8}}></div>
-            <div className="bento-bar" style={{height: '95%', opacity: 1}}></div>
-            <div className="bento-bar active" style={{height: '100%', background: '#FFFFFF'}}></div>
-          </div>
-        </div>
+        )}
 
         <div className="pending-card">
           <div className="pending-header">
             <h3>Pending Approvals</h3>
-            <span className="pending-badge">3 NEW</span>
+            <span className="pending-badge">{pendingApprovals.length} NEW</span>
           </div>
           <div className="pending-list">
-            {PENDING_APPROVALS.map(app => (
-              <div className="pending-item" key={app.id}>
-                <div className="pending-icon-wrapper">
-                  {app.id === 1 ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2">
-                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                    </svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2">
-                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                      <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                    </svg>
-                  )}
-                </div>
+            {pendingApprovals.map((app) => (
+              <div className="pending-item" key={app.applicationID}>
                 <div className="pending-info">
-                  <h4>{app.name}</h4>
-                  <p>{app.type}</p>
+                  <h4>{app.organizationName || `Application ${app.applicationID.slice(0, 8)}`}</h4>
+                  <p>{app.status}</p>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                    <button className="btn-page" onClick={() => { void reviewPending(app.applicationID, 'approved'); }}>Approve</button>
+                    <button className="btn-page" onClick={() => { void reviewPending(app.applicationID, 'rejected'); }}>Reject</button>
+                  </div>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
               </div>
             ))}
+            {pendingApprovals.length === 0 && <p>No pending approvals.</p>}
           </div>
         </div>
-
       </div>
     </div>
+    </>
   );
 }

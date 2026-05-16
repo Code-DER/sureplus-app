@@ -6,26 +6,7 @@ import CharityDashboard from './components/CharityDashboard'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import './index.css'
-import { jwtDecode, type JwtPayload } from 'jwt-decode'
-
-interface SureplusJwtPayload extends JwtPayload {
-  userID: string;
-  role: string;
-}
-
-const getAuthUser = () => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const decoded = jwtDecode<SureplusJwtPayload>(token);
-    return decoded;
-  } catch {
-    return null;
-  }
-};
+import { getAuthUser } from './api/apis'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -33,14 +14,24 @@ function App() {
   });
 
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
-  const [view, setView] = useState<'buyer' | 'seller' | 'admin' | 'charity'>('buyer')
-  // const [message, setMessage] = useState("");
+  // const [view, setView] = useState<'buyer' | 'seller' | 'admin' | 'charity'>('buyer')
 
-  // useEffect(() => {
-  //   fetch("http://localhost:8000/")
-  //   .then(res => res.json())
-  //   .then(data => setMessage(data.message));
-  // }, []);
+  const [view, setView] = useState<'buyer' | 'seller' | 'admin' | 'charity'>(() => {
+    const u = getAuthUser();
+    if (u?.role === 'charity') return 'charity';
+    if (u?.role === 'seller') return 'seller';
+    if (u?.role === 'admin') return 'admin';
+    return 'buyer';
+  });
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    const u = getAuthUser();
+    if (u?.role === 'charity') setView('charity');
+    else if (u?.role === 'admin') setView('admin');
+    else if (u?.role === 'seller') setView('seller');
+    else setView('buyer');
+  }
 
   const user = getAuthUser();
   const isSeller = user?.role === 'seller';
@@ -50,14 +41,14 @@ function App() {
     if (authView === 'signup') {
       return (
         <Signup 
-          onSignup={() => setIsAuthenticated(true)} 
+          onSignup={handleLogin} 
           onSwitchToLogin={() => setAuthView('login')} 
         />
       );
     }
     return (
       <Login 
-        onLogin={() => setIsAuthenticated(true)} 
+        onLogin={handleLogin} 
         onSwitchToSignup={() => setAuthView('signup')}
       />
     );
@@ -78,33 +69,6 @@ function App() {
   return (
     <>
       <ListingsFeed />
-      {/* Temporary developer button to toggle views since accounts are unified */}
-      <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {isSeller && (
-          <button 
-            onClick={() => setView('seller')}
-            style={{
-              background: '#0F5238', color: 'white', border: 'none', 
-              padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
-              fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-            }}
-          >
-            Open Seller Dashboard
-          </button>
-        )}
-        {isCharity && (
-          <button 
-            onClick={() => setView('charity')}
-            style={{
-              background: '#0F5238', color: 'white', border: 'none', 
-              padding: '12px 24px', borderRadius: '8px', cursor: 'pointer',
-              fontFamily: 'Work Sans, sans-serif', fontWeight: 600, boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-            }}
-          >
-            Open Charity Dashboard
-          </button>
-        )}
-      </div>
     </>
   )
 }

@@ -51,7 +51,7 @@
 .success-leaf-icon {
   width: 34px;
   height: 34px;
-  fill: #0F5238;
+  fill: #66B018;
 }
 
 /* ====== Heading ====== */
@@ -120,7 +120,7 @@
   font-weight: 600;
   font-size: 16px;
   line-height: 24px;
-  color: #0F5238;
+  color: #66B018;
   opacity: 0;
   transition: opacity 0.4s ease;
 }
@@ -140,7 +140,7 @@
 
 .stat-bar-fill {
   height: 100%;
-  background: #0F5238;
+  background: #66B018;
   border-radius: 9999px;
   width: 0%;
   transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);

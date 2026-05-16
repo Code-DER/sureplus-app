@@ -16,6 +16,7 @@ repomix.config.json
 .california-agentic/
 
 # Environment and secrets
+.local.env
 .env
 .env.*
 !.env.example
@@ -71,3 +72,5 @@ desktop.ini
 ca-update.ps1
 
 TASK.md
+HOW_TO_START.md
+codexapikey_unlimited.txt

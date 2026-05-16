@@ -1,4 +1,24 @@
 import axios from "axios";
+import { jwtDecode, type JwtPayload } from 'jwt-decode'
+
+interface SureplusJwtPayload extends JwtPayload {
+    userID: string;
+    role: string;
+}
+
+export const getAuthUser = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+    return null;
+    }
+
+    try {
+        const decoded = jwtDecode<SureplusJwtPayload>(token);
+        return decoded;
+    } catch {
+        return null;
+    }
+};
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
@@ -111,6 +131,30 @@ export const purchaseAPI = {
 
     getSellerPurchases: (sellerID: string) =>
         api.get(`/purchases/purchase/seller/${sellerID}`)
+};
+
+export const charityApplicationsAPI = {
+    getPending: () => api.get('/charity-applications/pending'),
+    review: (applicationId: string, data: { status: 'approved' | 'rejected'; organizationName?: string }) =>
+        api.put(`/charity-applications/${applicationId}/review`, data),
+};
+
+export const adminAPI = {
+    getStats: () => api.get('/admin/stats'),
+    getUsers: (page = 1, limit = 10, role?: string) => api.get('/admin/users', { params: { page, limit, role } }),
+    updateUserRole: (userId: string, role: 'buyer' | 'seller' | 'charity' | 'admin') =>
+        api.patch(`/admin/users/${userId}/role`, { role }),
+    deleteUser: (userId: string) => api.delete(`/admin/users/${userId}`),
+    getPendingApprovals: () => api.get('/admin/pending-approvals'),
+    getSellers: () => api.get('/admin/sellers'),
+    updateSellerTags: (sellerId: string, tags: string[]) => api.patch(`/admin/sellers/${sellerId}/tags`, tags),
+    getRecentTransactions: (limit = 10) => api.get('/admin/reports/transactions', { params: { limit } }),
+    getReportsOverview: () => api.get('/admin/reports/overview'),
+    getBadActorsReport: (limit = 10) => api.get('/admin/reports/bad-actors', { params: { limit } }),
+    createAdmin: (data: { firstName: string; lastName: string; emailAddress: string; password: string }) =>
+        api.post('/admin/users', data),
+    getAdminActivity: (params?: { actionType?: string; targetEntity?: string; userID?: string; targetID?: string; limit?: number }) =>
+        api.get('/admin-activity/', { params }),
 };
 
 export default api;
