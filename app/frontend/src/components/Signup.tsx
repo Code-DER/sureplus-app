@@ -193,13 +193,13 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
                   <div className="form-group">
                     <label>First Name</label>
                     <div className="input-wrapper">
-                      <input type="text" name="firstName" placeholder="Dana Jill" value={formData.firstName} onChange={handleInputChange} required />
+                      <input type="text" name="firstName" placeholder="John" value={formData.firstName} onChange={handleInputChange} required />
                     </div>
                   </div>
                   <div className="form-group">
                     <label>Last Name</label>
                     <div className="input-wrapper">
-                      <input type="text" name="lastName" placeholder="Santiago" value={formData.lastName} onChange={handleInputChange} required />
+                      <input type="text" name="lastName" placeholder="Doe" value={formData.lastName} onChange={handleInputChange} required />
                     </div>
                   </div>
                   <div className='form-group'>
@@ -211,7 +211,7 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
                   <div className="form-group">
                     <label>Email Address</label>
                     <div className="input-wrapper">
-                      <input type="email" name="email" placeholder="danajill@example.com" value={formData.email} onChange={handleInputChange} required />
+                      <input type="email" name="email" placeholder="name@example.com" value={formData.email} onChange={handleInputChange} required />
                     </div>
                   </div>
                   
@@ -384,8 +384,6 @@ export default function Signup({ onSignup, onSwitchToLogin }: SignupProps) {
 
         {/* Footer actions */}
         <div className="signup-footer">
-            {loading ? 'Creating Account...' : 'Create Account'}
-          
           <button type="submit" form="signup-form" className="btn-create-account-main" disabled={loading}>{loading ? 'Creating account...' : 'Create Account'}</button>
           <p className="login-prompt">
             Already have an account? <button type="button" className="btn-link" onClick={onSwitchToLogin}>Log In</button>

@@ -32,7 +32,11 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         raise HTTPException(status_code=400, detail="Invalid password!")
     
     # Create a JWT access token for the logged in user
-    access_token = auth_service.create_access_token(data={"sub": str(user['userID']), "role": user['role']})
+    access_token = auth_service.create_access_token(data={
+        "sub": str(user['userID']),
+        "userID": str(user['userID']),
+        "role": user['role']
+    })
 
     # Return the access token and its type
     return {"access_token": access_token, "token_type": "bearer"}

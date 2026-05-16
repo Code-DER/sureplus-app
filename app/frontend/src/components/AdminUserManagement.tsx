@@ -3,10 +3,10 @@ import './AdminUserManagement.css';
 import { adminAPI, charityApplicationsAPI } from '../api/apis';
 
 const USERS_PER_PAGE = 10;
-type RoleFilter = 'all' | 'seller' | 'buyer' | 'charity' | 'admin' | 'rider';
-type UserRole = 'buyer' | 'seller' | 'charity' | 'admin' | 'rider';
+type RoleFilter = 'all' | 'seller' | 'buyer' | 'charity' | 'admin';
+type UserRole = 'buyer' | 'seller' | 'charity' | 'admin';
 
-const ALL_ROLES: UserRole[] = ['buyer', 'seller', 'rider', 'admin', 'charity'];
+const ALL_ROLES: UserRole[] = ['buyer', 'seller', 'admin', 'charity'];
 
 type User = {
   userID: string;
@@ -49,10 +49,11 @@ export default function AdminUserManagement() {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
 
-  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
-  const [addAdminForm, setAddAdminForm] = useState({ firstName: '', lastName: '', emailAddress: '', password: '' });
-  const [addAdminLoading, setAddAdminLoading] = useState(false);
-  const [addAdminError, setAddAdminError] = useState<string | null>(null);
+  const [showPromoteAdminModal, setShowPromoteAdminModal] = useState(false);
+  const [promoteAdminUserId, setPromoteAdminUserId] = useState<string | null>(null);
+  const [promoteAdminForm, setPromoteAdminForm] = useState({ employeeID: '', adminType: '' });
+  const [promoteAdminLoading, setPromoteAdminLoading] = useState(false);
+  const [promoteAdminError, setPromoteAdminError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!editingUserId) return;
@@ -95,9 +96,39 @@ export default function AdminUserManagement() {
   };
 
   const applyRole = async (userId: string, newRole: User['role']) => {
-    await adminAPI.updateUserRole(userId, newRole);
-    setEditingUserId(null);
-    await loadData();
+    if (newRole === 'admin') {
+      setPromoteAdminUserId(userId);
+      setPromoteAdminForm({ employeeID: '', adminType: '' });
+      setPromoteAdminError(null);
+      setShowPromoteAdminModal(true);
+      setEditingUserId(null);
+    } else {
+      await adminAPI.updateUserRole(userId, newRole);
+      setEditingUserId(null);
+      await loadData();
+    }
+  };
+
+  const handlePromoteAdmin = async () => {
+    if (!promoteAdminUserId) return;
+    if (!promoteAdminForm.employeeID || !promoteAdminForm.adminType) {
+      setPromoteAdminError('Both Employee ID and Admin Type are required.');
+      return;
+    }
+    setPromoteAdminLoading(true);
+    setPromoteAdminError(null);
+    try {
+      await adminAPI.updateUserRole(promoteAdminUserId, 'admin', promoteAdminForm.employeeID, promoteAdminForm.adminType);
+      setShowPromoteAdminModal(false);
+      setPromoteAdminUserId(null);
+      setPromoteAdminForm({ employeeID: '', adminType: '' });
+      await loadData();
+    } catch (err: unknown) {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setPromoteAdminError(detail ?? 'Failed to promote user to admin.');
+    } finally {
+      setPromoteAdminLoading(false);
+    }
   };
 
   const deleteUser = async (user: User) => {
@@ -133,55 +164,38 @@ export default function AdminUserManagement() {
     }
   };
 
-  const handleAddAdmin = async () => {
-    setAddAdminLoading(true);
-    setAddAdminError(null);
-    try {
-      await adminAPI.createAdmin(addAdminForm);
-      setShowAddAdminModal(false);
-      setAddAdminForm({ firstName: '', lastName: '', emailAddress: '', password: '' });
-      await loadData();
-    } catch (err: unknown) {
-      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      setAddAdminError(detail ?? 'Failed to create admin user.');
-    } finally {
-      setAddAdminLoading(false);
-    }
-  };
 
   return (
     <>
-    {showAddAdminModal && (
-      <div className="modal-overlay" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>
+    {showPromoteAdminModal && (
+      <div className="modal-overlay" onClick={() => { setShowPromoteAdminModal(false); setPromoteAdminError(null); }}>
         <div className="modal-card" onClick={(e) => e.stopPropagation()}>
           <div className="modal-header">
-            <h3>Add Admin</h3>
-            <button className="btn-icon-gray" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>
+            <h3>Promote to Admin</h3>
+            <button className="btn-icon-gray" onClick={() => { setShowPromoteAdminModal(false); setPromoteAdminError(null); }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-          {addAdminError && <p className="modal-error">{addAdminError}</p>}
-          <form onSubmit={(e) => { e.preventDefault(); void handleAddAdmin(); }}>
+          {promoteAdminError && <p className="modal-error">{promoteAdminError}</p>}
+          <form onSubmit={(e) => { e.preventDefault(); void handlePromoteAdmin(); }}>
             <div className="modal-field">
-              <label>First Name</label>
-              <input required placeholder="e.g. Juan" value={addAdminForm.firstName} onChange={(e) => setAddAdminForm((f) => ({ ...f, firstName: e.target.value }))} />
+              <label>Employee ID</label>
+              <input required placeholder="e.g. EMP001" value={promoteAdminForm.employeeID} onChange={(e) => setPromoteAdminForm((f) => ({ ...f, employeeID: e.target.value }))} />
             </div>
             <div className="modal-field">
-              <label>Last Name</label>
-              <input required placeholder="e.g. Dela Cruz" value={addAdminForm.lastName} onChange={(e) => setAddAdminForm((f) => ({ ...f, lastName: e.target.value }))} />
-            </div>
-            <div className="modal-field">
-              <label>Email</label>
-              <input type="email" required placeholder="admin@sureplus.com" value={addAdminForm.emailAddress} onChange={(e) => setAddAdminForm((f) => ({ ...f, emailAddress: e.target.value }))} />
-            </div>
-            <div className="modal-field">
-              <label>Password</label>
-              <input type="password" required minLength={8} placeholder="Min. 8 characters" value={addAdminForm.password} onChange={(e) => setAddAdminForm((f) => ({ ...f, password: e.target.value }))} />
+              <label>Admin Type</label>
+              <select required value={promoteAdminForm.adminType} onChange={(e) => setPromoteAdminForm((f) => ({ ...f, adminType: e.target.value }))} >
+                <option value="">Select admin type...</option>
+                <option value="manager">Manager</option>
+                <option value="moderator">Moderator</option>
+                <option value="operator">Operator</option>
+                <option value="support">Support</option>
+              </select>
             </div>
             <div className="modal-actions">
-              <button type="button" className="btn-action outline" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>Cancel</button>
-              <button type="submit" className="btn-action primary" disabled={addAdminLoading}>
-                {addAdminLoading ? 'Creating...' : 'Create Admin'}
+              <button type="button" className="btn-action outline" onClick={() => { setShowPromoteAdminModal(false); setPromoteAdminError(null); }}>Cancel</button>
+              <button type="submit" className="btn-action primary" disabled={promoteAdminLoading}>
+                {promoteAdminLoading ? 'Promoting...' : 'Promote to Admin'}
               </button>
             </div>
           </form>
@@ -196,16 +210,9 @@ export default function AdminUserManagement() {
             <button className={`chip-btn ${roleFilter === 'all' ? 'active' : ''}`} onClick={() => { setRoleFilter('all'); setCurrentPage(1); }}>All Users</button>
             <button className={`chip-btn ${roleFilter === 'buyer' ? 'active' : ''}`} onClick={() => { setRoleFilter('buyer'); setCurrentPage(1); }}>Buyers</button>
             <button className={`chip-btn ${roleFilter === 'seller' ? 'active' : ''}`} onClick={() => { setRoleFilter('seller'); setCurrentPage(1); }}>Sellers</button>
-            <button className={`chip-btn ${roleFilter === 'rider' ? 'active' : ''}`} onClick={() => { setRoleFilter('rider'); setCurrentPage(1); }}>Riders</button>
             <button className={`chip-btn ${roleFilter === 'charity' ? 'active' : ''}`} onClick={() => { setRoleFilter('charity'); setCurrentPage(1); }}>Charities</button>
             <button className={`chip-btn ${roleFilter === 'admin' ? 'active' : ''}`} onClick={() => { setRoleFilter('admin'); setCurrentPage(1); }}>Admins</button>
           </div>
-          <button className="btn-invite" onClick={() => setShowAddAdminModal(true)}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Add Admin
-          </button>
         </div>
 
         {loading && <p>Loading users...</p>}
@@ -328,7 +335,7 @@ export default function AdminUserManagement() {
             <button className="btn-action outline" onClick={toggleLogs} disabled={!selectedUser}>
               {showLogs ? 'Hide Logs' : 'View Logs'}
             </button>
-            <button className="btn-action primary" disabled>Send Message</button>
+            {/* <button className="btn-action primary" disabled>Send Message</button> */}
           </div>
         </div>
 

@@ -77,6 +77,23 @@
   gap: 18px;
 }
 
+.seller-dashboard-btn {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #66B018;
+  background: #66B018;
+  color: #FFFFFF;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+
+.seller-dashboard-btn:hover {
+  background: #4D8A12;
+}
+
 .icon-btn {
   background: none;
   border: none;

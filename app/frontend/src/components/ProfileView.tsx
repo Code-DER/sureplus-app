@@ -8,7 +8,7 @@ import CheckmarkIcon from '../assets/Global Profile System/Checkmark.svg';
 import EcoIcon from '../assets/Global Profile System/Eco Icon.svg';
 import LogoutIcon from '../assets/Global Profile System/Logout Icon.svg';
 import AddressIcon from '../assets/Global Profile System/Address Icon.svg';
-import AccountIcon from '../assets/Global Profile System/Account Details Icon..svg';
+// import AccountIcon from '../assets/Global Profile System/Account Details Icon..svg';
 import ListingIcon from '../assets/Global Profile System/Listing Icon.svg';
 
 const SELLER_TYPES = ['Individual', 'Business', 'Distributor', 'Restaurant', 'Bakery'];
@@ -269,7 +269,7 @@ export default function ProfileView() {
         <div className="account-details-card">
           <div className="account-header">
             <h3>Account Details</h3>
-            <img src={AccountIcon} alt="Settings" width="20" height="20" />
+            {/* <img src={AccountIcon} alt="Settings" width="20" height="20" /> */}
           </div>
           
           <div className="account-grid">
