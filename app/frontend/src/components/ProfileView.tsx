@@ -269,7 +269,7 @@ export default function ProfileView() {
         <div className="account-details-card">
           <div className="account-header">
             <h3>Account Details</h3>
-            <img src={AccountIcon} alt="Settings" width="20" height="20" />
+            {/* <img src={AccountIcon} alt="Settings" width="20" height="20" /> */}
           </div>
           
           <div className="account-grid">
