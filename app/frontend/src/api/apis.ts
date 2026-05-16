@@ -132,7 +132,10 @@ export const purchaseAPI = {
         api.put(`/purchases/purchase/${purchaseID}/complete`),
 
     getSellerPurchases: (sellerID: string) =>
-        api.get(`/purchases/purchase/seller/${sellerID}`)
+        api.get(`/purchases/purchase/seller/${sellerID}`),
+
+    getBuyerOrders: () =>
+        api.get('/purchases/purchase/buyer/orders'),
 };
 
 export const charityApplicationsAPI = {
