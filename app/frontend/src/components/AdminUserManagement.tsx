@@ -3,10 +3,10 @@ import './AdminUserManagement.css';
 import { adminAPI, charityApplicationsAPI } from '../api/apis';
 
 const USERS_PER_PAGE = 10;
-type RoleFilter = 'all' | 'seller' | 'buyer' | 'charity' | 'admin' | 'rider';
-type UserRole = 'buyer' | 'seller' | 'charity' | 'admin' | 'rider';
+type RoleFilter = 'all' | 'seller' | 'buyer' | 'charity' | 'admin';
+type UserRole = 'buyer' | 'seller' | 'charity' | 'admin';
 
-const ALL_ROLES: UserRole[] = ['buyer', 'seller', 'rider', 'admin', 'charity'];
+const ALL_ROLES: UserRole[] = ['buyer', 'seller', 'admin', 'charity'];
 
 type User = {
   userID: string;
@@ -48,11 +48,6 @@ export default function AdminUserManagement() {
   const [logsLoading, setLogsLoading] = useState(false);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
-
-  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
-  const [addAdminForm, setAddAdminForm] = useState({ firstName: '', lastName: '', emailAddress: '', password: '' });
-  const [addAdminLoading, setAddAdminLoading] = useState(false);
-  const [addAdminError, setAddAdminError] = useState<string | null>(null);
 
   const [showPromoteAdminModal, setShowPromoteAdminModal] = useState(false);
   const [promoteAdminUserId, setPromoteAdminUserId] = useState<string | null>(null);
@@ -169,21 +164,6 @@ export default function AdminUserManagement() {
     }
   };
 
-  const handleAddAdmin = async () => {
-    setAddAdminLoading(true);
-    setAddAdminError(null);
-    try {
-      await adminAPI.createAdmin(addAdminForm);
-      setShowAddAdminModal(false);
-      setAddAdminForm({ firstName: '', lastName: '', emailAddress: '', password: '' });
-      await loadData();
-    } catch (err: unknown) {
-      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      setAddAdminError(detail ?? 'Failed to create admin user.');
-    } finally {
-      setAddAdminLoading(false);
-    }
-  };
 
   return (
     <>
@@ -222,43 +202,6 @@ export default function AdminUserManagement() {
         </div>
       </div>
     )}
-    {showAddAdminModal && (
-      <div className="modal-overlay" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>
-        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-header">
-            <h3>Add Admin</h3>
-            <button className="btn-icon-gray" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-          {addAdminError && <p className="modal-error">{addAdminError}</p>}
-          <form onSubmit={(e) => { e.preventDefault(); void handleAddAdmin(); }}>
-            <div className="modal-field">
-              <label>First Name</label>
-              <input required placeholder="e.g. Juan" value={addAdminForm.firstName} onChange={(e) => setAddAdminForm((f) => ({ ...f, firstName: e.target.value }))} />
-            </div>
-            <div className="modal-field">
-              <label>Last Name</label>
-              <input required placeholder="e.g. Dela Cruz" value={addAdminForm.lastName} onChange={(e) => setAddAdminForm((f) => ({ ...f, lastName: e.target.value }))} />
-            </div>
-            <div className="modal-field">
-              <label>Email</label>
-              <input type="email" required placeholder="admin@sureplus.com" value={addAdminForm.emailAddress} onChange={(e) => setAddAdminForm((f) => ({ ...f, emailAddress: e.target.value }))} />
-            </div>
-            <div className="modal-field">
-              <label>Password</label>
-              <input type="password" required minLength={8} placeholder="Min. 8 characters" value={addAdminForm.password} onChange={(e) => setAddAdminForm((f) => ({ ...f, password: e.target.value }))} />
-            </div>
-            <div className="modal-actions">
-              <button type="button" className="btn-action outline" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>Cancel</button>
-              <button type="submit" className="btn-action primary" disabled={addAdminLoading}>
-                {addAdminLoading ? 'Creating...' : 'Create Admin'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    )}
 
     <div className="user-management-grid">
       <div className="user-table-column">
@@ -267,16 +210,9 @@ export default function AdminUserManagement() {
             <button className={`chip-btn ${roleFilter === 'all' ? 'active' : ''}`} onClick={() => { setRoleFilter('all'); setCurrentPage(1); }}>All Users</button>
             <button className={`chip-btn ${roleFilter === 'buyer' ? 'active' : ''}`} onClick={() => { setRoleFilter('buyer'); setCurrentPage(1); }}>Buyers</button>
             <button className={`chip-btn ${roleFilter === 'seller' ? 'active' : ''}`} onClick={() => { setRoleFilter('seller'); setCurrentPage(1); }}>Sellers</button>
-            <button className={`chip-btn ${roleFilter === 'rider' ? 'active' : ''}`} onClick={() => { setRoleFilter('rider'); setCurrentPage(1); }}>Riders</button>
             <button className={`chip-btn ${roleFilter === 'charity' ? 'active' : ''}`} onClick={() => { setRoleFilter('charity'); setCurrentPage(1); }}>Charities</button>
             <button className={`chip-btn ${roleFilter === 'admin' ? 'active' : ''}`} onClick={() => { setRoleFilter('admin'); setCurrentPage(1); }}>Admins</button>
           </div>
-          <button className="btn-invite" onClick={() => setShowAddAdminModal(true)}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Add Admin
-          </button>
         </div>
 
         {loading && <p>Loading users...</p>}
