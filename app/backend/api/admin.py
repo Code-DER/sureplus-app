@@ -17,36 +17,24 @@ router = APIRouter()
 @router.get("/stats")
 async def get_admin_stats(current_user: dict = Depends(require_role("admin"))):
     """Aggregate counts for the admin dashboard home."""
-    users = []
-    pending = 0
-    products = 0
-
-    try:
-        users_res = supabase_admin.table("User").select("userID, role").execute()
-        users = users_res.data or []
-    except Exception:
-        users = []
+    # Fetch data without silent exception masking to ensure errors are visible
+    users_res = supabase_admin.table("User").select("userID, role").execute()
+    users = users_res.data or []
 
     sellers = sum(1 for u in users if u.get("role") == "seller")
     buyers = sum(1 for u in users if u.get("role") == "buyer")
     charities = sum(1 for u in users if u.get("role") == "charity")
 
-    try:
-        pending_res = (
-            supabase_admin.table("CharityApplication")
-            .select("applicationID")
-            .eq("status", "pending")
-            .execute()
-        )
-        pending = len(pending_res.data or [])
-    except Exception:
-        pending = 0
+    pending_res = (
+        supabase_admin.table("CharityApplication")
+        .select("applicationID")
+        .eq("status", "pending")
+        .execute()
+    )
+    pending = len(pending_res.data or [])
 
-    try:
-        products_res = supabase_admin.table("Food").select("foodID").execute()
-        products = len(products_res.data or [])
-    except Exception:
-        products = 0
+    products_res = supabase_admin.table("Food").select("foodID").execute()
+    products = len(products_res.data or [])
 
     return {
         "totalUsers":          len(users),
