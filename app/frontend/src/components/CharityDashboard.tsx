@@ -11,26 +11,53 @@ interface CharityDashboardProps {
 const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => {
   const [profile, setProfile] = useState<CharityProfile | null>(null);
   const [posts, setPosts] = useState<CharityPost[]>([]);
+  const [stats, setStats] = useState<{ totalRaised: number, totalFoodKg: number, activeCount: number, fundedCount: number } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Pagination
+  const [hasMore, setHasMore] = useState(true);
+  const offsetRef = useRef(0);
+  const LIMIT = 6;
+
   // Modals state
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPost, setEditingPost] = useState<CharityPost | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = async (isInitial = true) => {
     try {
-      const [profileRes] = await Promise.all([
-        charityAPI.getMyCharityProfile(),
-        // We'll use getMyProfile to get the userID first
-      ]);
+      if (isInitial) {
+        setLoading(true);
+        offsetRef.current = 0;
+      } else {
+        setLoadingMore(true);
+      }
 
-      const charityProfile = profileRes.data;
-      setProfile(charityProfile);
+      const currentOffset = isInitial ? 0 : offsetRef.current;
 
-      // Fetch posts specific to this charity user
-      const userPostsRes = await charityPostAPI.getPostsByUser(charityProfile.userID);
-      setPosts(userPostsRes.data);
+      if (isInitial) {
+        const profileRes = await charityAPI.getMyCharityProfile();
+        const charityProfile = profileRes.data;
+        setProfile(charityProfile);
+
+        // Parallel fetch for stats and first page of posts
+        const [postsRes, statsRes] = await Promise.all([
+          charityPostAPI.getPostsByUser(charityProfile.userID, { limit: LIMIT, offset: 0 }),
+          charityPostAPI.getUserPostStats(charityProfile.userID)
+        ]);
+
+        setPosts(postsRes.data);
+        setStats(statsRes.data);
+        setHasMore(postsRes.data.length === LIMIT);
+        offsetRef.current = LIMIT;
+      } else if (profile) {
+        const postsRes = await charityPostAPI.getPostsByUser(profile.userID, { limit: LIMIT, offset: currentOffset });
+        const newPosts = postsRes.data;
+        setPosts(prev => [...prev, ...newPosts]);
+        setHasMore(newPosts.length === LIMIT);
+        offsetRef.current = currentOffset + newPosts.length;
+      }
       
       setError(null);
     } catch (err) {
@@ -38,14 +65,12 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
       setError('Failed to load dashboard data.');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    const init = async () => {
-      await fetchData();
-    };
-    init();
+    fetchData();
   }, []);
 
   const handleDeletePost = async (post: CharityPost) => {
@@ -59,8 +84,22 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
     }
   };
 
+  const handleStatusChange = async (post: CharityPost, newStatus: 'active' | 'closed') => {
+    try {
+      await charityPostAPI.updatePost(post.charityID, { status: newStatus });
+      setPosts(prev => prev.map(p => p.charityID === post.charityID ? { ...p, status: newStatus } : p));
+    } catch {
+      alert(`Failed to ${newStatus === 'closed' ? 'close' : 'reopen'} post.`);
+    }
+  };
+
   if (loading) return <div className="charity-dashboard-loading"><div className="spinner"></div></div>;
   if (error) return <div className="charity-dashboard-error"><p>{error}</p><button onClick={() => { setLoading(true); fetchData(); }}>Retry</button></div>;
+
+  const totalRaised = stats?.totalRaised || 0;
+  const totalFoodDonated = stats?.totalFoodKg || 0;
+  const activePostsCount = stats?.activeCount || 0;
+  const fundedPostsCount = stats?.fundedCount || 0;
 
   return (
     <div className="charity-dashboard-page">
@@ -76,6 +115,37 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
       </header>
 
       <main className="charity-dashboard-main">
+        <section className="stats-bar">
+          <div className="stat-card">
+            <div className="stat-icon raised">₱</div>
+            <div className="stat-info">
+              <span className="stat-label">Total Raised</span>
+              <span className="stat-value">₱{totalRaised.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon donated">🥗</div>
+            <div className="stat-info">
+              <span className="stat-label">Food Donated</span>
+              <span className="stat-value">{totalFoodDonated.toFixed(1)} kg</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon active">📢</div>
+            <div className="stat-info">
+              <span className="stat-label">Active Posts</span>
+              <span className="stat-value">{activePostsCount}</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon funded">🎉</div>
+            <div className="stat-info">
+              <span className="stat-label">Funded Posts</span>
+              <span className="stat-value">{fundedPostsCount}</span>
+            </div>
+          </div>
+        </section>
+
         <section className="dashboard-actions">
           <button className="create-post-btn" onClick={() => setShowCreateModal(true)}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -102,8 +172,21 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
                   isOwner={true}
                   onEdit={(p) => setEditingPost(p)}
                   onDelete={handleDeletePost}
+                  onStatusChange={handleStatusChange}
                 />
               ))}
+            </div>
+          )}
+
+          {hasMore && (
+            <div className="dashboard-load-more">
+              <button 
+                className="load-more-btn" 
+                onClick={() => fetchData(false)}
+                disabled={loadingMore}
+              >
+                {loadingMore ? 'Loading...' : 'Load More Posts'}
+              </button>
             </div>
           )}
         </section>
@@ -277,13 +360,13 @@ const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) =>
               <select 
                 value={formData.donationMode} 
                 onChange={e => setFormData({...formData, donationMode: e.target.value as 'money' | 'food' | 'both'})}
+                disabled={true}
               >
-                <option value="money">Money only</option>
                 <option value="food">Food only</option>
-                <option value="both">Money + Food</option>
+                <option value="money" disabled>Money only (Coming Soon)</option>
+                <option value="both" disabled>Money + Food (Coming Soon)</option>
               </select>
             </div>
-
             {(formData.donationMode === 'money' || formData.donationMode === 'both') && (
               <div className="form-group">
                 <label>Amount Needed (₱)</label>

@@ -106,3 +106,49 @@ def fetch_impact_by_donation(donation_id: str):
     Fetch the social impact record for a specific donation.
     """
     return supabase_admin.table("SocialImpact")         .select("*")         .eq("donationID", donation_id)         .single()         .execute()
+
+def fetch_impact_history(user_id: str):
+    """
+    Fetch historical timeline of impact events for a user.
+    Joins SocialImpact with Purchase and Donation.
+    """
+    # Fetch purchase-based impacts
+    p_impact = supabase_admin.table("SocialImpact") \
+        .select("*, Purchase!inner(purchaseDate, userID)") \
+        .eq("Purchase.userID", user_id) \
+        .execute()
+    
+    # Fetch donation-based impacts
+    d_impact = supabase_admin.table("SocialImpact") \
+        .select("*, Donation!inner(createdAt, userID, CharityPost(title))") \
+        .eq("Donation.userID", user_id) \
+        .execute()
+    
+    history = []
+    
+    for row in p_impact.data:
+        history.append({
+            "id": row["impactID"],
+            "type": "purchase",
+            "date": row["Purchase"]["purchaseDate"],
+            "rescuedKilos": row["rescuedKilos"],
+            "carbonOffset": row["carbonOffset"],
+            "peopleFed": row["peopleFed"],
+            "description": "Marketplace Purchase"
+        })
+        
+    for row in d_impact.data:
+        history.append({
+            "id": row["impactID"],
+            "type": "donation",
+            "date": row["Donation"]["createdAt"],
+            "rescuedKilos": row["rescuedKilos"],
+            "carbonOffset": row["carbonOffset"],
+            "peopleFed": row["peopleFed"],
+            "description": f"Donation to {row['Donation']['CharityPost']['title']}"
+        })
+        
+    # Sort by date DESC
+    history.sort(key=lambda x: x["date"], reverse=True)
+    
+    return history

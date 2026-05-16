@@ -26,14 +26,20 @@ def _execute(query, error_detail: str):
             
         raise HTTPException(status_code=500, detail=error_detail) from exc
 
-def fetch_all_posts(limit: int = 10, offset: int = 0, search: str = None):
+def fetch_all_posts(limit: int = 10, offset: int = 0, search: str = None, donation_mode: str = None, status: str = None):
     """
     Fetch all charity posts ordered by createdAt DESC with pagination and search.
     """
-    query = supabase_admin.table("CharityPost").select("*").order("createdAt", desc=True)
+    query = supabase_admin.table("CharityPost").select("*, Charity(isPartner)").order("createdAt", desc=True)
     
     if search:
         query = query.or_(f"title.ilike.%{search}%,description.ilike.%{search}%")
+        
+    if donation_mode:
+        query = query.eq("donationMode", donation_mode)
+        
+    if status:
+        query = query.eq("status", status)
         
     return _execute(query.range(offset, offset + limit - 1), "Failed to fetch charity posts")
 
@@ -42,18 +48,34 @@ def fetch_post_by_id(charity_id: str):
     Fetch a single charity post by charityID.
     """
     return _execute(
-        supabase_admin.table("CharityPost").select("*").eq("charityID", charity_id).single(),
+        supabase_admin.table("CharityPost").select("*, Charity(isPartner)").eq("charityID", charity_id).single(),
         "Failed to fetch charity post"
     )
 
-def fetch_posts_by_user(user_id: str):
+def fetch_posts_by_user(user_id: str, limit: int = 100, offset: int = 0):
     """
-    Fetch all charity posts for a specific user (charity).
+    Fetch all charity posts for a specific user (charity) with pagination.
     """
-    return _execute(
-        supabase_admin.table("CharityPost").select("*").eq("userID", user_id),
-        "Failed to fetch user's charity posts"
+    query = supabase_admin.table("CharityPost").select("*, Charity(isPartner)").eq("userID", user_id).order("createdAt", desc=True)
+    return _execute(query.range(offset, offset + limit - 1), "Failed to fetch user's charity posts")
+
+def fetch_user_post_stats(user_id: str):
+    """
+    Fetch aggregate statistics for a user's charity posts.
+    """
+    # We fetch only the necessary columns to compute stats efficiently
+    res = _execute(
+        supabase_admin.table("CharityPost").select("currentAmount, currentFoodKg, status").eq("userID", user_id),
+        "Failed to fetch user post stats"
     )
+    
+    posts = res.data or []
+    return {
+        "totalRaised": sum(p["currentAmount"] or 0 for p in posts),
+        "totalFoodKg": sum(p["currentFoodKg"] or 0 for p in posts),
+        "activeCount": len([p for p in posts if p["status"] == "active"]),
+        "fundedCount": len([p for p in posts if p["status"] == "funded"])
+    }
 
 def create_post(user_id: str, data: dict):
     """

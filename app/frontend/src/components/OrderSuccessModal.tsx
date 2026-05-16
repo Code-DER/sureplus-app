@@ -16,9 +16,10 @@ export interface ImpactStats {
 interface OrderSuccessModalProps {
   stats: ImpactStats
   onClose: () => void
+  title?: string
 }
 
-export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalProps) {
+export default function OrderSuccessModal({ stats, onClose, title = "Order Successful!" }: OrderSuccessModalProps) {
   const [animated, setAnimated] = useState(false)
 
   useEffect(() => {
@@ -76,7 +77,7 @@ export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalP
         </div>
 
         {/* Heading */}
-        <h2 className="success-heading">Order Successful!</h2>
+        <h2 className="success-heading">{title}</h2>
         <p className="success-subtext">You've made a real difference today.</p>
 
         {/* Stats */}

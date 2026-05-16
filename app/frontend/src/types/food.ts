@@ -15,6 +15,9 @@ export interface FoodItem {
   weightKg: number;
   expirationDate: string | null;
   createdAt: string | null;
+  Seller?: {
+    companyName: string;
+  };
   allergens: FoodAllergen[];
   isSafeForCurrentUser: boolean | null;
   matchedAllergenIDs: string[];

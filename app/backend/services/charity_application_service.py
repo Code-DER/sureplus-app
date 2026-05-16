@@ -27,6 +27,7 @@ def submit_application(user_id: str, data: dict):
         "userID": user_id,
         "purpose": data.get("purpose"),
         "govID": data.get("govID"),
+        "secRegistration": data.get("secRegistration"),
         "status": "pending"
     }
     

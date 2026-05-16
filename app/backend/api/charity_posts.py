@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
 from uuid import UUID
+from pydantic import BaseModel
 
 from database import supabase_admin
 from models.charity_post import CharityPostCreate, CharityPostUpdate, CharityPostResponse, CharityPostDonateRequest
@@ -14,18 +15,34 @@ router = APIRouter()
 async def get_all_posts(
     limit: int = 10,
     offset: int = 0,
-    search: Optional[str] = None
+    search: Optional[str] = None,
+    donation_mode: Optional[str] = None,
+    status: Optional[str] = None
 ):
     """Public endpoint to list all charity posts with pagination and search."""
-    response = charity_post_service.fetch_all_posts(limit=limit, offset=offset, search=search)
+    response = charity_post_service.fetch_all_posts(
+        limit=limit, 
+        offset=offset, 
+        search=search,
+        donation_mode=donation_mode,
+        status=status
+    )
     return response.data
 
 @router.get("/by-user/{user_id}", response_model=List[CharityPostResponse])
-async def get_posts_by_user(user_id: UUID):
+async def get_posts_by_user(
+    user_id: UUID,
+    limit: int = 10,
+    offset: int = 0
+):
     """Public endpoint to list all charity posts for a specific user (charity)."""
-    # ... implementation
-    response = charity_post_service.fetch_posts_by_user(str(user_id))
+    response = charity_post_service.fetch_posts_by_user(str(user_id), limit=limit, offset=offset)
     return response.data
+
+@router.get("/by-user/{user_id}/stats")
+async def get_user_post_stats(user_id: UUID):
+    """Public endpoint to get aggregate statistics for a user's charity posts."""
+    return charity_post_service.fetch_user_post_stats(str(user_id))
 
 @router.get("/{charity_id}", response_model=CharityPostResponse)
 async def get_post_by_id(charity_id: UUID):
@@ -88,7 +105,11 @@ async def delete_existing_post(
         pass
     return {"message": "Charity post deleted successfully"}
 
-@router.post("/{charity_id}/donate", response_model=CharityPostResponse)
+class CharityDonationResult(BaseModel):
+    post: CharityPostResponse
+    donationID: Optional[UUID] = None
+
+@router.post("/{charity_id}/donate", response_model=CharityDonationResult)
 async def donate_to_post(
     charity_id: UUID,
     donation: CharityPostDonateRequest,
@@ -103,10 +124,18 @@ async def donate_to_post(
         if not response.data:
             raise HTTPException(status_code=400, detail="Failed to process money donation")
         
-        charity_post_service.record_donation(
+        record_res = charity_post_service.record_donation(
             post_id, user_id, 'money', amount=donation.amount
         )
-        return response.data[0]
+        
+        donation_id = None
+        if record_res.data:
+            donation_id = record_res.data[0]["donationID"]
+
+        return {
+            "post": response.data[0],
+            "donationID": donation_id
+        }
 
     else:  # food
         # Look up weightKg to store in Donation record
@@ -129,14 +158,19 @@ async def donate_to_post(
             post_id, user_id, 'food',
             food_id=str(donation.foodID), quantity=donation.quantity, food_kg=food_kg
         )
+        
+        donation_id = None
         if record_res.data:
-            new_donation_id = record_res.data[0]["donationID"]
+            donation_id = record_res.data[0]["donationID"]
             social_impact_service.create_food_donation_impact(
-                donation_id=new_donation_id,
+                donation_id=donation_id,
                 rescued_kg=food_kg
             )
 
-        return response.data[0]
+        return {
+            "post": response.data[0],
+            "donationID": donation_id
+        }
 
 @router.get("/donations/my-donations", response_model=List[DonationResponse])
 async def get_my_donations(

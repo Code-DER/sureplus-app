@@ -64,3 +64,12 @@ async def get_my_impact_summary(
     """
     summary = social_impact_service.fetch_summary_by_user(current_user["userID"])
     return summary
+
+@router.get("/history")
+async def get_my_impact_history(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Fetch historical timeline of impact events for the current user.
+    """
+    return social_impact_service.fetch_impact_history(current_user["userID"])

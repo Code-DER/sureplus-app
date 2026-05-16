@@ -8,9 +8,40 @@
   gap: 16px;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
 }
 
-.charity-post-card:hover {
+.charity-post-card.is-funded {
+  border: 2px solid #15803d;
+  background: #F0FDF4;
+}
+
+.funded-banner {
+  position: absolute;
+  top: 12px;
+  right: -30px;
+  background: #15803d;
+  color: white;
+  padding: 4px 40px;
+  transform: rotate(45deg);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 10;
+}
+
+.celebration-emoji {
+  font-size: 0.9rem;
+}
+
+.charity-post-header {
+
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -21,6 +52,50 @@
   align-items: flex-start;
   gap: 12px;
 }
+
+.title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.partner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #0F5238;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #F3F4F6;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+}
+
+.mode-badge.money { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
+.mode-badge.food { background: #FFF7ED; color: #EA580C; border-color: #FFEDD5; }
+.mode-badge.both { background: #EFF6FF; color: #2563EB; border-color: #DBEAFE; }
 
 .charity-post-title {
   margin: 0;
@@ -51,6 +126,14 @@
 
 .action-btn.edit:hover {
   color: #0F5238;
+}
+
+.action-btn.close:hover {
+  color: #BA1A1A;
+}
+
+.action-btn.reopen:hover {
+  color: #0369a1;
 }
 
 .action-btn.delete:hover {

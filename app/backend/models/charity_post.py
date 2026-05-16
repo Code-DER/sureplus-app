@@ -45,7 +45,17 @@ class CharityPostResponse(BaseModel):
     currentFoodKg: float = 0.0
     foodGoalKg: Optional[float] = None
     status: str = 'active'
+    isPartner: bool = False
     createdAt: datetime
+
+    @model_validator(mode='before')
+    @classmethod
+    def flatten_charity(cls, data):
+        if isinstance(data, dict) and 'Charity' in data:
+            charity = data['Charity']
+            if isinstance(charity, dict):
+                data['isPartner'] = charity.get('isPartner', False)
+        return data
 
 class CharityPostDonateRequest(BaseModel):
     donationType: Literal['money', 'food']

@@ -89,6 +89,12 @@ const AdminCharityApplications: React.FC = () => {
                   <label>Government ID / Registration</label>
                   <p>{app.govID}</p>
                 </div>
+                {app.secRegistration && (
+                  <div className="content-group">
+                    <label>SEC Registration Number</label>
+                    <p>{app.secRegistration}</p>
+                  </div>
+                )}
 
                 <div className="review-actions">
                   <div className="input-group">

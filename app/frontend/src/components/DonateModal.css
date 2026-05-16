@@ -311,10 +311,121 @@
 
 .impact-preview {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #0F5238;
-  background-color: #F0FDF4;
-  padding: 8px 12px;
-  border-radius: 6px;
+  margin-left: auto;
+}
+
+.impact-preview strong {
+  font-weight: 800;
+}
+
+.charity-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: #EFF6FF;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #DBEAFE;
+  margin-bottom: 8px;
+}
+
+.charity-hint svg {
+  color: #2563EB;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.charity-hint span {
+  font-size: 0.85rem;
+  color: #1E40AF;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.seller-name {
+  display: block;
+  font-size: 0.75rem;
+  color: #9CA3AF;
+  margin-top: 2px;
+}
+
+.impact-preview-money {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #ECFDF5;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #A7F3D0;
+  color: #065F46;
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+.impact-preview-money svg {
+  color: #059669;
+}
+
+.estimate-highlight {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed #A7F3D0;
+  font-weight: 500;
+}
+
+/* Confirmation Step */
+.confirmation-step h3 {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
   text-align: center;
+}
+
+.confirmation-summary {
+  background-color: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.summary-label {
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.summary-value {
+  color: #111827;
+  font-weight: 600;
+}
+
+.summary-row.highlight {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.summary-row.highlight .summary-value {
+  color: #0F5238;
+  font-size: 1.1rem;
+}
+
+.confirmation-note {
+  font-size: 0.85rem;
+  color: #6B7280;
+  line-height: 1.5;
+  text-align: center;
+  margin: 16px 0 0;
 }

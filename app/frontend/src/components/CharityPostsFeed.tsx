@@ -16,10 +16,13 @@ const CharityPostsFeed: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<CharityPost | null>(null);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
 
-  // Pagination & Search
+  // Pagination, Search & Filters
   const [search, setSearch] = useState('');
+  const [filterMode, setFilterMode] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('active');
   const offsetRef = useRef(0);
   const [hasMore, setHasMore] = useState(true);
+  const observerTarget = useRef<HTMLDivElement>(null);
   const LIMIT = 6;
 
   const fetchPosts = async (isInitial = true) => {
@@ -35,7 +38,9 @@ const CharityPostsFeed: React.FC = () => {
       const response = await charityPostAPI.getAllPosts({
         limit: LIMIT,
         offset: currentOffset,
-        search: search.trim() || undefined
+        search: search.trim() || undefined,
+        donation_mode: filterMode === 'all' ? undefined : filterMode,
+        status: filterStatus === 'all' ? undefined : filterStatus
       });
 
       const newPosts = response.data;
@@ -57,7 +62,7 @@ const CharityPostsFeed: React.FC = () => {
     }
   };
 
-  // Handle search and tab switch with a single effect to avoid double fetch
+  // Handle search, filters and tab switch
   useEffect(() => {
     if (activeTab !== 'posts') return;
     
@@ -66,7 +71,26 @@ const CharityPostsFeed: React.FC = () => {
     }, search ? 500 : 0);
     
     return () => clearTimeout(timer);
-  }, [activeTab, search]);
+  }, [activeTab, search, filterMode, filterStatus]);
+
+  useEffect(() => {
+    if (activeTab !== 'posts' || !hasMore || loading || loadingMore) return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting) {
+          fetchPosts(false);
+        }
+      },
+      { threshold: 1.0, rootMargin: '100px' }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [activeTab, hasMore, loading, loadingMore]);
 
   const handleLoadMore = () => {
     if (!loadingMore && hasMore) {
@@ -129,6 +153,39 @@ const CharityPostsFeed: React.FC = () => {
         </div>
       </div>
 
+      {activeTab === 'posts' && (
+        <div className="feed-filters">
+          <div className="filter-group">
+            <span className="filter-label">Mode:</span>
+            <div className="filter-chips">
+              {['all', 'food'].map(mode => (
+                <button 
+                  key={mode}
+                  className={`filter-chip ${filterMode === mode ? 'active' : ''}`}
+                  onClick={() => setFilterMode(mode)}
+                >
+                  {mode === 'all' ? 'All' : 'Food'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="filter-group">
+            <span className="filter-label">Status:</span>
+            <div className="filter-chips">
+              {['all', 'active', 'funded', 'closed'].map(status => (
+                <button 
+                  key={status}
+                  className={`filter-chip ${filterStatus === status ? 'active' : ''}`}
+                  onClick={() => setFilterStatus(status)}
+                >
+                  {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeTab === 'posts' ? (
         <>
           {loading ? (
@@ -165,22 +222,17 @@ const CharityPostsFeed: React.FC = () => {
                 ))}
               </div>
               
-              {hasMore && (
-                <div className="load-more-container">
-                  <button 
-                    className="load-more-btn" 
-                    onClick={handleLoadMore}
-                    disabled={loadingMore}
-                  >
-                    {loadingMore ? (
-                      <>
-                        <span className="mini-spinner"></span>
-                        Loading...
-                      </>
-                    ) : 'Load More Campaigns'}
-                  </button>
-                </div>
-              )}
+              <div ref={observerTarget} className="infinite-scroll-sentinel">
+                {loadingMore && (
+                  <div className="load-more-loader">
+                    <span className="mini-spinner"></span>
+                    Loading more campaigns...
+                  </div>
+                )}
+                {!hasMore && posts.length > 0 && (
+                  <p className="no-more-posts">You've reached the end of the list.</p>
+                )}
+              </div>
             </>
           )}
         </>

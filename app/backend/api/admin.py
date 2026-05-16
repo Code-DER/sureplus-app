@@ -120,6 +120,25 @@ async def get_pending_approvals(current_user: dict = Depends(require_role("admin
 
 # ── Partner / seller management ───────────────────────────────────────────────
 
+@router.get("/charities")
+async def list_charities(current_user: dict = Depends(require_role("admin"))):
+    """List all approved charities."""
+    res = supabase_admin.table("Charity").select("*, User(firstName, lastName, emailAddress)").execute()
+    return res.data or []
+
+@router.put("/charities/{user_id}/partner")
+async def toggle_charity_partner(
+    user_id: UUID,
+    isPartner: bool = Body(..., embed=True),
+    current_user: dict = Depends(require_role("admin")),
+):
+    """Toggle a charity's partner status."""
+    res = supabase_admin.table("Charity").update({"isPartner": isPartner}).eq("userID", str(user_id)).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Charity not found")
+
+    return {"message": f"Partner status updated to {isPartner}", "isPartner": isPartner}
+
 @router.get("/sellers")
 async def list_sellers(current_user: dict = Depends(require_role("admin"))):
     """List all sellers with their basic user info."""

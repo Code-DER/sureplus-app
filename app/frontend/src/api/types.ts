@@ -17,11 +17,13 @@ export interface UserProfile {
 
 export interface CharityProfile extends UserProfile {
   organizationName: string;
+  isPartner: boolean;
 }
 
 export interface CharityResponse {
   userID: string;
   organizationName: string;
+  isPartner: boolean;
 }
 
 export interface CharityPost {
@@ -36,12 +38,19 @@ export interface CharityPost {
   currentFoodKg: number;
   foodGoalKg: number | null;
   status: "active" | "funded" | "closed";
+  isPartner: boolean;
   createdAt: string;
+}
+
+export interface CharityDonationResult {
+  post: CharityPost;
+  donationID?: string;
 }
 
 export interface SocialImpactRecord {
   impactID: string;
-  purchaseID: string;
+  purchaseID?: string;
+  donationID?: string;
   carbonOffset: number;
   rescuedKilos: number;
   peopleFed: number;
@@ -52,6 +61,7 @@ export interface SocialImpactSummary {
   totalRescuedKilos: number;
   totalPeopleFed: number;
   purchaseCount: number;
+  donationCount: number;
 }
 
 export interface CharityApplication {

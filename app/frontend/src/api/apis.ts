@@ -1,5 +1,6 @@
 import axios from "axios";
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
+import type { CharityDonationResult } from './types';
 
 export interface SureplusJwtPayload extends JwtPayload {
   userID: string;
@@ -66,17 +67,37 @@ export const charityAPI = {
     updateMyCharityProfile: (data: { organizationName: string }) => api.put('/charities/myprofile', data),
     
     // Application endpoints
-    submitApplication: (data: { purpose: string, govID: string }) => api.post('/charity-applications/', data),
+    submitApplication: (data: { purpose: string, govID: string, secRegistration?: string }) => api.post('/charity-applications/', data),
     getMyApplications: () => api.get('/charity-applications/mine'),
     getPendingApplications: () => api.get('/charity-applications/pending'),
     reviewApplication: (applicationId: string, data: { status: 'approved' | 'rejected', organizationName?: string }) => 
         api.put(`/charity-applications/${applicationId}/review`, data),
 };
 
+// Admin API functions
+export const adminAPI = {
+    getStats: () => api.get('/admin/stats'),
+    getUsers: (params?: { role?: string, page?: number, limit?: number }) => api.get('/admin/users', { params }),
+    updateUserRole: (userId: string, role: string) => api.patch(`/admin/users/${userId}/role`, { role }),
+    deleteUser: (userId: string) => api.delete(`/admin/users/${userId}`),
+    getCharities: () => api.get('/admin/charities'),
+    togglePartnerStatus: (userId: string, isPartner: bool) => api.put(`/admin/charities/${userId}/partner`, { isPartner }),
+    getSellers: () => api.get('/admin/sellers'),
+    updateSellerTags: (sellerId: string, tags: string[]) => api.patch(`/admin/sellers/${sellerId}/tags`, tags),
+};
+
 // Charity Post API functions
 export const charityPostAPI = {
-    getAllPosts: (params?: { limit?: number, offset?: number, search?: string }) => api.get('/charity-posts/', { params }),
-    getPostsByUser: (userId: string) => api.get(`/charity-posts/by-user/${userId}`),
+    getAllPosts: (params?: { 
+        limit?: number, 
+        offset?: number, 
+        search?: string,
+        donation_mode?: string,
+        status?: string
+    }) => api.get('/charity-posts/', { params }),
+    getPostsByUser: (userId: string, params?: { limit?: number, offset?: number }) => 
+        api.get(`/charity-posts/by-user/${userId}`, { params }),
+    getUserPostStats: (userId: string) => api.get(`/charity-posts/by-user/${userId}/stats`),
     getPostById: (charityId: string) => api.get(`/charity-posts/${charityId}`),
     createPost: (data: { 
         title: string, 
@@ -100,7 +121,7 @@ export const charityPostAPI = {
         amount?: number,
         foodID?: string,
         quantity?: number
-    }) => api.post(`/charity-posts/${charityId}/donate`, donation),
+    }) => api.post<CharityDonationResult>(`/charity-posts/${charityId}/donate`, donation),
     getDonationsByPost: (charityId: string) => api.get(`/charity-posts/${charityId}/donations`),
     getMyDonations: () => api.get('/charity-posts/donations/my-donations'),
 };
@@ -108,7 +129,9 @@ export const charityPostAPI = {
 // Social Impact API functions
 export const socialImpactAPI = {
     getImpactByPurchase: (purchaseId: string) => api.get(`/social-impact/purchase/${purchaseId}`),
+    getImpactByDonation: (donationId: string) => api.get(`/social-impact/donation/${donationId}`),
     getMyImpactSummary: () => api.get('/social-impact/summary'),
+    getImpactHistory: () => api.get('/social-impact/history'),
 };
 
 // Ratings API functions
