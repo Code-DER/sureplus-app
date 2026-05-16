@@ -46,3 +46,14 @@ async def get_my_impact_summary(
     """
     summary = social_impact_service.fetch_summary_by_user(current_user["userID"])
     return summary
+
+
+@router.get("/seller/{seller_id}", response_model=SocialImpactSummary)
+async def get_seller_impact_summary(
+    seller_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Fetch aggregated social impact for all food sold by a seller.
+    """
+    return social_impact_service.fetch_summary_by_seller(seller_id)

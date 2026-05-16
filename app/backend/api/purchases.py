@@ -3,7 +3,8 @@ from models.purchase import PurchaseCreate
 from services.purchase_service import (
     create_purchase,
     complete_purchase,
-    get_seller_purchase_list
+    get_seller_purchase_list,
+    get_seller_orders,
 )
 
 router = APIRouter()
@@ -18,5 +19,9 @@ def complete(purchase_id: str):
 
 
 @router.get("/purchase/seller/{seller_id}")
-def seller_orders(seller_id: str):
+def seller_purchases(seller_id: str):
     return get_seller_purchase_list(seller_id)
+
+@router.get("/purchase/seller/{seller_id}/orders")
+def seller_orders(seller_id: str):
+    return get_seller_orders(seller_id)

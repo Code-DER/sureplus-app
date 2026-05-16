@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import './SalesAnalytics.css';
-import { foodAPI, purchasesAPI } from '../api/apis';
-import type { FoodItem } from '../types/food';
+import { purchasesAPI, socialImpactAPI } from '../api/apis';
 
 interface SalesAnalyticsProps {
   onBack: () => void;
@@ -13,15 +12,69 @@ interface Purchase {
   purchaseID: string;
   totalPrice: number;
   status: string;
+  purchaseDate?: string;
+}
+
+interface ImpactSummary {
+  totalCarbonOffset: number;
+  totalRescuedKilos: number;
+  totalPeopleFed: number;
+  purchaseCount: number;
+}
+
+interface Order {
+  purchaseID: string;
+  buyerName: string;
+  foodName: string;
+  quantity: number;
+  totalPerItem: number;
+  status: string;
+  purchaseDate?: string;
+}
+
+type ChartBar = { label: string; value: number };
+
+function buildWeeklyData(purchases: Purchase[]): ChartBar[] {
+  const today = new Date();
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (6 - i));
+    const dateStr = d.toISOString().slice(0, 10);
+    const label = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
+    const value = purchases
+      .filter(p => p.status === 'completed' && p.purchaseDate?.slice(0, 10) === dateStr)
+      .reduce((sum, p) => sum + Number(p.totalPrice), 0);
+    return { label, value };
+  });
+}
+
+function buildMonthlyData(purchases: Purchase[]): ChartBar[] {
+  const today = new Date();
+  return Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(today.getFullYear(), today.getMonth() - (5 - i), 1);
+    const label = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+    const value = purchases
+      .filter(p => {
+        if (p.status !== 'completed' || !p.purchaseDate) return false;
+        const pd = new Date(p.purchaseDate);
+        return pd.getFullYear() === d.getFullYear() && pd.getMonth() === d.getMonth();
+      })
+      .reduce((sum, p) => sum + Number(p.totalPrice), 0);
+    return { label, value };
+  });
+}
+
+function formatImpactValue(kg: number): string {
+  return kg >= 1000 ? `${(kg / 1000).toFixed(2)} t` : `${kg.toFixed(2)} kg`;
 }
 
 
 export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps) {
   const [chartView, setChartView] = useState<'Week' | 'Month'>('Week');
-  const [expandedProduct, setExpandedProduct] = useState<string | null>(null);
 
   const [purchases, setPurchases] = useState<Purchase[]>([]);
-  const [listings, setListings] = useState<FoodItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [impact, setImpact] = useState<ImpactSummary | null>(null);
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
@@ -29,16 +82,25 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
     setLoadingData(true);
     Promise.allSettled([
       purchasesAPI.getSellerPurchases(sellerId),
-      foodAPI.list({ seller_id: sellerId, include_expired: true }),
-    ]).then(([purchasesResult, listingsResult]) => {
+      purchasesAPI.getSellerOrders(sellerId),
+      socialImpactAPI.getSellerImpactSummary(sellerId),
+    ]).then(([purchasesResult, ordersResult, impactResult]) => {
       if (purchasesResult.status === 'fulfilled') setPurchases(purchasesResult.value.data ?? []);
-      if (listingsResult.status === 'fulfilled') setListings(listingsResult.value.data ?? []);
+      if (ordersResult.status === 'fulfilled') setOrders(ordersResult.value.data ?? []);
+      if (impactResult.status === 'fulfilled') setImpact(impactResult.value.data ?? null);
     }).finally(() => setLoadingData(false));
   }, [sellerId]);
+
+  const chartBars = chartView === 'Week' ? buildWeeklyData(purchases) : buildMonthlyData(purchases);
+  const chartMax = Math.max(1, ...chartBars.map(b => b.value));
+  const SVG_W = 500, CHART_H = 110, LABEL_Y = 128, PAD_X = 12;
+  const barW = Math.floor((SVG_W - PAD_X * 2) / chartBars.length * 0.5);
+  const slotW = (SVG_W - PAD_X * 2) / chartBars.length;
 
   const completedPurchases = purchases.filter((p) => p.status === 'completed');
   const totalSales = completedPurchases.reduce((sum, p) => sum + Number(p.totalPrice), 0);
   const totalTransactions = purchases.length;
+  const totalItemsSold = orders.reduce((sum, o) => sum + o.quantity, 0);
 
   return (
     <div className="sa-page">
@@ -71,17 +133,17 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
           </div>
         </div>
 
-        {/* Active Listings */}
+        {/* Items Sold */}
         <div className="sa-metric-card">
           <div className="sa-metric-header">
             <div className="sa-metric-icon sa-icon-orange">
               <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M8 1C4.134 1 1 4.134 1 8s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 12a5 5 0 110-10 5 5 0 010 10z" fill="#EA580C"/><path d="M8 4v4l3 3" stroke="#EA580C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
-            <div className="sa-metric-badge sa-badge-orange">{listings.filter(l => l.stockQuantity > 0).length} active</div>
+            <div className="sa-metric-badge sa-badge-orange">{orders.length} orders</div>
           </div>
           <div className="sa-metric-body">
-            <span className="sa-metric-label">TOTAL LISTINGS</span>
-            <span className="sa-metric-value">{loadingData ? '…' : listings.length}</span>
+            <span className="sa-metric-label">ITEMS SOLD</span>
+            <span className="sa-metric-value">{loadingData ? '…' : totalItemsSold}</span>
           </div>
         </div>
 
@@ -106,8 +168,8 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
         <div className="sa-chart-card">
           <div className="sa-chart-header">
             <div className="sa-chart-title-group">
-              <h3 className="sa-chart-title">Weekly Revenue Growth</h3>
-              <p className="sa-chart-desc">Comparison between last 7 days vs previous period</p>
+              <h3 className="sa-chart-title">{chartView === 'Week' ? 'Daily Revenue (Last 7 Days)' : 'Monthly Revenue (Last 6 Months)'}</h3>
+              <p className="sa-chart-desc">Completed orders only</p>
             </div>
             <div className="sa-chart-toggle">
               <button 
@@ -125,28 +187,25 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
             </div>
           </div>
           <div className="sa-chart-area">
-            {/* Grid Lines */}
-            <div className="sa-chart-grid">
-              <div className="sa-grid-line"></div>
-              <div className="sa-grid-line"></div>
-              <div className="sa-grid-line"></div>
-              <div className="sa-grid-line"></div>
-              <div className="sa-grid-line"></div>
-            </div>
-            {/* X-Axis */}
-            <div className="sa-chart-xaxis">
-              <span>MON</span>
-              <span>TUE</span>
-              <span>WED</span>
-              <span>THU</span>
-              <span>FRI</span>
-              <span>SAT</span>
-              <span>SUN</span>
-            </div>
-            {/* Placeholder for actual bars/lines */}
-            <div className="sa-chart-bars">
-              {/* Dummy bars for visual representation could go here */}
-            </div>
+            {loadingData ? (
+              <div style={{ textAlign: 'center', padding: '32px', color: '#94A3B8', fontSize: 14 }}>Loading chart…</div>
+            ) : (
+              <svg viewBox={`0 0 ${SVG_W} ${LABEL_Y + 16}`} width="100%" preserveAspectRatio="none" style={{ display: 'block' }}>
+                {[0.25, 0.5, 0.75, 1].map((f, i) => (
+                  <line key={i} x1={PAD_X} y1={CHART_H * (1 - f)} x2={SVG_W - PAD_X} y2={CHART_H * (1 - f)} stroke="#E2E8F0" strokeWidth="1" />
+                ))}
+                {chartBars.map((bar, i) => {
+                  const bh = Math.max(2, (bar.value / chartMax) * CHART_H);
+                  const bx = PAD_X + i * slotW + (slotW - barW) / 2;
+                  return (
+                    <g key={i}>
+                      <rect x={bx} y={CHART_H - bh} width={barW} height={bh} rx="4" fill="#66B018" opacity={bar.value > 0 ? 1 : 0.15} />
+                      <text x={bx + barW / 2} y={LABEL_Y} textAnchor="middle" fontFamily="Work Sans, sans-serif" fontSize="10" fill="#94A3B8" fontWeight="600">{bar.label}</text>
+                    </g>
+                  );
+                })}
+              </svg>
+            )}
           </div>
         </div>
 
@@ -154,113 +213,95 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
         <div className="sa-impact-card">
           <h3 className="sa-impact-title">Environmental Impact</h3>
           <p className="sa-impact-desc">
-            Your store has diverted significant organic waste from landfills this month.
+            Based on all food rescued through your store's completed orders.
           </p>
-          <div className="sa-impact-metrics">
-            <div className="sa-impact-metric">
-              <div className="sa-impact-metric-header">
-                <span className="sa-impact-metric-label">CO2 Emissions Saved</span>
-                <span className="sa-impact-metric-value">2.4 Tons</span>
-              </div>
-              <div className="sa-impact-bar-bg">
-                <div className="sa-impact-bar-fill" style={{ width: '85%' }}></div>
-              </div>
+          {loadingData ? (
+            <p style={{ color: '#94A3B8', fontSize: 14 }}>Loading impact data…</p>
+          ) : (
+            <div className="sa-impact-metrics">
+              {(() => {
+                const co2 = impact?.totalCarbonOffset ?? 0;
+                const kg  = impact?.totalRescuedKilos  ?? 0;
+                const maxImpact = Math.max(1, co2, kg);
+                return (
+                  <>
+                    <div className="sa-impact-metric">
+                      <div className="sa-impact-metric-header">
+                        <span className="sa-impact-metric-label">CO₂ Emissions Offset</span>
+                        <span className="sa-impact-metric-value">{formatImpactValue(co2)}</span>
+                      </div>
+                      <div className="sa-impact-bar-bg">
+                        <div className="sa-impact-bar-fill" style={{ width: `${(co2 / maxImpact) * 100}%` }}></div>
+                      </div>
+                    </div>
+                    <div className="sa-impact-metric">
+                      <div className="sa-impact-metric-header">
+                        <span className="sa-impact-metric-label">Food Rescued</span>
+                        <span className="sa-impact-metric-value">{formatImpactValue(kg)}</span>
+                      </div>
+                      <div className="sa-impact-bar-bg">
+                        <div className="sa-impact-bar-fill" style={{ width: `${(kg / maxImpact) * 100}%` }}></div>
+                      </div>
+                    </div>
+                    <div className="sa-impact-metric">
+                      <div className="sa-impact-metric-header">
+                        <span className="sa-impact-metric-label">People Fed</span>
+                        <span className="sa-impact-metric-value">{impact?.totalPeopleFed ?? 0}</span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
-            <div className="sa-impact-metric">
-              <div className="sa-impact-metric-header">
-                <span className="sa-impact-metric-label">Water Usage Offset</span>
-                <span className="sa-impact-metric-value">450k Liters</span>
-              </div>
-              <div className="sa-impact-bar-bg">
-                <div className="sa-impact-bar-fill" style={{ width: '60%' }}></div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Bottom Row: Listings Overview */}
+      {/* Bottom Row: Orders */}
       <div className="sa-buyers-card">
         <div className="sa-buyers-header">
-          <h3 className="sa-buyers-title">Your Listings</h3>
+          <h3 className="sa-buyers-title">Orders</h3>
         </div>
 
         <div className="sa-buyers-table">
           <div className="sa-buyers-thead">
-            <div className="sa-buyers-th sa-buyers-th-product">PRODUCT</div>
-            <div className="sa-buyers-th">PRICE</div>
-            <div className="sa-buyers-th">STOCK</div>
-            <div className="sa-buyers-th">EXPIRY</div>
+            <div className="sa-buyers-th sa-buyers-th-product">BUYER</div>
+            <div className="sa-buyers-th">ITEM</div>
+            <div className="sa-buyers-th">QUAN.</div>
+            <div className="sa-buyers-th">TOTAL</div>
             <div className="sa-buyers-th sa-buyers-th-right">STATUS</div>
           </div>
 
           <div className="sa-buyers-tbody">
             {loadingData ? (
-              <div style={{ padding: '32px', textAlign: 'center', color: '#707973' }}>Loading listings…</div>
-            ) : listings.length === 0 ? (
-              <div style={{ padding: '32px', textAlign: 'center', color: '#707973' }}>No listings found.</div>
+              <div style={{ padding: '32px', textAlign: 'center', color: '#707973' }}>Loading orders…</div>
+            ) : orders.length === 0 ? (
+              <div style={{ padding: '32px', textAlign: 'center', color: '#707973' }}>No orders found.</div>
             ) : (
-              listings.slice(0, 10).map((item) => {
-                const isExpanded = expandedProduct === item.foodID;
-                const isExpired = item.expirationDate && new Date(item.expirationDate) < new Date();
-                const status = item.stockQuantity === 0 ? 'SOLD OUT' : isExpired ? 'EXPIRED' : 'ACTIVE';
-                const statusColor = item.stockQuantity === 0 ? 'sa-loyalty-blue' : isExpired ? 'sa-loyalty-blue' : 'sa-loyalty-green';
+              orders.slice(0, 10).map((order, idx) => {
+                const statusClass =
+                  order.status === 'completed' ? 'sa-loyalty-green' :
+                  order.status === 'pending'   ? 'sa-loyalty-amber' :
+                  order.status === 'cancelled' ? 'sa-loyalty-red'   : 'sa-loyalty-blue';
                 return (
-                  <div key={item.foodID} className="sa-buyers-row-group">
-                    <div
-                      className={`sa-buyers-row ${isExpanded ? 'expanded' : ''}`}
-                      onClick={() => setExpandedProduct(isExpanded ? null : item.foodID)}
-                    >
-                      <div className="sa-buyers-td sa-buyers-td-product">
-                        <button className={`sa-expand-btn ${isExpanded ? 'open' : ''}`} aria-label="Toggle">
-                          <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="#A1A1AA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        </button>
-                        <div className="sa-product-thumb">
-                          {item.picture ? (
-                            <img src={item.picture} alt={item.foodName} className="sa-product-icon" width="28" height="28" style={{ objectFit: 'cover', borderRadius: 4 }} />
-                          ) : (
-                            <div style={{ width: 28, height: 28, background: '#E8F0ED', borderRadius: 4 }} />
-                          )}
-                        </div>
-                        <div className="sa-product-info">
-                          <span className="sa-product-name">{item.foodName}</span>
-                          <span className="sa-product-id">ID: {item.foodID.substring(0, 8).toUpperCase()}</span>
-                        </div>
+                  <div key={`${order.purchaseID}-${idx}`} className="sa-buyers-row-group">
+                    <div className="sa-buyers-row" style={{ cursor: 'default' }}>
+                      <div className="sa-buyers-td sa-buyers-th-product">
+                        <span className="sa-freq-value">{order.buyerName}</span>
                       </div>
-
                       <div className="sa-buyers-td">
-                        <span className="sa-freq-value">₱{Number(item.price).toFixed(2)}</span>
+                        <span className="sa-freq-value">{order.foodName}</span>
                       </div>
-
                       <div className="sa-buyers-td">
-                        <span className="sa-freq-value">{item.stockQuantity} units</span>
+                        <span className="sa-freq-value">{order.quantity}</span>
                       </div>
-
                       <div className="sa-buyers-td">
-                        <span className="sa-freq-value">
-                          {item.expirationDate
-                            ? new Date(item.expirationDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
-                            : '—'}
-                        </span>
+                        <span className="sa-freq-value">₱{order.totalPerItem.toFixed(2)}</span>
                       </div>
-
                       <div className="sa-buyers-td sa-buyers-td-loyalty">
-                        <span className={`sa-loyalty-badge ${statusColor}`}>{status}</span>
+                        <span className={`sa-loyalty-badge ${statusClass}`}>{order.status.toUpperCase()}</span>
                       </div>
                     </div>
-
-                    {isExpanded && (
-                      <div className="sa-buyers-subtable-wrapper">
-                        <div className="sa-buyers-subtable-border" style={{ padding: '12px 24px', fontSize: 13, color: '#404943' }}>
-                          <p style={{ margin: 0 }}><strong>Description:</strong> {item.description ?? 'No description.'}</p>
-                          {item.allergens.length > 0 && (
-                            <p style={{ margin: '6px 0 0' }}>
-                              <strong>Allergens:</strong> {item.allergens.map((a) => a.name).join(', ')}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 );
               })
@@ -270,7 +311,7 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
 
         <div className="sa-buyers-pagination">
           <span className="sa-buyers-pagination-info">
-            Showing {Math.min(listings.length, 10)} of {listings.length} listings
+            Showing {Math.min(orders.length, 10)} of {orders.length} orders
           </span>
         </div>
       </div>
