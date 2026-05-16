@@ -5,7 +5,9 @@ from uuid import UUID
 from database import supabase_admin
 from api.dependency import require_role
 from models.admin_reports import ReportsOverviewResponse, ReportsTransactionRow
-from services import admin_reports_service
+from models.user import AdminCreateUserRequest
+from services import admin_reports_service, admin_activity_service
+from services.auth_service import hash_password
 
 router = APIRouter()
 
@@ -100,6 +102,46 @@ async def list_users(
     }
 
 
+@router.post("/users", status_code=201)
+async def create_admin_user(
+    data: AdminCreateUserRequest,
+    current_user: dict = Depends(require_role("admin")),
+):
+    """Create a new admin-role user directly from the admin panel."""
+    existing = supabase_admin.table("User").select("emailAddress").eq("emailAddress", data.emailAddress).execute()
+    if existing.data:
+        raise HTTPException(status_code=400, detail="Email already registered.")
+
+    hashed = hash_password(data.password)
+    user_res = supabase_admin.table("User").insert({
+        "firstName": data.firstName,
+        "lastName": data.lastName,
+        "emailAddress": data.emailAddress,
+        "password": hashed,
+        "role": "admin",
+        "phoneNumber": "",
+        "street": "",
+        "residentialName": "",
+        "barangay": "",
+        "city": "",
+    }).execute()
+
+    if not user_res.data:
+        raise HTTPException(status_code=500, detail="Failed to create admin user.")
+
+    new_user = user_res.data[0]
+
+    admin_activity_service.record_admin_activity(
+        admin_id=current_user["userID"],
+        action_type="create_admin",
+        description=f"Created admin account for {data.emailAddress}",
+        target_id=new_user["userID"],
+        target_entity="User",
+    )
+
+    return {"message": "Admin user created.", "userID": new_user["userID"]}
+
+
 @router.patch("/users/{user_id}/role")
 async def update_user_role(
     user_id: UUID,
@@ -107,13 +149,21 @@ async def update_user_role(
     current_user: dict = Depends(require_role("admin")),
 ):
     """Change a user's role."""
-    allowed = {"buyer", "seller", "charity", "admin"}
+    allowed = {"buyer", "seller", "charity", "admin", "rider"}
     if role not in allowed:
         raise HTTPException(status_code=400, detail=f"Role must be one of: {allowed}")
 
     res = supabase_admin.table("User").update({"role": role}).eq("userID", str(user_id)).execute()
     if not res.data:
         raise HTTPException(status_code=404, detail="User not found")
+
+    admin_activity_service.record_admin_activity(
+        admin_id=current_user["userID"],
+        action_type="update_role",
+        description=f"Changed user role to '{role}'",
+        target_id=str(user_id),
+        target_entity="User",
+    )
 
     return {"message": f"Role updated to {role}"}
 
@@ -127,6 +177,14 @@ async def delete_user(
     res = supabase_admin.table("User").delete().eq("userID", str(user_id)).execute()
     if not res.data:
         raise HTTPException(status_code=404, detail="User not found")
+
+    admin_activity_service.record_admin_activity(
+        admin_id=current_user["userID"],
+        action_type="delete_user",
+        description="Deleted user account",
+        target_id=str(user_id),
+        target_entity="User",
+    )
 
     return {"message": "User deleted"}
 
@@ -190,6 +248,14 @@ async def update_seller_tags(
     )
     if not res.data:
         raise HTTPException(status_code=404, detail="Seller not found")
+
+    admin_activity_service.record_admin_activity(
+        admin_id=current_user["userID"],
+        action_type="update_tags",
+        description=f"Updated seller tags: {', '.join(tags) if tags else 'cleared'}",
+        target_id=str(seller_id),
+        target_entity="Seller",
+    )
 
     return {"message": "Tags updated", "tags": tags}
 

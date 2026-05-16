@@ -3,7 +3,7 @@ from typing import List
 from uuid import UUID
 from api.dependency import get_current_user, require_role
 from models.charity_application import CharityApplicationCreate, CharityApplicationResponse, CharityApplicationReview
-from services import charity_application_service
+from services import charity_application_service, admin_activity_service
 
 router = APIRouter()
 
@@ -40,6 +40,13 @@ async def review_application(
             status=review.status,
             org_name=review.organizationName,
             admin_id=current_user["userID"]
+        )
+        admin_activity_service.record_admin_activity(
+            admin_id=current_user["userID"],
+            action_type=f"application_{review.status}",
+            description=f"Charity application {review.status}",
+            target_id=str(application_id),
+            target_entity="CharityApplication",
         )
         return {"message": f"Application {review.status} successfully."}
     except Exception as e:
