@@ -130,10 +130,14 @@ export default function HistoryView() {
 
         <div className="history-list">
           {MOCK_HISTORY.map((order) => (
-            <div 
-              key={order.id} 
+            <div
+              key={order.id}
               className={`history-card ${selectedOrder.id === order.id ? 'active' : ''}`}
               onClick={() => handleSelectOrder(order)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleSelectOrder(order)}
+              aria-current={selectedOrder.id === order.id ? 'true' : undefined}
             >
               <div className="history-card-top">
                 <span className="history-date">{order.dateStr}</span>
@@ -228,12 +232,15 @@ export default function HistoryView() {
             
             <div className="review-stars-large" onMouseLeave={() => setHoverRating(0)}>
               {[1, 2, 3, 4, 5].map((star) => (
-                <span 
-                  key={star} 
+                <span
+                  key={star}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Rate ${star} star${star !== 1 ? 's' : ''}`}
                   className={star <= (hoverRating || reviewRating) ? 'star filled' : 'star empty'}
                   onMouseEnter={() => setHoverRating(star)}
                   onClick={() => setReviewRating(star)}
-                  style={{ cursor: 'pointer' }}
+                  onKeyDown={(e) => e.key === 'Enter' && setReviewRating(star)}
                 >
                   ★
                 </span>

@@ -87,9 +87,10 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
         link: notif.link,
       }))
       setNotifications(transformedNotifications)
-    } catch (error: any) {
-      console.error('Failed to fetch notifications', error)
-      setError(error.message || 'Failed to fetch notifications')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to fetch notifications'
+      console.error('Failed to fetch notifications', err)
+      setError(msg)
     } finally {
       setLoading(false)
     }
@@ -99,8 +100,8 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
     try {
       await notificationsAPI.markAllNotificationsAsRead()
       setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
-    } catch (error: any) {
-      console.error('Failed to mark all as read.', error)
+    } catch (err) {
+      console.error('Failed to mark all as read.', err)
     }
   }
 

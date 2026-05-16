@@ -66,6 +66,21 @@
   font-weight: 500;
 }
 
+.detail-product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.detail-image-icon {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  background: #ddd;
+  border-radius: 8px;
+}
+
 /* Quick info panel */
 .detail-info-panel {
   box-sizing: border-box;
@@ -129,6 +144,29 @@
   background: #F2F4F0;
   border: 1px solid #BA1A1A;
   border-radius: 8px;
+}
+
+.allergen-tag--matched {
+  border-color: #FFA726;
+  background: #FFF8F0;
+}
+
+.detail-allergen-alert {
+  background: #FFF3E0;
+  border: 1px solid #FFA726;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  color: #E65100;
+}
+
+.detail-oos-msg {
+  color: #BA1A1A;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  margin: -8px 0 8px;
 }
 
 .allergen-tag .icon-placeholder {

@@ -7,10 +7,10 @@ import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
 import CharityPostsFeed from './CharityPostsFeed'
 import SocialImpactView from './SocialImpactView'
-import { foodAPI, userAPI } from '../api/apis'
+import { foodAPI, userAPI, purchaseAPI } from '../api/apis'
 import UserAvatar from './UserAvatar'
 import type { FoodItem } from '../types/food'
-import { purchaseAPI } from '../api/apis'
+import { formatExpiration } from '../utils/format'
 
 interface ListingsFeedProps {
   isSeller?: boolean
@@ -19,26 +19,12 @@ interface ListingsFeedProps {
 
 import ExpiryIcon from '../assets/BUYER/Expiry Icon.svg'
 import CartIcon from '../assets/BUYER/Cart Icon.svg'
-import LocationIcon from '../assets/BUYER/location.svg'
 
 interface OrderItem {
   id: string       // foodID (UUID)
   name: string
   price: number
   qty: number
-}
-
-function formatExpiration(dateStr: string | null): string {
-  if (!dateStr) return 'No expiry date'
-  const exp = new Date(dateStr)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  if (diffDays < 0) return 'Expired'
-  if (diffDays === 0) return 'Expires today'
-  if (diffDays === 1) return 'Expires tomorrow'
-  if (diffDays <= 7) return `In ${diffDays} days`
-  return exp.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
 }
 
 export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: ListingsFeedProps) {
@@ -124,21 +110,12 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
         }))
       }
 
-      const response = await purchaseAPI.createPurchase(payload)
-
-      console.log("Purchase success:", response.data)
-
+      await purchaseAPI.createPurchase(payload)
       setShowSuccess(true)
       setOrderItems([])
-
-    } catch (error: any) {
-        console.log("FULL ERROR:", error)
-        console.log("RESPONSE:", error?.response?.data)
-
-        alert(
-          error?.response?.data?.detail ||
-          "Failed to place order"
-        )
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+      alert(detail ?? 'Failed to place order')
     }
   }
 
@@ -149,13 +126,13 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
         <nav className="navbar">
           <div className="navbar-left">
             <span className="brand">Sureplus</span>
-            <a href="#" className={`nav-link ${activeTab === 'listings' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('listings') }}>Listings</a>
-            <a href="#" className={`nav-link ${activeTab === 'charity' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('charity') }}>Charity</a>
-            <a href="#" className={`nav-link ${activeTab === 'history' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('history') }}>History</a>
-            <a href="#" className={`nav-link ${activeTab === 'impact' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('impact') }}>Impact</a>
-            <a href="#" className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('profile') }}>Profile</a>
+            <button type="button" className={`nav-link ${activeTab === 'listings' ? 'active' : ''}`} onClick={() => setActiveTab('listings')}>Listings</button>
+            <button type="button" className={`nav-link ${activeTab === 'charity' ? 'active' : ''}`} onClick={() => setActiveTab('charity')}>Charity</button>
+            <button type="button" className={`nav-link ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>History</button>
+            <button type="button" className={`nav-link ${activeTab === 'impact' ? 'active' : ''}`} onClick={() => setActiveTab('impact')}>Impact</button>
+            <button type="button" className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>Profile</button>
           </div>
-          <div className="navbar-right" style={{ position: 'relative' }}>
+          <div className="navbar-right">
             {isSeller && onOpenSellerDashboard && (
               <button
                 type="button"
@@ -170,13 +147,6 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                 <path d="M2 17V15H4V8C4 6.61667 4.4167 5.3875 5.25 4.3125C6.0833 3.2375 7.1667 2.5333 8.5 2.2V1.5C8.5 1.0833 8.6458 0.7292 8.9375 0.4375C9.2292 0.1458 9.5833 0 10 0C10.4167 0 10.7708 0.1458 11.0625 0.4375C11.3542 0.7292 11.5 1.0833 11.5 1.5V2.2C12.8333 2.5333 13.9167 3.2375 14.75 4.3125C15.5833 5.3875 16 6.6167 16 8V15H18V17H2ZM10 20C9.45 20 8.9792 19.8042 8.5875 19.4125C8.1958 19.0208 8 18.55 8 18H12C12 18.55 11.8042 19.0208 11.4125 19.4125C11.0208 19.8042 10.55 20 10 20ZM6 15H14V8C14 6.9 13.6083 5.9583 12.825 5.175C12.0417 4.3917 11.1 4 10 4C8.9 4 7.9583 4.3917 7.175 5.175C6.3917 5.9583 6 6.9 6 8V15Z" />
               </svg>
             </button>
-            {/* <button className="icon-btn" aria-label="Cart">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="#6B7280">
-                <circle cx="6" cy="20" r="2" />
-                <circle cx="16" cy="20" r="2" />
-                <path d="M5.15 4L7.55 9H14.55L17.3 4H5.15ZM4.2 2H18.95C19.3333 2 19.625 2.1708 19.8333 2.5125C20.0333 2.8542 20.0333 3.2 19.85 3.55L16.3 9.95C16.1167 10.2833 15.875 10.5417 15.5625 10.725C15.25 10.9083 14.9167 11 14.55 11H7.1L6 13H18V15H6C5.25 15 4.6833 14.6708 4.3 14.0125C3.9167 13.3542 3.9 12.7 4.25 12.05L5.6 9.6L2 2H0V0H3.25L4.2 2ZM7.55 9H14.55H7.55Z" />
-              </svg>
-            </button> */}
             <UserAvatar
               firstName={navProfile?.firstName}
               lastName={navProfile?.lastName}
@@ -235,13 +205,13 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
                 {/* Loading state */}
                 {loadingListings && (
-                  <div className="listings-grid">
+                  <div className="listings-grid" aria-busy="true" aria-label="Loading listings">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="listing-card" style={{ opacity: 0.5 }}>
-                        <div className="listing-img-placeholder" style={{ background: '#f0f0f0' }} />
+                      <div key={i} className="listing-card listing-card--skeleton" aria-hidden="true">
+                        <div className="listing-img-placeholder listing-img-skeleton" />
                         <div className="listing-info">
-                          <div style={{ height: 16, background: '#e0e0e0', borderRadius: 4, marginBottom: 8 }} />
-                          <div style={{ height: 12, background: '#e8e8e8', borderRadius: 4, width: '60%' }} />
+                          <div className="skeleton-line" />
+                          <div className="skeleton-line skeleton-line--short" />
                         </div>
                       </div>
                     ))}
@@ -250,18 +220,9 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
                 {/* Error state */}
                 {!loadingListings && listingsError && (
-                  <div style={{
-                    padding: '40px 24px', textAlign: 'center', color: '#BA1A1A',
-                    background: '#FFEBEE', borderRadius: 12, margin: '24px 0'
-                  }}>
-                    <p style={{ margin: '0 0 16px', fontSize: 16 }}>{listingsError}</p>
-                    <button
-                      onClick={() => setSafeForMe((v) => v)}
-                      style={{
-                        background: '#BA1A1A', color: 'white', border: 'none',
-                        borderRadius: 8, padding: '8px 20px', cursor: 'pointer'
-                      }}
-                    >
+                  <div className="listings-error" role="alert">
+                    <p>{listingsError}</p>
+                    <button className="listings-error-retry" onClick={() => setSafeForMe((v) => v)}>
                       Retry
                     </button>
                   </div>
@@ -269,9 +230,9 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
                 {/* Empty state */}
                 {!loadingListings && !listingsError && listings.length === 0 && (
-                  <div style={{ padding: '60px 24px', textAlign: 'center', color: '#707973' }}>
-                    <p style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>No listings found</p>
-                    <p style={{ fontSize: 14, margin: 0 }}>
+                  <div className="listings-empty">
+                    <p className="listings-empty-title">No listings found</p>
+                    <p className="listings-empty-body">
                       {safeForMe
                         ? 'No allergen-safe listings are available right now.'
                         : 'No food listings are available right now. Check back soon!'}
@@ -287,18 +248,20 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                         key={item.foodID}
                         className="listing-card"
                         onClick={() => setSelectedListing(item)}
-                        style={{ cursor: 'pointer' }}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && setSelectedListing(item)}
+                        aria-label={`View details for ${item.foodName}`}
                       >
                         {item.picture ? (
                           <img
                             className="listing-img-placeholder"
                             src={item.picture}
                             alt={item.foodName}
-                            style={{ objectFit: 'cover' }}
                           />
                         ) : (
-                          <div className="listing-img-placeholder" aria-label={`Image for ${item.foodName}`}>
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
+                          <div className="listing-img-placeholder" role="img" aria-label={`No photo for ${item.foodName}`}>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5" aria-hidden="true">
                               <rect x="3" y="3" width="18" height="18" rx="2" />
                               <circle cx="8.5" cy="8.5" r="1.5" />
                               <polyline points="21 15 16 10 5 21" />
@@ -317,24 +280,24 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                           <div className="listing-meta">
                             {item.stockQuantity > 0 ? (
                               <div className="meta-row">
-                                <img src={ExpiryIcon} alt="Expiry" width="11" height="12" />
+                                <img src={ExpiryIcon} alt="" width="11" height="12" aria-hidden="true" />
                                 <span>{item.stockQuantity} available</span>
                               </div>
                             ) : (
-                              <div className="meta-row" style={{ color: '#BA1A1A' }}>
+                              <div className="meta-row oos">
                                 <span>Out of stock</span>
                               </div>
                             )}
                             {item.expirationDate && (
                               <div className="meta-row expiry">
-                                <img src={ExpiryIcon} alt="Expiry" width="11" height="12" />
+                                <img src={ExpiryIcon} alt="" width="11" height="12" aria-hidden="true" />
                                 <span>Expiration: {formatExpiration(item.expirationDate)}</span>
                               </div>
                             )}
                           </div>
 
                           {item.isSafeForCurrentUser === false && (
-                            <div style={{ fontSize: 11, color: '#E65100', marginTop: 6, fontWeight: 600 }}>
+                            <div className="listing-allergen-warning" role="alert">
                               ⚠ Contains your allergens
                             </div>
                           )}
@@ -377,7 +340,9 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                         onClick={() => removeFromOrder(item.id)}
                         aria-label={`Remove ${item.name}`}
                       >
-                        <img src={LocationIcon} alt="Location" width="12" height="14" />
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                          <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
                       </button>
                     </div>
                   ))
