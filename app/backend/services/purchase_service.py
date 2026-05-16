@@ -220,6 +220,83 @@ def get_seller_orders(seller_id: str) -> list:
     rows.sort(key=lambda r: r.get("purchaseDate") or "", reverse=True)
     return rows
 
+def get_buyer_orders(buyer_id: str) -> list:
+    """Return enriched purchase history for a buyer."""
+    purchases_res = supabase_admin.table("Purchase") \
+        .select("purchaseID, paymentMethod, totalPrice, status, purchaseDate") \
+        .eq("userID", buyer_id) \
+        .execute()
+
+    purchases = purchases_res.data or []
+    if not purchases:
+        return []
+
+    purchase_ids = [p["purchaseID"] for p in purchases]
+
+    items_res = supabase_admin.table("PurchaseItems") \
+        .select("purchaseID, foodID, quantity, price, totalPerItem") \
+        .in_("purchaseID", purchase_ids) \
+        .execute()
+    items = items_res.data or []
+
+    food_ids = list({i["foodID"] for i in items})
+    food_map: dict = {}
+    if food_ids:
+        foods_res = supabase_admin.table("Food") \
+            .select("foodID, foodName, userID") \
+            .in_("foodID", food_ids) \
+            .execute()
+        food_map = {f["foodID"]: f for f in (foods_res.data or [])}
+
+    seller_ids = list({f.get("userID") for f in food_map.values() if f.get("userID")})
+    seller_name_map: dict = {}
+    if seller_ids:
+        sellers_res = supabase_admin.table("Seller") \
+            .select("userID, companyName") \
+            .in_("userID", seller_ids) \
+            .execute()
+        for s in (sellers_res.data or []):
+            seller_name_map[s["userID"]] = s.get("companyName") or "Unknown Seller"
+
+    items_by_purchase: dict = {}
+    for item in items:
+        pid = item["purchaseID"]
+        if pid not in items_by_purchase:
+            items_by_purchase[pid] = []
+        food = food_map.get(item["foodID"], {})
+        items_by_purchase[pid].append({
+            "foodID": item["foodID"],
+            "foodName": food.get("foodName", "Unknown"),
+            "quantity": item.get("quantity", 0),
+            "price": float(item.get("price") or 0),
+            "totalPerItem": float(item.get("totalPerItem") or 0),
+        })
+
+    rows = []
+    for p in purchases:
+        pid = p["purchaseID"]
+        purchase_items = items_by_purchase.get(pid, [])
+        seller_name = "Unknown Seller"
+        if purchase_items:
+            food = food_map.get(purchase_items[0]["foodID"], {})
+            seller_uid = food.get("userID")
+            if seller_uid:
+                seller_name = seller_name_map.get(seller_uid, "Unknown Seller")
+
+        rows.append({
+            "purchaseID": pid,
+            "purchaseDate": p.get("purchaseDate"),
+            "storeName": seller_name,
+            "paymentMethod": p.get("paymentMethod", ""),
+            "totalPrice": float(p.get("totalPrice") or 0),
+            "status": p.get("status", "pending"),
+            "items": purchase_items,
+        })
+
+    rows.sort(key=lambda r: r.get("purchaseDate") or "", reverse=True)
+    return rows
+
+
 def complete_purchase(purchase_id: str):
     """
     Mark a purchase as completed and trigger social impact calculation.
@@ -228,9 +305,9 @@ def complete_purchase(purchase_id: str):
         .update({"status": "completed"}) \
         .eq("purchaseID", purchase_id) \
         .execute()
-    
+
     if response.data:
         # Hook into Social Impact
         social_impact_service.create_impact(purchase_id)
-    
+
     return response

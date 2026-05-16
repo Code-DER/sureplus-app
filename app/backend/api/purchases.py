@@ -6,6 +6,7 @@ from services.purchase_service import (
     complete_purchase,
     get_seller_purchase_list,
     get_seller_orders,
+    get_buyer_orders,
 )
 
 router = APIRouter(prefix="/purchase")
@@ -18,6 +19,9 @@ def create(data: PurchaseCreate, current_user: dict = Depends(get_current_user))
 def complete(purchase_id: str):
     return complete_purchase(purchase_id)
 
+@router.get("/buyer/orders")
+def buyer_order_history(current_user: dict = Depends(get_current_user)):
+    return get_buyer_orders(current_user["userID"])
 
 @router.get("/seller/{seller_id}")
 def seller_purchases(seller_id: str):
