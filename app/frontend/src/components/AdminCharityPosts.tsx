@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import type { CharityPost } from '../api/types';
-import { charityPostAPI } from '../api/apis';
+import { charityPostAPI, adminAPI, uploadsAPI } from '../api/apis';
 import './AdminCharityPosts.css';
 
 const AdminCharityPosts: React.FC = () => {
   const [posts, setPosts] = useState<CharityPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingPost, setEditingPost] = useState<CharityPost | null>(null);
 
   const fetchPosts = async () => {
     try {
@@ -27,7 +28,7 @@ const AdminCharityPosts: React.FC = () => {
   const handleStatusChange = async (postId: string, newStatus: 'active' | 'closed') => {
     if (!window.confirm(`Are you sure you want to set this post to ${newStatus}?`)) return;
     try {
-      await charityPostAPI.updatePost(postId, { status: newStatus });
+      await adminAPI.updateCharityPost(postId, { status: newStatus });
       setPosts(prev => prev.map(p => p.charityID === postId ? { ...p, status: newStatus } : p));
     } catch {
       alert('Failed to update post status.');
@@ -37,7 +38,7 @@ const AdminCharityPosts: React.FC = () => {
   const handleDelete = async (postId: string) => {
     if (!window.confirm('Are you sure you want to PERMANENTLY delete this post? This cannot be undone.')) return;
     try {
-      await charityPostAPI.deletePost(postId);
+      await adminAPI.deleteCharityPost(postId);
       setPosts(prev => prev.filter(p => p.charityID !== postId));
     } catch {
       alert('Failed to delete post.');
@@ -104,6 +105,9 @@ const AdminCharityPosts: React.FC = () => {
                   <td>{new Date(post.createdAt).toLocaleDateString()}</td>
                   <td>
                     <div className="admin-actions-cell">
+                      <button className="btn-table btn-edit" onClick={() => setEditingPost(post)}>
+                        Edit
+                      </button>
                       {post.status !== 'closed' && (
                         <button className="btn-table btn-close" onClick={() => handleStatusChange(post.charityID, 'closed')}>
                           Close
@@ -124,6 +128,184 @@ const AdminCharityPosts: React.FC = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {editingPost && (
+        <AdminEditPostModal 
+          post={editingPost}
+          onClose={() => setEditingPost(null)}
+          onSuccess={() => {
+            setEditingPost(null);
+            fetchPosts();
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+interface EditModalProps {
+  post: CharityPost;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+const AdminEditPostModal: React.FC<EditModalProps> = ({ post, onClose, onSuccess }) => {
+  const [formData, setFormData] = useState({ 
+    title: post.title, 
+    description: post.description || '', 
+    imageUrl: post.imageUrl || '',
+    amountNeeded: post.amountNeeded?.toString() || '',
+    foodGoalKg: post.foodGoalKg?.toString() || '',
+    status: post.status as "active" | "funded" | "closed"
+  });
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+    try {
+      const res = await uploadsAPI.uploadImage(file);
+      setFormData(prev => ({ ...prev, imageUrl: res.data.imageUrl }));
+    } catch (err) {
+      console.error('Upload failed:', err);
+      setError('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await adminAPI.updateCharityPost(post.charityID, {
+        title: formData.title,
+        description: formData.description,
+        imageUrl: formData.imageUrl,
+        amountNeeded: (post.donationMode === 'money' || post.donationMode === 'both') ? parseFloat(formData.amountNeeded) : undefined,
+        foodGoalKg: (post.donationMode === 'food' || post.donationMode === 'both') ? parseFloat(formData.foodGoalKg) : undefined,
+        status: formData.status
+      });
+      onSuccess();
+    } catch {
+      setError('Failed to update post.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="charity-modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>Admin: Edit Post</h2>
+          <button className="close-btn" onClick={onClose}>&times;</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body">
+            <div className="form-group">
+              <label>Title</label>
+              <input 
+                type="text" 
+                value={formData.title} 
+                onChange={e => setFormData({...formData, title: e.target.value})} 
+                required 
+              />
+            </div>
+            <div className="form-group">
+              <div className="label-with-counter">
+                <label>Description (Optional)</label>
+                <span className={`char-counter ${formData.description.length > 1000 ? 'error' : ''}`}>
+                  {formData.description.length}/1000
+                </span>
+              </div>
+              <textarea 
+                value={formData.description} 
+                onChange={e => setFormData({...formData, description: e.target.value})} 
+                maxLength={1000}
+                rows={4}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Post Image</label>
+              <div className="file-upload-container">
+                {formData.imageUrl && (
+                  <div className="image-preview">
+                    <img src={formData.imageUrl} alt="Preview" />
+                    <button type="button" className="remove-img-btn" onClick={() => setFormData(prev => ({...prev, imageUrl: ''}))}>&times;</button>
+                  </div>
+                )}
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                />
+                {!formData.imageUrl && (
+                  <button type="button" className="upload-btn" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                    {uploading ? 'Uploading...' : 'Upload Image'}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Status</label>
+              <select 
+                value={formData.status} 
+                onChange={e => setFormData({...formData, status: e.target.value as any})}
+              >
+                <option value="active">Active</option>
+                <option value="funded">Funded</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+
+            {(post.donationMode === 'money' || post.donationMode === 'both') && (
+              <div className="form-group">
+                <label>Amount Needed (₱)</label>
+                <input 
+                  type="number" 
+                  value={formData.amountNeeded} 
+                  onChange={e => setFormData({...formData, amountNeeded: e.target.value})} 
+                  min="1"
+                  required 
+                />
+              </div>
+            )}
+
+            {(post.donationMode === 'food' || post.donationMode === 'both') && (
+              <div className="form-group">
+                <label>Food Goal (kg)</label>
+                <input 
+                  type="number" 
+                  value={formData.foodGoalKg} 
+                  onChange={e => setFormData({...formData, foodGoalKg: e.target.value})} 
+                  min="0.1"
+                  step="0.1"
+                  required 
+                />
+              </div>
+            )}
+
+            {error && <p className="modal-error">{error}</p>}
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
+            <button type="submit" className="confirm-btn" disabled={loading || uploading || formData.description.length > 1000}>
+              {loading ? 'Saving Changes...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

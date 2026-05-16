@@ -157,7 +157,7 @@ def fetch_donations_by_post(post_id: str):
     """
     return _execute(
         supabase_admin.table("Donation") \
-            .select("*, User(firstName, lastName, emailAddress)") \
+            .select("*, User(firstName, lastName, emailAddress), Rating(ratingID)") \
             .eq("postID", post_id) \
             .order("createdAt", desc=True),
         "Failed to fetch post donations"

@@ -19,6 +19,7 @@ class DonationResponse(BaseModel):
     # Joined info
     donorName: Optional[str] = None
     postTitle: Optional[str] = None
+    isRated: bool = False
 
     class Config:
         from_attributes = True

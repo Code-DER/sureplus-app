@@ -63,7 +63,15 @@ export const charityAPI = {
     getAllCharities: () => api.get('/charities/list'),
     getMyCharityProfile: () => api.get('/charities/myprofile'),
     getCharityById: (userId: string) => api.get(`/charities/${userId}`),
-    updateMyCharityProfile: (data: { organizationName: string }) => api.put('/charities/myprofile', data),
+    updateMyCharityProfile: (data: Partial<{ 
+        organizationName: string,
+        firstName: string,
+        lastName: string,
+        phoneNumber: string,
+        street: string,
+        barangay: string,
+        city: string
+    }>) => api.put('/charities/myprofile', data),
     
     // Application endpoints
     submitApplication: (data: { purpose: string, govID: string, secRegistration?: string }) => api.post('/charity-applications/', data),
@@ -92,6 +100,17 @@ export const adminAPI = {
         api.post('/admin/users', data),
     getAdminActivity: (params?: { actionType?: string; targetEntity?: string; userID?: string; targetID?: string; limit?: number }) =>
         api.get('/admin-activity/', { params }),
+    updateCharityPost: (id: string, data: Partial<{ 
+        title: string, 
+        description: string, 
+        imageUrl: string,
+        amountNeeded: number, 
+        foodGoalKg: number,
+        status: "active" | "funded" | "closed"
+    }>) => api.put(`/admin/charity-posts/${id}`, data),
+    deleteCharityPost: (id: string) => api.delete(`/admin/charity-posts/${id}`),
+    updateCharity: (userId: string, data: { organizationName: string }) => api.put(`/admin/charities/${userId}`, data),
+    deleteCharity: (userId: string) => api.delete(`/admin/charities/${userId}`),
 };
 
 // Charity Post API functions
@@ -132,6 +151,8 @@ export const charityPostAPI = {
     }) => api.post<CharityDonationResult>(`/charity-posts/${charityId}/donate`, donation),
     getDonationsByPost: (charityId: string) => api.get(`/charity-posts/${charityId}/donations`),
     getMyDonations: () => api.get('/charity-posts/donations/my-donations'),
+    rateDonor: (postId: string, donationId: string, data: { rating: number, comment?: string }) => 
+        api.post(`/charity-posts/${postId}/donations/${donationId}/rate`, data),
 };
 
 // Social Impact API functions
@@ -140,6 +161,7 @@ export const socialImpactAPI = {
     getImpactByDonation: (donationId: string) => api.get(`/social-impact/donation/${donationId}`),
     getMyImpactSummary: () => api.get('/social-impact/summary'),
     getImpactHistory: () => api.get('/social-impact/history'),
+    getGlobalImpact: () => api.get('/social-impact/global'),
 };
 
 // Ratings API functions

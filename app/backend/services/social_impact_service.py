@@ -107,26 +107,58 @@ def fetch_impact_by_donation(donation_id: str):
     """
     return supabase_admin.table("SocialImpact")         .select("*")         .eq("donationID", donation_id)         .single()         .execute()
 
+def fetch_global_impact():
+    """
+    Fetch and aggregate platform-wide social impact metrics.
+    """
+    res = supabase_admin.table("SocialImpact") \
+        .select("carbonOffset, rescuedKilos, peopleFed").execute()
+    rows = res.data or []
+    return {
+        "totalCarbonOffset": sum(r["carbonOffset"] for r in rows),
+        "totalRescuedKilos": sum(r["rescuedKilos"] for r in rows),
+        "totalPeopleFed":    sum(r["peopleFed"] for r in rows),
+        "totalEvents":       len(rows),
+    }
+
 def fetch_impact_history(user_id: str):
     """
     Fetch historical timeline of impact events for a user.
     Joins SocialImpact with Purchase and Donation.
     """
-    # Fetch purchase-based impacts
-    p_impact = supabase_admin.table("SocialImpact") \
-        .select("*, Purchase!inner(purchaseDate, userID)") \
-        .eq("Purchase.userID", user_id) \
+    # 1. Purchase-based impacts
+    purchase_res = supabase_admin.table("Purchase") \
+        .select("purchaseID") \
+        .eq("userID", user_id) \
         .execute()
+    purchase_ids = [r["purchaseID"] for r in purchase_res.data]
     
-    # Fetch donation-based impacts
-    d_impact = supabase_admin.table("SocialImpact") \
-        .select("*, Donation!inner(createdAt, userID, CharityPost(title))") \
-        .eq("Donation.userID", user_id) \
+    p_impact_data = []
+    if purchase_ids:
+        p_res = supabase_admin.table("SocialImpact") \
+            .select("*, Purchase!inner(purchaseDate)") \
+            .in_("purchaseID", purchase_ids) \
+            .execute()
+        p_impact_data = p_res.data
+    
+    # 2. Donation-based impacts
+    donation_res = supabase_admin.table("Donation") \
+        .select("donationID") \
+        .eq("userID", user_id) \
         .execute()
+    donation_ids = [r["donationID"] for r in donation_res.data]
+    
+    d_impact_data = []
+    if donation_ids:
+        d_res = supabase_admin.table("SocialImpact") \
+            .select("*, Donation!inner(createdAt, CharityPost(title))") \
+            .in_("donationID", donation_ids) \
+            .execute()
+        d_impact_data = d_res.data
     
     history = []
     
-    for row in p_impact.data:
+    for row in p_impact_data:
         history.append({
             "id": row["impactID"],
             "type": "purchase",
@@ -137,7 +169,7 @@ def fetch_impact_history(user_id: str):
             "description": "Marketplace Purchase"
         })
         
-    for row in d_impact.data:
+    for row in d_impact_data:
         history.append({
             "id": row["impactID"],
             "type": "donation",

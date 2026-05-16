@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { ratingsAPI } from '../api/apis';
+import { charityPostAPI } from '../api/apis';
 import './RateUserModal.css';
 
 interface RateUserModalProps {
+  postID?: string; // Optional for backward compatibility, but preferred for F-2
   donationID: string;
   targetName: string;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-const RateUserModal: React.FC<RateUserModalProps> = ({ donationID, targetName, onClose, onSuccess }) => {
+const RateUserModal: React.FC<RateUserModalProps> = ({ postID, donationID, targetName, onClose, onSuccess }) => {
   const [rating, setRating] = useState<number>(5); // Default to thumbs up (5)
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,11 +22,21 @@ const RateUserModal: React.FC<RateUserModalProps> = ({ donationID, targetName, o
     setError(null);
 
     try {
-      await ratingsAPI.rate({
-        donationID,
-        rating,
-        comment: comment || undefined
-      });
+      if (postID) {
+        await charityPostAPI.rateDonor(postID, donationID, {
+          rating,
+          comment: comment || undefined
+        });
+      } else {
+        // Fallback to legacy endpoint if postID missing
+        // This is safe because both end up calling rating_service.create_rating
+        const { ratingsAPI } = await import('../api/apis');
+        await ratingsAPI.rate({
+          donationID,
+          rating,
+          comment: comment || undefined
+        });
+      }
       onSuccess();
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to submit rating.');

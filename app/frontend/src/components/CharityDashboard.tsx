@@ -24,6 +24,7 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
 
   // Modals state
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [editingPost, setEditingPost] = useState<CharityPost | null>(null);
 
   const fetchData = async (isInitial = true) => {
@@ -110,6 +111,9 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
           <p>Manage your donation posts and track community support.</p>
         </div>
         <div className="header-right">
+          <button className="switch-role-btn" style={{ marginRight: '12px' }} onClick={() => setShowProfileModal(true)}>
+            Edit Profile
+          </button>
           <button className="switch-role-btn" onClick={onSwitchRole}>Switch to Buyer</button>
           <UserAvatar
             firstName={profile?.firstName}
@@ -208,6 +212,17 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
         />
       )}
 
+      {showProfileModal && profile && (
+        <CharityProfileModal 
+          profile={profile}
+          onClose={() => setShowProfileModal(false)} 
+          onSuccess={() => {
+            setShowProfileModal(false);
+            fetchData();
+          }} 
+        />
+      )}
+
       {editingPost && (
         <EditCharityPostModal 
           post={editingPost}
@@ -218,6 +233,129 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
           }} 
         />
       )}
+    </div>
+  );
+};
+
+interface CharityProfileModalProps extends ModalProps {
+  profile: CharityProfile;
+}
+
+const CharityProfileModal: React.FC<CharityProfileModalProps> = ({ profile, onClose, onSuccess }) => {
+  const [formData, setFormData] = useState({
+    organizationName: profile.organizationName,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    phoneNumber: profile.phoneNumber || '',
+    street: profile.street || '',
+    barangay: profile.barangay || '',
+    city: profile.city || ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      await charityAPI.updateMyCharityProfile(formData);
+      onSuccess();
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to update profile.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="charity-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+        <div className="modal-header">
+          <h2>Edit Charity Profile</h2>
+          <button className="close-btn" onClick={onClose}>&times;</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body">
+            <div className="form-group">
+              <label>Organization Name</label>
+              <input 
+                type="text" 
+                value={formData.organizationName} 
+                onChange={e => setFormData({...formData, organizationName: e.target.value})} 
+                required 
+              />
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="form-group">
+                <label>First Name</label>
+                <input 
+                  type="text" 
+                  value={formData.firstName} 
+                  onChange={e => setFormData({...formData, firstName: e.target.value})} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label>Last Name</label>
+                <input 
+                  type="text" 
+                  value={formData.lastName} 
+                  onChange={e => setFormData({...formData, lastName: e.target.value})} 
+                  required 
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input 
+                type="text" 
+                value={formData.phoneNumber} 
+                onChange={e => setFormData({...formData, phoneNumber: e.target.value})} 
+                placeholder="e.g., 09123456789"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Street / Address</label>
+              <input 
+                type="text" 
+                value={formData.street} 
+                onChange={e => setFormData({...formData, street: e.target.value})} 
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="form-group">
+                <label>Barangay</label>
+                <input 
+                  type="text" 
+                  value={formData.barangay} 
+                  onChange={e => setFormData({...formData, barangay: e.target.value})} 
+                />
+              </div>
+              <div className="form-group">
+                <label>City</label>
+                <input 
+                  type="text" 
+                  value={formData.city} 
+                  onChange={e => setFormData({...formData, city: e.target.value})} 
+                />
+              </div>
+            </div>
+
+            {error && <p className="modal-error">{error}</p>}
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
+            <button type="submit" className="confirm-btn" disabled={loading}>
+              {loading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
@@ -239,7 +377,7 @@ const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) =>
     title: '', 
     description: '', 
     imageUrl: '',
-    donationMode: 'money',
+    donationMode: 'food',
     amountNeeded: '',
     foodGoalKg: ''
   });

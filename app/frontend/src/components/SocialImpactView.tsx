@@ -3,24 +3,34 @@ import type { SocialImpactSummary } from '../api/types';
 import { socialImpactAPI } from '../api/apis';
 import './SocialImpactView.css';
 
+interface GlobalImpact {
+  totalCarbonOffset: number;
+  totalRescuedKilos: number;
+  totalPeopleFed: number;
+  totalEvents: number;
+}
+
 const SocialImpactView: React.FC = () => {
   const [summary, setSummary] = useState<SocialImpactSummary | null>(null);
+  const [globalImpact, setGlobalImpact] = useState<GlobalImpact | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchImpactData = async () => {
     try {
-      const [summaryRes, historyRes] = await Promise.all([
+      const [summaryRes, historyRes, globalRes] = await Promise.all([
         socialImpactAPI.getMyImpactSummary(),
-        socialImpactAPI.getImpactHistory()
+        socialImpactAPI.getImpactHistory(),
+        socialImpactAPI.getGlobalImpact()
       ]);
       setSummary(summaryRes.data);
       setHistory(historyRes.data);
+      setGlobalImpact(globalRes.data);
       setError(null);
     } catch (err) {
       console.error('Error fetching impact data:', err);
-      setError('Failed to load your impact data.');
+      setError('Failed to load impact data.');
     } finally {
       setLoading(false);
     }
@@ -63,6 +73,31 @@ const SocialImpactView: React.FC = () => {
         <h2>Your Environmental & Social Impact</h2>
         <p>Your contributions through purchases and donations make a real difference.</p>
       </header>
+
+      {globalImpact && (
+        <section className="platform-impact-banner">
+          <div className="banner-content">
+            <div className="banner-text">
+              <h3>Our Community Impact</h3>
+              <p>Together, Sureplus users have made a massive difference!</p>
+            </div>
+            <div className="banner-stats">
+              <div className="banner-stat-item">
+                <span className="banner-stat-value">{globalImpact.totalRescuedKilos.toLocaleString(undefined, { maximumFractionDigits: 1 })} kg</span>
+                <span className="banner-stat-label">Food Rescued</span>
+              </div>
+              <div className="banner-stat-item">
+                <span className="banner-stat-value">{globalImpact.totalCarbonOffset.toLocaleString(undefined, { maximumFractionDigits: 1 })} kg</span>
+                <span className="banner-stat-label">CO₂e Offset</span>
+              </div>
+              <div className="banner-stat-item">
+                <span className="banner-stat-value">{globalImpact.totalPeopleFed.toLocaleString()}</span>
+                <span className="banner-stat-label">Meals Shared</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {!hasImpact ? (
         <div className="impact-empty-state">

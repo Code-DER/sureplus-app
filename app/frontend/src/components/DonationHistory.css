@@ -59,6 +59,22 @@
   color: #2d3748;
 }
 
+.rated-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #f0fff4;
+  color: #2f855a;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rated-badge svg {
+  color: #48bb78;
+}
+
 .no-donations {
   text-align: center;
   color: #718096;

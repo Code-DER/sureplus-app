@@ -129,6 +129,16 @@
   border: 1px solid transparent;
 }
 
+.btn-edit {
+  background: #F0FDF4;
+  color: #166534;
+  border-color: #86EFAC;
+}
+
+.btn-edit:hover {
+  background: #DCFCE7;
+}
+
 .btn-close {
   background: #FFFBEB;
   color: #92400E;

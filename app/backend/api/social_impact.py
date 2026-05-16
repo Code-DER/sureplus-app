@@ -2,11 +2,18 @@ from fastapi import APIRouter, HTTPException, Depends
 from uuid import UUID
 from typing import List
 
-from models.social_impact import SocialImpactResponse, SocialImpactSummary
+from models.social_impact import SocialImpactResponse, SocialImpactSummary, GlobalImpactResponse
 from services import social_impact_service, purchase_service, charity_post_service
 from api.dependency import get_current_user
 
 router = APIRouter()
+
+@router.get("/global", response_model=GlobalImpactResponse)
+async def get_global_impact():
+    """
+    Fetch historical timeline of impact events for the current user.
+    """
+    return social_impact_service.fetch_global_impact()
 
 @router.get("/purchase/{purchase_id}", response_model=SocialImpactResponse)
 async def get_impact_by_purchase(

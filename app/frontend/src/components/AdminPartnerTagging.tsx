@@ -42,6 +42,7 @@ export default function AdminPartnerTagging() {
   const [charities, setCharities] = useState<CharityWithUser[]>([]);
   const [charityLoading, setCharityLoading] = useState(false);
   const [charityError, setCharityError] = useState<string | null>(null);
+  const [editingCharity, setEditingCharity] = useState<CharityWithUser | null>(null);
 
   const loadSellers = async () => {
     try {
@@ -96,6 +97,32 @@ export default function AdminPartnerTagging() {
       setCharities(prev => prev.map(c => 
         c.userID === userId ? { ...c, isUpdating: false } : c
       ));
+    }
+  };
+
+  const handleEditCharity = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCharity) return;
+    try {
+      await adminAPI.updateCharity(editingCharity.userID, { 
+        organizationName: editingCharity.organizationName 
+      });
+      setEditingCharity(null);
+      await fetchCharities();
+    } catch (err) {
+      console.error('Error updating charity:', err);
+      alert('Failed to update charity.');
+    }
+  };
+
+  const handleDeleteCharity = async (userId: string) => {
+    if (!window.confirm('Are you sure you want to remove this charity organization record? This will NOT delete the user account, but they will no longer be listed as a charity.')) return;
+    try {
+      await adminAPI.deleteCharity(userId);
+      await fetchCharities();
+    } catch (err) {
+      console.error('Error deleting charity:', err);
+      alert('Failed to delete charity.');
     }
   };
 
@@ -226,6 +253,19 @@ export default function AdminPartnerTagging() {
                           {charity.isPartner ? 'Verified Partner' : 'Standard Charity'}
                         </div>
                         
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button 
+                            className="btn-table btn-edit" 
+                            style={{ padding: '6px 12px', fontSize: '12px' }}
+                            onClick={() => setEditingCharity(charity)}
+                          >Edit</button>
+                          <button 
+                            className="btn-table btn-delete" 
+                            style={{ padding: '6px 12px', fontSize: '12px' }}
+                            onClick={() => handleDeleteCharity(charity.userID)}
+                          >Delete</button>
+                        </div>
+
                         <button 
                           className={`pt-toggle ${charity.isPartner ? 'pt-toggle--on' : 'pt-toggle--off'}`}
                           onClick={() => handleTogglePartner(charity.userID, charity.isPartner)}
@@ -243,6 +283,34 @@ export default function AdminPartnerTagging() {
           </>
         )}
       </div>
+
+      {editingCharity && (
+        <div className="modal-overlay" onClick={() => setEditingCharity(null)}>
+          <div className="charity-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div className="modal-header">
+              <h2>Edit Charity</h2>
+              <button className="close-btn" onClick={() => setEditingCharity(null)}>&times;</button>
+            </div>
+            <form onSubmit={handleEditCharity}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Organization Name</label>
+                  <input 
+                    type="text" 
+                    value={editingCharity.organizationName} 
+                    onChange={e => setEditingCharity({ ...editingCharity, organizationName: e.target.value })} 
+                    required 
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="cancel-btn" onClick={() => setEditingCharity(null)}>Cancel</button>
+                <button type="submit" className="confirm-btn">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="pt-sidebar">
         {mode === 'sellers' ? (

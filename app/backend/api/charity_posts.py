@@ -1,15 +1,21 @@
+import logging
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from database import supabase_admin
 from models.charity_post import CharityPostCreate, CharityPostUpdate, CharityPostResponse, CharityPostDonateRequest
 from models.donation import DonationResponse
-from services import charity_post_service, social_impact_service
+from services import charity_post_service, social_impact_service, notification_service, rating_service
 from api.dependency import get_current_user, require_role
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+class CharityRateDonorRequest(BaseModel):
+    rating: int = Field(ge=1, le=5)
+    comment: Optional[str] = Field(None, max_length=500)
 
 @router.get("/", response_model=List[CharityPostResponse])
 async def get_all_posts(
@@ -118,6 +124,7 @@ async def donate_to_post(
     """Auth required (buyer role) endpoint to donate to a charity post."""
     post_id = str(charity_id)
     user_id = current_user["userID"]
+    donation_id = None
 
     if donation.donationType == 'money':
         response = charity_post_service.donate_money(post_id, donation.amount)
@@ -128,14 +135,8 @@ async def donate_to_post(
             post_id, user_id, 'money', amount=donation.amount
         )
         
-        donation_id = None
         if record_res.data:
             donation_id = record_res.data[0]["donationID"]
-
-        return {
-            "post": response.data[0],
-            "donationID": donation_id
-        }
 
     else:  # food
         # Look up weightKg to store in Donation record
@@ -159,7 +160,6 @@ async def donate_to_post(
             food_id=str(donation.foodID), quantity=donation.quantity, food_kg=food_kg
         )
         
-        donation_id = None
         if record_res.data:
             donation_id = record_res.data[0]["donationID"]
             social_impact_service.create_food_donation_impact(
@@ -167,10 +167,23 @@ async def donate_to_post(
                 rescued_kg=food_kg
             )
 
-        return {
-            "post": response.data[0],
-            "donationID": donation_id
-        }
+    # Notify charity
+    try:
+        post_data = response.data[0]
+        notification_service.send_notification(
+            user_id=post_data["userID"],
+            title="New Donation Received 🎉",
+            message=f"Someone donated to your post \"{post_data['title']}\".",
+            type="donation",
+            link="/charity/dashboard"
+        )
+    except Exception:
+        logger.warning("Donation notification failed", exc_info=True)
+
+    return {
+        "post": response.data[0],
+        "donationID": donation_id
+    }
 
 @router.get("/donations/my-donations", response_model=List[DonationResponse])
 async def get_my_donations(
@@ -209,6 +222,35 @@ async def get_post_donations(
         user = d.get("User")
         if user:
             d["donorName"] = f"{user.get('firstName', '')} {user.get('lastName', '')}".strip()
+        
+        # Check if rated (Rating might be a list or a dict depending on PostgREST version/syntax used in select)
+        rating_data = d.get("Rating")
+        if isinstance(rating_data, list):
+            d["isRated"] = len(rating_data) > 0
+        elif isinstance(rating_data, dict):
+            d["isRated"] = rating_data.get("ratingID") is not None
+        else:
+            d["isRated"] = False
+            
         donations.append(d)
         
     return donations
+
+from models.rating import RatingResponse
+
+@router.post("/{post_id}/donations/{donation_id}/rate", response_model=RatingResponse)
+async def rate_donor(
+    post_id: UUID,
+    donation_id: UUID,
+    data: CharityRateDonorRequest,
+    current_user: dict = Depends(require_role("charity"))
+):
+    """Auth required (charity role) endpoint to rate a donor for a specific donation."""
+    try:
+        # We pass donationID in the data dict for create_rating
+        rating_data = data.model_dump()
+        rating_data["donationID"] = str(donation_id)
+        # Note: create_rating already performs ownership checks on the post associated with the donationID
+        return rating_service.create_rating(current_user["userID"], rating_data)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

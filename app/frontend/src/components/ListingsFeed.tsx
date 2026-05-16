@@ -25,6 +25,7 @@ interface OrderItem {
   name: string
   price: number
   qty: number
+  weightKg: number
 }
 
 function formatExpiration(dateStr: string | null): string {
@@ -89,7 +90,7 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   // ── Order helpers ─────────────────────────────────────────────────────────
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
 
-  const addToOrder = (listing: { id: string; name: string; price: number }, qty = 1) => {
+  const addToOrder = (listing: { id: string; name: string; price: number; weightKg: number }, qty = 1) => {
     setOrderItems((prev) => {
       const existing = prev.find((o) => o.id === listing.id)
       if (existing) {
@@ -97,12 +98,12 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
           o.id === listing.id ? { ...o, qty: o.qty + qty } : o
         )
       }
-      return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty }]
+      return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty, weightKg: listing.weightKg }]
     })
   }
 
   const addFromDetail = (listing: FoodItem, qty: number) => {
-    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price) }, qty)
+    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price), weightKg: listing.weightKg }, qty)
   }
 
   const removeFromOrder = (id: string) => {
@@ -134,15 +135,27 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
       const completeResp = await purchaseAPI.complete(purchaseId)
       const pointsEarned = completeResp.data.pointsEarned
 
-      // 3. Get Real Social Impact Stats
-      const impactResp = await socialImpactAPI.getImpactByPurchase(purchaseId)
-      const impact = impactResp.data
-
-      const liveStats: ImpactStats = {
-        foodSaved: Math.round(impact.rescuedKilos * 10) / 10,
-        carbonReduced: Math.round(impact.carbonOffset * 10) / 10,
-        peopleFed: impact.peopleFed,
-        pointsEarned: pointsEarned,
+      // 3. Get Social Impact Stats (with fallback to estimation if fetch fails)
+      let liveStats: ImpactStats
+      try {
+        const impactResp = await socialImpactAPI.getImpactByPurchase(purchaseId)
+        const impact = impactResp.data
+        liveStats = {
+          foodSaved: Math.round(impact.rescuedKilos * 10) / 10,
+          carbonReduced: Math.round(impact.carbonOffset * 10) / 10,
+          peopleFed: impact.peopleFed,
+          pointsEarned: pointsEarned,
+        }
+      } catch (impactErr) {
+        console.error('Failed to fetch real-time impact stats, using estimation:', impactErr)
+        // Fallback estimation using known frontend data
+        const totalKg = orderItems.reduce((sum, item) => sum + (item.weightKg * item.qty), 0)
+        liveStats = {
+          foodSaved: Math.round(totalKg * 10) / 10,
+          carbonReduced: Math.round(totalKg * 2.5 * 10) / 10, // 2.5 CO2 multiplier
+          peopleFed: Math.floor(totalKg / 0.5), // 0.5kg per meal
+          pointsEarned: pointsEarned,
+        }
       }
 
       setImpactStats(liveStats)

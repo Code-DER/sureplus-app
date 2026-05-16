@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from uuid import UUID
 
+from database import supabase_admin
 from models.charity import CharityResponse, CharityUpdate, CharityProfileResponse
 from services import charity_service
 from api.dependency import get_current_user, require_role
@@ -42,16 +43,37 @@ async def get_charity_by_id(user_id: UUID):
     
     return flatten_charity_profile(response.data)
 
-@router.put("/myprofile", response_model=CharityResponse)
+@router.put("/myprofile", response_model=CharityProfileResponse)
 async def update_my_charity_profile(
     charity_update: CharityUpdate, 
     current_user: dict = Depends(require_role("charity"))
 ):
     """Auth required (charity role) endpoint to update the charity profile."""
     user_id = current_user["userID"]
-    response = charity_service.update_charity(user_id, charity_update.model_dump())
+    update_data = charity_update.model_dump(exclude_unset=True)
     
-    if not response.data:
-        raise HTTPException(status_code=400, detail="Failed to update charity profile")
+    # Fields belonging to Charity table
+    charity_fields = ["organizationName"]
+    charity_data = {k: v for k, v in update_data.items() if k in charity_fields}
     
-    return response.data[0]
+    # Fields belonging to User table
+    user_fields = ["firstName", "lastName", "phoneNumber", "street", "barangay", "city"]
+    user_data = {k: v for k, v in update_data.items() if k in user_fields}
+
+    # Perform updates
+    if charity_data:
+        charity_res = charity_service.update_charity(user_id, charity_data)
+        if not charity_res.data:
+            raise HTTPException(status_code=400, detail="Failed to update charity record")
+            
+    if user_data:
+        user_res = supabase_admin.table("User").update(user_data).eq("userID", user_id).execute()
+        if not user_res.data:
+            raise HTTPException(status_code=400, detail="Failed to update user record")
+
+    # Return the full updated profile
+    final_res = charity_service.fetch_charity_profile(user_id)
+    if not final_res.data:
+         raise HTTPException(status_code=404, detail="Updated profile not found")
+         
+    return flatten_charity_profile(final_res.data)

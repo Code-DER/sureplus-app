@@ -89,4 +89,5 @@ export interface Donation {
   // Joined info
   donorName?: string;
   postTitle?: string;
+  isRated?: boolean;
 }

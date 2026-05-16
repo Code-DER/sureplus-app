@@ -16,8 +16,12 @@ class SocialImpactResponse(BaseModel):
 
     @model_validator(mode='after')
     def check_exactly_one_source(self):
-        if (self.purchaseID is None) == (self.donationID is None):
-            raise ValueError('Exactly one of purchaseID or donationID must be provided')
+        # Prevent both being provided (data integrity error)
+        if self.purchaseID is not None and self.donationID is not None:
+            raise ValueError('Social impact cannot be linked to both a purchase and a donation')
+        
+        # We allow both being None for legacy compatibility (pre-migration 20260514000003).
+        # New records should always have one or the other, enforced at the service level.
         return self
 
     class Config:
@@ -29,3 +33,9 @@ class SocialImpactSummary(BaseModel):
     totalPeopleFed: int
     purchaseCount: int
     donationCount: int
+
+class GlobalImpactResponse(BaseModel):
+    totalCarbonOffset: float
+    totalRescuedKilos: float
+    totalPeopleFed: int
+    totalEvents: int

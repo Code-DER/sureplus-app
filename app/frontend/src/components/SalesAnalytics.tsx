@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import './SalesAnalytics.css';
-import { foodAPI, purchasesAPI } from '../api/apis';
+import { foodAPI, purchaseAPI } from '../api/apis';
 import type { FoodItem } from '../types/food';
 
 interface SalesAnalyticsProps {
@@ -28,7 +28,7 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
     if (!sellerId) return;
     setLoadingData(true);
     Promise.allSettled([
-      purchasesAPI.getSellerPurchases(sellerId),
+      purchaseAPI.getSellerPurchases(sellerId),
       foodAPI.list({ seller_id: sellerId, include_expired: true }),
     ]).then(([purchasesResult, listingsResult]) => {
       if (purchasesResult.status === 'fulfilled') setPurchases(purchasesResult.value.data ?? []);

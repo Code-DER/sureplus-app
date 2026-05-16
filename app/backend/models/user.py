@@ -10,6 +10,7 @@ class UserResponse(BaseModel):
     lastName: str
     emailAddress: EmailStr
     role: str
+    phoneNumber: Optional[str] = None
     street: Optional[str] = None
     residentialName: Optional[str] = None
     barangay: Optional[str] = None
