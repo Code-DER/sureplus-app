@@ -11,6 +11,11 @@ import { foodAPI, userAPI } from '../api/apis'
 import UserAvatar from './UserAvatar'
 import type { FoodItem } from '../types/food'
 
+interface ListingsFeedProps {
+  isSeller?: boolean
+  onOpenSellerDashboard?: () => void
+}
+
 import ExpiryIcon from '../assets/BUYER/Expiry Icon.svg'
 import CartIcon from '../assets/BUYER/Cart Icon.svg'
 import LocationIcon from '../assets/BUYER/location.svg'
@@ -35,7 +40,7 @@ function formatExpiration(dateStr: string | null): string {
   return exp.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
 }
 
-export default function ListingsFeed() {
+export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: ListingsFeedProps) {
   // ── Listings API state ────────────────────────────────────────────────────
   const [listings, setListings] = useState<FoodItem[]>([])
   const [loadingListings, setLoadingListings] = useState(true)
@@ -122,6 +127,15 @@ export default function ListingsFeed() {
             <a href="#" className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('profile') }}>Profile</a>
           </div>
           <div className="navbar-right" style={{ position: 'relative' }}>
+            {isSeller && onOpenSellerDashboard && (
+              <button
+                type="button"
+                className="seller-dashboard-btn"
+                onClick={onOpenSellerDashboard}
+              >
+                Seller Dashboard
+              </button>
+            )}
             <button className="icon-btn" aria-label="Notifications" onClick={(e) => { e.stopPropagation(); setShowNotifs((v) => !v) }}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="#6B7280">
                 <path d="M2 17V15H4V8C4 6.61667 4.4167 5.3875 5.25 4.3125C6.0833 3.2375 7.1667 2.5333 8.5 2.2V1.5C8.5 1.0833 8.6458 0.7292 8.9375 0.4375C9.2292 0.1458 9.5833 0 10 0C10.4167 0 10.7708 0.1458 11.0625 0.4375C11.3542 0.7292 11.5 1.0833 11.5 1.5V2.2C12.8333 2.5333 13.9167 3.2375 14.75 4.3125C15.5833 5.3875 16 6.6167 16 8V15H18V17H2ZM10 20C9.45 20 8.9792 19.8042 8.5875 19.4125C8.1958 19.0208 8 18.55 8 18H12C12 18.55 11.8042 19.0208 11.4125 19.4125C11.0208 19.8042 10.55 20 10 20ZM6 15H14V8C14 6.9 13.6083 5.9583 12.825 5.175C12.0417 4.3917 11.1 4 10 4C8.9 4 7.9583 4.3917 7.175 5.175C6.3917 5.9583 6 6.9 6 8V15Z" />
