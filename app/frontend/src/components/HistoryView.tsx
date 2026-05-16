@@ -7,6 +7,7 @@ interface PurchasedItem {
   name: string
   details: string
   price: number
+  picture: string | null
 }
 
 interface OrderHistory {
@@ -35,6 +36,7 @@ interface SocialImpactRecord {
 interface ApiPurchaseItem {
   foodID: string
   foodName: string
+  picture: string | null
   quantity: number
   price: number
   totalPerItem: number
@@ -78,6 +80,7 @@ function mapToOrderHistory(p: ApiPurchase): OrderHistory {
     items: p.items.map((item, idx) => ({
       id: `${p.purchaseID}-${idx}`,
       name: item.foodName,
+      picture: item.picture,
       details: `Qty: ${item.quantity}`,
       price: item.totalPerItem,
     })),
@@ -233,7 +236,15 @@ export default function HistoryView() {
           <div className="history-items-list">
             {selectedOrder.items.length > 0 ? selectedOrder.items.map((item) => (
               <div key={item.id} className="history-item-row">
-                <div className="item-img-placeholder"></div>
+                <div className="item-img-placeholder">
+                  {item.picture && (
+                    <img
+                      src={item.picture}
+                      alt={item.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    />
+                  )}
+                </div>
                 <div className="item-info">
                   <h4>{item.name}</h4>
                   <p>{item.details}</p>

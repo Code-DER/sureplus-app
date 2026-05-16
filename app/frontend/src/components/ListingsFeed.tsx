@@ -26,6 +26,7 @@ interface OrderItem {
   name: string
   price: number
   qty: number
+  picture: string | null
 }
 
 function formatExpiration(dateStr: string | null): string {
@@ -94,7 +95,7 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   // ── Order helpers ─────────────────────────────────────────────────────────
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
 
-  const addToOrder = (listing: { id: string; name: string; price: number }, qty = 1) => {
+  const addToOrder = (listing: { id: string; name: string; price: number; picture: string | null }, qty = 1) => {
     setOrderItems((prev) => {
       const existing = prev.find((o) => o.id === listing.id)
       if (existing) {
@@ -102,12 +103,12 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
           o.id === listing.id ? { ...o, qty: o.qty + qty } : o
         )
       }
-      return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty }]
+      return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty, picture: listing.picture }]
     })
   }
 
   const addFromDetail = (listing: FoodItem, qty: number) => {
-    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price) }, qty)
+    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price), picture: listing.picture }, qty)
   }
 
   const removeFromOrder = (id: string) => {
@@ -366,7 +367,15 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                 ) : (
                   orderItems.map((item) => (
                     <div key={item.id} className="order-item">
-                      <div className="order-item-img" aria-label={item.name} />
+                      <div className="order-item-img">
+                        {item.picture && (
+                          <img
+                            src={item.picture}
+                            alt={item.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                          />
+                        )}
+                      </div>
                       <div className="order-item-info">
                         <span className="order-item-name">{item.name}</span>
                         <span className="order-item-qty">Qty: {item.qty}</span>

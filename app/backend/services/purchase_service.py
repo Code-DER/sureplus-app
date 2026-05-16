@@ -243,7 +243,7 @@ def get_buyer_orders(buyer_id: str) -> list:
     food_map: dict = {}
     if food_ids:
         foods_res = supabase_admin.table("Food") \
-            .select("foodID, foodName, userID") \
+            .select("foodID, foodName, userID, picture") \
             .in_("foodID", food_ids) \
             .execute()
         food_map = {f["foodID"]: f for f in (foods_res.data or [])}
@@ -267,6 +267,7 @@ def get_buyer_orders(buyer_id: str) -> list:
         items_by_purchase[pid].append({
             "foodID": item["foodID"],
             "foodName": food.get("foodName", "Unknown"),
+            "picture": food.get("picture"),
             "quantity": item.get("quantity", 0),
             "price": float(item.get("price") or 0),
             "totalPerItem": float(item.get("totalPerItem") or 0),
