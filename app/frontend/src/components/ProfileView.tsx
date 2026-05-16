@@ -360,6 +360,7 @@ export default function ProfileView() {
         </div>
 
         {/* Become a Seller Row */}
+        {/* B-9: Frontend gates on 'buyer' role. Backend is the authoritative guard. */}
         {profile.role === 'buyer' && (
           <div className="profile-settings-row">
             <div className="settings-box" style={{ cursor: 'pointer' }} onClick={() => {
@@ -381,6 +382,7 @@ export default function ProfileView() {
         )}
 
         {/* Become a Charity Row */}
+        {/* B-9: Frontend gates on 'buyer' role. Backend is the authoritative guard. */}
         {profile.role === 'buyer' && (
           <div className="profile-settings-row" style={{ marginTop: '16px' }}>
             <div 

@@ -62,6 +62,57 @@
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
 }
 
+.charity-nav {
+  display: flex;
+  gap: 8px;
+  background: #F3F4F6;
+  padding: 4px;
+  border-radius: 14px;
+  margin: 0 16px;
+}
+
+.charity-nav-btn {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.charity-nav-btn:hover {
+  color: #111827;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.charity-nav-btn.active {
+  background: white;
+  color: #66B018;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #6B7280;
+  position: relative;
+}
+
+.icon-btn:hover {
+  background-color: #F3F4F6;
+  color: #111827;
+}
+
 .charity-dashboard-main {
   flex: 1;
   padding: 32px 48px;

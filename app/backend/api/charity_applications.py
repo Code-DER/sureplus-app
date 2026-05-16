@@ -12,6 +12,7 @@ async def create_application(application: CharityApplicationCreate, current_user
     try:
         response = charity_application_service.submit_application(
             user_id=current_user["userID"],
+            role=current_user["role"],
             data=application.model_dump()
         )
         return response.data[0]

@@ -12,7 +12,7 @@ class CharityPostCreate(BaseModel):
     title: str
     description: Optional[str] = Field(default=None, max_length=1000)
     imageUrl: Optional[str] = None
-    donationMode: DonationMode = 'money'
+    donationMode: DonationMode = 'food'
     amountNeeded: Optional[float] = Field(default=None, gt=0)
     foodGoalKg: Optional[float] = Field(default=None, gt=0)
 
@@ -63,6 +63,7 @@ class CharityPostDonateRequest(BaseModel):
     amount: Optional[float] = Field(default=None, gt=0)
     # Food fields
     foodID: Optional[UUID] = None
+    purchaseID: Optional[UUID] = None
     quantity: Optional[int] = Field(default=None, gt=0)
 
     @model_validator(mode='after')

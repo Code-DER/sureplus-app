@@ -116,6 +116,66 @@ def fetch_purchase_owner(purchase_id: str) -> Optional[str]:
     )
     return res.data["userID"] if res.data else None
 
+def get_buyer_food_list(buyer_id: str):
+    """
+    Fetch all food items purchased by a buyer that have remaining donatable quantity.
+    Joined with Food table for details (name, weight, expiry).
+    """
+    # 1. Get all completed purchases for this buyer
+    purchases_res = _execute(
+        supabase_admin.table("Purchase") \
+            .select("purchaseID") \
+            .eq("userID", buyer_id) \
+            .eq("status", "completed"),
+        "Failed to fetch buyer purchases"
+    )
+    
+    purchase_ids = [p["purchaseID"] for p in purchases_res.data]
+    if not purchase_ids:
+        return []
+
+    # 2. Get purchase items with remaining quantity, joined with Food details
+    items_res = _execute(
+        supabase_admin.table("PurchaseItems") \
+            .select("*, Food(*)") \
+            .in_("purchaseID", purchase_ids),
+        "Failed to fetch purchased food items"
+    )
+    
+    # Filter for items with remaining quantity and format for frontend
+    # B-8: Only return edible food items
+    from datetime import date
+    today = date.today().isoformat()
+    
+    results = []
+    for item in items_res.data:
+        donatable_qty = item["quantity"] - item.get("donatedQuantity", 0)
+        food = item["Food"]
+        
+        # Check if still donatable and edible
+        if donatable_qty > 0 and food.get("isEdible") is not False:
+            # Check expiration if present
+            if food.get("expirationDate") and food["expirationDate"] < today:
+                continue
+                
+            results.append({
+                "purchaseID": item["purchaseID"],
+                "foodID": item["foodID"],
+                "foodName": food["foodName"],
+                "description": food["description"],
+                "picture": food["picture"],
+                "weightKg": food["weightKg"],
+                "expirationDate": food["expirationDate"],
+                "purchasedQuantity": item["quantity"],
+                "donatableQuantity": donatable_qty,
+                "pricePaid": float(item["totalPerItem"]) / item["quantity"]
+            })
+            
+    # Sort by expiration date (soonest first)
+    results.sort(key=lambda x: x["expirationDate"] or "9999-12-31")
+    
+    return results
+
 def get_seller_purchase_list(seller_id):
     """
     Fetch all purchases containing food items from a specific seller.

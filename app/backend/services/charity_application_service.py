@@ -12,7 +12,13 @@ from services.notification_service import send_notification
 
 logger = logging.getLogger(__name__)
 
-def submit_application(user_id: str, data: dict):
+def submit_application(user_id: str, data: dict, role: Optional[str] = None):
+    # Check role exclusivity (B-9)
+    if role == "seller":
+        raise Exception("Seller accounts cannot apply for charity status.")
+    if role == "charity":
+        raise Exception("You are already registered as a charity.")
+
     # Check for existing pending or approved application
     existing = supabase_admin.table("CharityApplication") \
         .select("*") \
@@ -74,18 +80,28 @@ def review_application(application_id: str, status: str, org_name: Optional[str]
         raise Exception("Failed to update application status.")
 
     if status == "approved":
-        # 3. Update User.role = 'charity'
+        # 3. Double-check user role is still 'buyer' (B-9 hardening)
+        user_res = supabase_admin.table("User") \
+            .select("role") \
+            .eq("userID", user_id) \
+            .single() \
+            .execute()
+        
+        if not user_res.data or user_res.data["role"] != "buyer":
+            raise Exception("User is no longer a buyer and cannot be upgraded to charity.")
+
+        # 4. Update User.role = 'charity'
         supabase_admin.table("User") \
             .update({"role": "charity"}) \
             .eq("userID", user_id) \
             .execute()
 
-        # 4. Insert into Charity table
+        # 5. Insert into Charity table
         supabase_admin.table("Charity") \
             .insert({"userID": user_id, "organizationName": org_name}) \
             .execute()
 
-        # 5. Notify the user
+        # 6. Notify the user
         send_notification(
             user_id=user_id,
             title="Charity Application Approved!",

@@ -127,16 +127,7 @@ async def donate_to_post(
     donation_id = None
 
     if donation.donationType == 'money':
-        response = charity_post_service.donate_money(post_id, donation.amount)
-        if not response.data:
-            raise HTTPException(status_code=400, detail="Failed to process money donation")
-        
-        record_res = charity_post_service.record_donation(
-            post_id, user_id, 'money', amount=donation.amount
-        )
-        
-        if record_res.data:
-            donation_id = record_res.data[0]["donationID"]
+        raise HTTPException(status_code=400, detail="Money donations are currently disabled. Please donate food instead.")
 
     else:  # food
         # Look up weightKg to store in Donation record
@@ -148,9 +139,17 @@ async def donate_to_post(
             raise HTTPException(status_code=404, detail="Food item not found")
         food_kg = food_res.data["weightKg"] * donation.quantity
 
-        response = charity_post_service.donate_food(
-            post_id, str(donation.foodID), donation.quantity
-        )
+        if donation.purchaseID:
+            # New buyer-owned food flow
+            response = charity_post_service.donate_purchased_food(
+                post_id, str(donation.purchaseID), str(donation.foodID), donation.quantity
+            )
+        else:
+            # Legacy seller-stock flow (kept for backward compatibility during transition)
+            response = charity_post_service.donate_food(
+                post_id, str(donation.foodID), donation.quantity
+            )
+
         if not response.data:
             raise HTTPException(status_code=400, detail="Failed to process food donation")
         

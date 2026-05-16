@@ -86,8 +86,8 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
                 Partner
               </span>
             )}
-            <span className={`mode-badge ${post.donationMode}`}>
-              {post.donationMode === 'money' ? '💰 Money' : post.donationMode === 'food' ? '🥕 Food' : '🤝 Both'}
+            <span className="mode-badge food">
+              🥕 Food Drive
             </span>
           </div>
           <span className={`status-badge ${post.status}`}>{post.status}</span>
@@ -150,7 +150,7 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
       </p>
 
       <div className="progress-bars">
-        {(post.donationMode === 'food' || post.donationMode === 'both') && post.foodGoalKg !== null && (
+        {post.foodGoalKg !== null && (
           <ProgressBar 
             label="Food"
             current={post.currentFoodKg}

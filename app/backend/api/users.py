@@ -53,6 +53,9 @@ async def get_user_by_id(user_id: UUID, current_user: dict = Depends(get_current
     
 @router.post("/upgrade")
 async def upgrade_to_seller(seller_input: SellerSignUp, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] == "charity":
+        raise HTTPException(status_code=403, detail="Charity accounts cannot register as a seller.")
+    
     existing = supabase_admin.table("Seller").select("userID").eq("userID", current_user["userID"]).execute()
     if existing.data:
         raise HTTPException(status_code=400, detail="User is already a seller!")

@@ -147,6 +147,7 @@ export const charityPostAPI = {
         donationType: "money" | "food",
         amount?: number,
         foodID?: string,
+        purchaseID?: string,
         quantity?: number
     }) => api.post<CharityDonationResult>(`/charity-posts/${charityId}/donate`, donation),
     getDonationsByPost: (charityId: string) => api.get(`/charity-posts/${charityId}/donations`),
@@ -180,6 +181,7 @@ export const purchaseAPI = {
     create: (data: { userID: string, paymentMethod: string, items: { foodID: string, quantity: number }[] }) => api.post('/purchases/purchase', data),
     complete: (purchaseId: string) => api.put(`/purchases/purchase/${purchaseId}/complete`),
     getSellerPurchases: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}`),
+    getMyFood: () => api.get('/purchases/my-food'),
 };
 
 // Food / Product API functions

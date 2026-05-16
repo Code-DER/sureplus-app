@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import type { CharityProfile, CharityPost } from '../api/types';
 import { charityAPI, charityPostAPI } from '../api/apis';
 import CharityPostCard from './CharityPostCard';

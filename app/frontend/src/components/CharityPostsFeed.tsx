@@ -156,20 +156,6 @@ const CharityPostsFeed: React.FC = () => {
       {activeTab === 'posts' && (
         <div className="feed-filters">
           <div className="filter-group">
-            <span className="filter-label">Mode:</span>
-            <div className="filter-chips">
-              {['all', 'food'].map(mode => (
-                <button 
-                  key={mode}
-                  className={`filter-chip ${filterMode === mode ? 'active' : ''}`}
-                  onClick={() => setFilterMode(mode)}
-                >
-                  {mode === 'all' ? 'All' : 'Food'}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="filter-group">
             <span className="filter-label">Status:</span>
             <div className="filter-chips">
               {['all', 'active', 'funded', 'closed'].map(status => (

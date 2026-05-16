@@ -122,6 +122,7 @@ def donate_food(post_id: str, food_id: str, quantity: int):
     """
     Increment the currentFoodKg of a charity post via food donation.
     Decrements stock and handles goal capping atomically via RPC.
+    Used for seller-originated donations (deprecated in favor of purchased food flow).
     """
     return _execute(
         supabase_admin.rpc("donate_food_to_post", {
@@ -130,6 +131,21 @@ def donate_food(post_id: str, food_id: str, quantity: int):
             "p_quantity": quantity
         }),
         "Failed to process food donation"
+    )
+
+def donate_purchased_food(post_id: str, purchase_id: str, food_id: str, quantity: int):
+    """
+    Increment the currentFoodKg of a charity post via food donation from a buyer's purchase history.
+    Updates donatedQuantity on PurchaseItems and handles goal capping atomically via RPC.
+    """
+    return _execute(
+        supabase_admin.rpc("donate_purchased_food_to_post", {
+            "p_post_id": post_id,
+            "p_purchase_id": purchase_id,
+            "p_food_id": food_id,
+            "p_quantity": quantity
+        }),
+        "Failed to process purchased food donation"
     )
 
 def record_donation(post_id: str, user_id: str, donation_type: str,
