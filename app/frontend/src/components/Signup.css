@@ -76,7 +76,7 @@
 .signup-card h2, .signup-notes-card h2 {
   font-size: 20px;
   font-weight: 600;
-  color: #0F5238;
+  color: #66B018;
   margin: 0 0 24px 0;
 }
 
@@ -191,7 +191,7 @@
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #0F5238;
+  accent-color: #66B018;
 }
 
 .allergen-label {
@@ -225,7 +225,7 @@
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #0F5238;
+  accent-color: #66B018;
 }
 
 .waiver-label {
@@ -254,7 +254,7 @@
   height: 32px;
   border-radius: 16px;
   background: #B1F0CE;
-  color: #0F5238;
+  color: #66B018;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -340,7 +340,7 @@
 .btn-link {
   background: none;
   border: none;
-  color: #0F5238;
+  color: #66B018;
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
@@ -374,7 +374,7 @@
 }
 
 .signup-toggle--on {
-  background: #0F5238;
+  background: #66B018;
 }
 
 .signup-toggle-knob {

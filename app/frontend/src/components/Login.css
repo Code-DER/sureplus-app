@@ -131,7 +131,7 @@
   font-weight: 700;
   font-size: 40px;
   line-height: 30px;
-  color: #0F5238;
+  color: #66B018;
   margin: 0;
 }
 
@@ -182,7 +182,7 @@
   font-weight: 600;
   font-size: 16px;
   line-height: 24px;
-  color: #0F5238;
+  color: #66B018;
   text-decoration: none;
 }
 
@@ -363,7 +363,7 @@
   line-height: 24px;
 }
 
-.badge-green span { color: #0F5238; }
+.badge-green span { color: #66B018; }
 .badge-brown span { color: #A04100; }
 
 /* Responsive */

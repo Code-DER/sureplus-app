@@ -6,3 +6,6 @@
 .env.keys
 .env.local
 .env.*.local
+
+# DB_SCHEMA for reference
+DB_SCHEMA.sql

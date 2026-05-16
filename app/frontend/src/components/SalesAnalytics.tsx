@@ -46,7 +46,7 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
       <div className="sa-header-section">
         <nav className="sa-breadcrumb">
           <button className="sa-breadcrumb-link" onClick={onBack}>Dashboard</button>
-          <svg className="sa-breadcrumb-sep" width="5" height="8" viewBox="0 0 5 8" fill="none"><path d="M1 1l3 3-3 3" stroke="#0F5238" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <svg className="sa-breadcrumb-sep" width="5" height="8" viewBox="0 0 5 8" fill="none"><path d="M1 1l3 3-3 3" stroke="#66B018" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           <span className="sa-breadcrumb-current">Sales Report</span>
         </nav>
         <h1 className="sa-title">Sales Analytics</h1>
@@ -61,7 +61,7 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
         <div className="sa-metric-card">
           <div className="sa-metric-header">
             <div className="sa-metric-icon sa-icon-green">
-              <svg width="22" height="16" viewBox="0 0 22 16" fill="none"><path d="M1 8h3l3-7 4 14 3-7h3" stroke="#0F5238" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="22" height="16" viewBox="0 0 22 16" fill="none"><path d="M1 8h3l3-7 4 14 3-7h3" stroke="#66B018" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
             <div className="sa-metric-badge sa-badge-green">{completedPurchases.length} completed</div>
           </div>
