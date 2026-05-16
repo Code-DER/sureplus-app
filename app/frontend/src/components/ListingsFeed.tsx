@@ -153,6 +153,8 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
               lastName={navProfile?.lastName}
               size={32}
               className="navbar-avatar"
+              onClick={() => setActiveTab('profile')}
+              title="View Profile"
             />
 
             {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
