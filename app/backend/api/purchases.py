@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models.purchase import PurchaseCreate
+from api.dependency import get_current_user
 from services.purchase_service import (
     create_purchase,
     complete_purchase,
@@ -7,13 +8,13 @@ from services.purchase_service import (
     get_seller_orders,
 )
 
-router = APIRouter()
+router = APIRouter(prefix="/purchase")
 
-@router.post("/purchase")
-def create(data: PurchaseCreate):
-    return create_purchase(data.model_dump())
+@router.post("")
+def create(data: PurchaseCreate, current_user: dict = Depends(get_current_user)):
+    return create_purchase(data.model_dump(), user_id=current_user["userID"])
 
-@router.put("/purchase/{purchase_id}/complete")
+@router.put("/{purchase_id}/complete")
 def complete(purchase_id: str):
     return complete_purchase(purchase_id)
 
