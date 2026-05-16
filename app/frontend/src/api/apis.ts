@@ -25,7 +25,7 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
 });
 
-// Add token to all  requests
+// Add token to all requests
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -39,7 +39,6 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Token expired or invalid
             localStorage.removeItem('token');
             localStorage.removeItem('token_type');
             window.location.href = '/login';
@@ -81,9 +80,17 @@ export const adminAPI = {
     updateUserRole: (userId: string, role: string) => api.patch(`/admin/users/${userId}/role`, { role }),
     deleteUser: (userId: string) => api.delete(`/admin/users/${userId}`),
     getCharities: () => api.get('/admin/charities'),
-    togglePartnerStatus: (userId: string, isPartner: bool) => api.put(`/admin/charities/${userId}/partner`, { isPartner }),
+    togglePartnerStatus: (userId: string, isPartner: boolean) => api.put(`/admin/charities/${userId}/partner`, { isPartner }),
     getSellers: () => api.get('/admin/sellers'),
     updateSellerTags: (sellerId: string, tags: string[]) => api.patch(`/admin/sellers/${sellerId}/tags`, tags),
+    getPendingApprovals: () => api.get('/admin/pending-approvals'),
+    getRecentTransactions: (limit = 10) => api.get('/admin/reports/transactions', { params: { limit } }),
+    getReportsOverview: () => api.get('/admin/reports/overview'),
+    getBadActorsReport: (limit = 10) => api.get('/admin/reports/bad-actors', { params: { limit } }),
+    createAdmin: (data: { firstName: string; lastName: string; emailAddress: string; password: string }) =>
+        api.post('/admin/users', data),
+    getAdminActivity: (params?: { actionType?: string; targetEntity?: string; userID?: string; targetID?: string; limit?: number }) =>
+        api.get('/admin-activity/', { params }),
 };
 
 // Charity Post API functions
@@ -147,19 +154,33 @@ export const ratingsAPI = {
 
 // Purchase API functions
 export const purchaseAPI = {
-    create: (data: { userID: string, paymentMethod: string, items: { foodID: string, quantity: number }[] }) => api.post('/purchase', data),
-    complete: (purchaseId: string) => api.put(`/purchase/${purchaseId}/complete`),
+    create: (data: { userID: string, paymentMethod: string, items: { foodID: string, quantity: number }[] }) => api.post('/purchases/purchase', data),
+    complete: (purchaseId: string) => api.put(`/purchases/purchase/${purchaseId}/complete`),
+    getSellerPurchases: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}`),
 };
 
-// Food API functions
+// Food / Product API functions
 export const foodAPI = {
-  list: (params?: {
-    safe_for_me?: boolean;
-    edible_only?: boolean;
-    include_expired?: boolean;
-    seller_id?: string;
-  }) => api.get('/products/', { params }),
-  get: (foodId: string) => api.get(`/products/${foodId}`),
+    list: (params?: {
+        safe_for_me?: boolean;
+        edible_only?: boolean;
+        include_expired?: boolean;
+        seller_id?: string;
+    }) => api.get('/products/', { params }),
+    get: (foodId: string) => api.get(`/products/${foodId}`),
+    create: (data: Record<string, unknown>) => api.post('/products/', data),
+    update: (foodId: string, data: Record<string, unknown>) => api.patch(`/products/${foodId}`, data),
+    delete: (foodId: string) => api.delete(`/products/${foodId}`),
+    uploadImage: (file: File) => {
+        const form = new FormData();
+        form.append('file', file);
+        return api.post('/products/upload-image', form);
+    },
+};
+
+// Safety / Allergens API functions
+export const safetyAPI = {
+    listAllergens: () => api.get('/safety/allergens'),
 };
 
 // Notifications API functions

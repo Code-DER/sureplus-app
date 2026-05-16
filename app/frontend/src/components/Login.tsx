@@ -134,7 +134,7 @@ export default function Login({ onLogin, onSwitchToSignup }: LoginProps) {
 
             <div className="login-badges">
               <div className="login-badge badge-green">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0F5238" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 014 13c0-3.5 3-7 8-11 5 4 8 7.5 8 11a7 7 0 01-7 7z"/></svg>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#66B018" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 20A7 7 0 014 13c0-3.5 3-7 8-11 5 4 8 7.5 8 11a7 7 0 01-7 7z"/></svg>
                 <span>1.2M kg Saved</span>
               </div>
               <div className="login-badge badge-brown">

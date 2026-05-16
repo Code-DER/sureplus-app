@@ -1,8 +1,20 @@
+import { useState, useEffect } from 'react';
 
 import './SellerReviews.css';
+import { ratingsAPI } from '../api/apis';
 
 interface SellerReviewsProps {
   onBack: () => void;
+  sellerId: string;
+}
+
+interface Rating {
+  ratingID: string;
+  purchaseID: string;
+  buyerID: string;
+  sellerID: string;
+  rating: number;
+  comment?: string;
 }
 
 const StarSVG = ({ filled = true }) => (
@@ -11,33 +23,40 @@ const StarSVG = ({ filled = true }) => (
   </svg>
 );
 
-const MOCK_REVIEWS = [
-  {
-    id: 1,
-    name: 'Qin Shi Huang',
-    date: 'April 25, 2026',
-    order: 'Order #RE-44921-X',
-    initials: 'QH',
-    rating: 5,
-    text: 'The vegetables were incredibly fresh! I was surprised at the variety in the mystery box. The staff at the pickup point were very friendly and had everything ready to go. Great value for money.',
-    badges: ['FRESH PRODUCE', 'FRIENDLY STAFF']
-  },
-  {
-    id: 2,
-    name: 'Buddha',
-    date: 'October 22, 2025',
-    order: 'Order #RE-43882-B',
-    initials: 'BU',
-    rating: 4,
-    text: "Hi. I'm Lynn from Las Vegas. Mowdels. Were hiring new promohtional mowdels to work en Las Vegas, Yuwezay. Are you etin to tweynty one yirs old?",
-    badges: ['EASY TO FIND']
-  }
-];
+function shortId(id: string): string {
+  return id.substring(0, 6).toUpperCase();
+}
 
-export default function SellerReviews({ onBack }: SellerReviewsProps) {
+export default function SellerReviews({ onBack, sellerId }: SellerReviewsProps) {
+  const [ratings, setRatings] = useState<Rating[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(5);
+
+  useEffect(() => {
+    if (!sellerId) return;
+    setLoading(true);
+    setError(null);
+    ratingsAPI.getSellerRatings(sellerId)
+      .then((res) => setRatings(res.data ?? []))
+      .catch(() => setError('Failed to load reviews.'))
+      .finally(() => setLoading(false));
+  }, [sellerId]);
+
+  const avgRating = ratings.length
+    ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
+    : 0;
+
+  const starCounts = [5, 4, 3, 2, 1].map((star) => ({
+    star,
+    count: ratings.filter((r) => r.rating === star).length,
+  }));
+
+  const visible = ratings.slice(0, visibleCount);
+
   return (
     <div className="seller-reviews-container">
-      
+
       {/* Breadcrumb Header */}
       <div className="reviews-breadcrumb">
         <span className="breadcrumb-link" onClick={onBack}>Dashboard</span>
@@ -48,87 +67,95 @@ export default function SellerReviews({ onBack }: SellerReviewsProps) {
       {/* Overall Rating Card */}
       <div className="overall-rating-card">
         <div className="rating-left">
-          <h1>4.8</h1>
+          {loading ? (
+            <h1>—</h1>
+          ) : (
+            <h1>{ratings.length > 0 ? avgRating.toFixed(1) : '—'}</h1>
+          )}
           <div className="rating-stars">
             {[1, 2, 3, 4, 5].map((star) => (
-              <StarSVG key={star} filled={true} />
+              <StarSVG key={star} filled={star <= Math.round(avgRating)} />
             ))}
           </div>
-          <p>TOTAL 128 REVIEWS</p>
+          <p>TOTAL {ratings.length} REVIEW{ratings.length !== 1 ? 'S' : ''}</p>
         </div>
-        
+
         <div className="rating-divider"></div>
-        
+
         <div className="rating-right">
-          <div className="metric-bar">
-            <div className="metric-header">
-              <span>Product Quality</span>
-              <span>4.9/5.0</span>
-            </div>
-            <div className="metric-track">
-              <div className="metric-fill" style={{ width: '98%' }}></div>
-            </div>
-          </div>
-          
-          <div className="metric-bar">
-            <div className="metric-header">
-              <span>Accuracy of Description</span>
-              <span>4.7/5.0</span>
-            </div>
-            <div className="metric-track">
-              <div className="metric-fill" style={{ width: '94%' }}></div>
-            </div>
-          </div>
-          
-          <div className="metric-bar">
-            <div className="metric-header">
-              <span>Pickup Ease</span>
-              <span>4.6/5.0</span>
-            </div>
-            <div className="metric-track">
-              <div className="metric-fill" style={{ width: '92%' }}></div>
-            </div>
-          </div>
+          {starCounts.map(({ star, count }) => {
+            const pct = ratings.length > 0 ? (count / ratings.length) * 100 : 0;
+            return (
+              <div className="metric-bar" key={star}>
+                <div className="metric-header">
+                  <span>{star} Star{star !== 1 ? 's' : ''}</span>
+                  <span>{count} review{count !== 1 ? 's' : ''}</span>
+                </div>
+                <div className="metric-track">
+                  <div className="metric-fill" style={{ width: `${pct}%` }}></div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Recent Reviews Title */}
       <h2 className="recent-reviews-title">Recent Reviews</h2>
 
+      {/* Loading / Error / Empty */}
+      {loading && (
+        <p style={{ color: '#707973', fontSize: 14, padding: '16px 0' }}>Loading reviews…</p>
+      )}
+      {!loading && error && (
+        <p style={{ color: '#B71C1C', fontSize: 14, padding: '16px 0' }}>{error}</p>
+      )}
+      {!loading && !error && ratings.length === 0 && (
+        <div style={{ padding: '40px 0', textAlign: 'center', color: '#707973' }}>
+          <p style={{ fontSize: 16, fontWeight: 600 }}>No reviews yet</p>
+          <p style={{ fontSize: 13 }}>Reviews will appear here after buyers complete their orders.</p>
+        </div>
+      )}
+
       {/* Reviews List */}
-      <div className="reviews-list">
-        {MOCK_REVIEWS.map((review) => (
-          <div className="review-card" key={review.id}>
-            <div className="review-header">
-              <div className="review-author">
-                <div className="review-avatar-initials">{review.initials}</div>
-                <div className="review-author-info">
-                  <h3>{review.name}</h3>
-                  <span className="review-meta">{review.date} • {review.order}</span>
+      {!loading && visible.length > 0 && (
+        <div className="reviews-list">
+          {visible.map((review) => (
+            <div className="review-card" key={review.ratingID}>
+              <div className="review-header">
+                <div className="review-author">
+                  <div className="review-avatar-initials">
+                    {shortId(review.buyerID).substring(0, 2)}
+                  </div>
+                  <div className="review-author-info">
+                    <h3>Buyer #{shortId(review.buyerID)}</h3>
+                    <span className="review-meta">Order #{shortId(review.purchaseID)}</span>
+                  </div>
+                </div>
+                <div className="review-stars">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <StarSVG key={star} filled={star <= review.rating} />
+                  ))}
                 </div>
               </div>
-              <div className="review-stars">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <StarSVG key={star} filled={star <= review.rating} />
-                ))}
-              </div>
+              {review.comment && (
+                <div className="review-body">
+                  <p>{review.comment}</p>
+                </div>
+              )}
             </div>
-            <div className="review-body">
-              <p>{review.text}</p>
-            </div>
-            <div className="review-badges">
-              {review.badges.map((badge, idx) => (
-                <span key={idx} className="review-badge">{badge}</span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Load More Button */}
-      <div className="load-more-container">
-        <button className="btn-load-more">Load More Reviews</button>
-      </div>
+      {/* Load More */}
+      {!loading && visibleCount < ratings.length && (
+        <div className="load-more-container">
+          <button className="btn-load-more" onClick={() => setVisibleCount((v) => v + 5)}>
+            Load More Reviews
+          </button>
+        </div>
+      )}
 
       {/* Improve Your Rating Banner */}
       <div className="promo-banner">
@@ -137,7 +164,7 @@ export default function SellerReviews({ onBack }: SellerReviewsProps) {
           <p>Sellers with a rating above 4.8 see a 40% increase in Mystery Box sales. Check out our guide on pickup optimization.</p>
           <button className="btn-read-guide">Read Guide</button>
         </div>
-        
+
         <div className="promo-right-graphic">
           <div className="promo-graphic-header">
             <h3>Customer Reviews</h3>
@@ -145,30 +172,13 @@ export default function SellerReviews({ onBack }: SellerReviewsProps) {
           </div>
           <div className="promo-graphic-body">
             <div className="promo-graphic-score">
-              <h4>5.0</h4>
+              <h4>{ratings.length > 0 ? avgRating.toFixed(1) : '—'}</h4>
               <div className="promo-graphic-stars">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <StarSVG key={star} filled={true} />
+                  <StarSVG key={star} filled={star <= Math.round(avgRating)} />
                 ))}
               </div>
-              <span>TOTAL 128 REVIEWS</span>
-            </div>
-            <div className="promo-graphic-metrics">
-              {[
-                { name: 'Product Quality', score: '5.0/5.0' },
-                { name: 'Accuracy of Description', score: '5.0/5.0' },
-                { name: 'Pickup Ease', score: '5.0/5.0' }
-              ].map((metric, idx) => (
-                <div className="promo-metric" key={idx}>
-                  <div className="promo-metric-header">
-                    <span>{metric.name}</span>
-                    <span>{metric.score}</span>
-                  </div>
-                  <div className="promo-metric-track">
-                    <div className="promo-metric-fill" style={{ width: '100%' }}></div>
-                  </div>
-                </div>
-              ))}
+              <span>TOTAL {ratings.length} REVIEWS</span>
             </div>
           </div>
         </div>

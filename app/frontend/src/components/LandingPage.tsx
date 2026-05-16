@@ -64,7 +64,7 @@ export default function LandingPage({ onSelect }: LandingPageProps) {
                   onClick={() => setSelectedRole('seller')}
                 >
                   <div className={`role-card-icon-bg ${selectedRole === 'seller' ? 'bg-seller-active' : 'bg-seller-inactive'}`}>
-                    <svg width="20" height="18" viewBox="0 0 24 24" fill="none" stroke={selectedRole === 'seller' ? '#FFFFFF' : '#0F5238'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" /></svg>
+                    <svg width="20" height="18" viewBox="0 0 24 24" fill="none" stroke={selectedRole === 'seller' ? '#FFFFFF' : '#66B018'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" /></svg>
                   </div>
                   <div className="role-card-content">
                     <h3>Seller</h3>

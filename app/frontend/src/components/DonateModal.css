@@ -95,7 +95,7 @@
 
 .input-group input:focus {
   outline: none;
-  border-color: #0F5238;
+  border-color: #66B018;
   box-shadow: 0 0 0 3px rgba(15, 82, 56, 0.1);
 }
 
@@ -135,7 +135,7 @@
 
 .confirm-btn {
   padding: 10px 20px;
-  background-color: #0F5238;
+  background-color: #66B018;
   border: none;
   border-radius: 8px;
   font-weight: 600;

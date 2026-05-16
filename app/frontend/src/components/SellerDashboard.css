@@ -12,17 +12,19 @@
 }
 
 /* === TOP HEADER === */
-.seller-header {
+.seller-dashboard-header {
   position: sticky;
-  top: 0;
+  top: 24px;
   z-index: 100;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 48px;
-  margin: 16px 48px 0;
+  padding: 0 32px;
+  height: 65px;
+  margin: 24px 48px 0;
+  box-sizing: border-box;
   background: #FFFDFD;
-  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.08);
+  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.15);
   border-radius: 24px;
 }
 
@@ -35,7 +37,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 24px;
   font-weight: 800;
-  color: #2D6A4F;
+  color: #66B018;
   letter-spacing: -0.6px;
 }
 
@@ -61,22 +63,8 @@
   background: #F2F4F0;
 }
 
-.seller-avatar {
-  width: 33px;
-  height: 33px;
-  border-radius: 50%;
-  background: #2D6A4F;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 2px 2px 4px rgba(0,0,0,0.15);
-  cursor: pointer;
-}
-
-.seller-avatar span {
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
+.seller-header-avatar {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
 }
 
 
@@ -112,7 +100,7 @@
 .sidebar-logo {
   width: 40px;
   height: 40px;
-  background: #0F5238;
+  background: #66B018;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -334,7 +322,7 @@
 .btn-see-all {
   background: transparent;
   border: none;
-  color: #0F5238;
+  color: #66B018;
   font-family: 'Work Sans', sans-serif;
   font-size: 14px;
   cursor: pointer;
@@ -416,7 +404,7 @@
   font-family: 'Work Sans', sans-serif;
   font-size: 16px;
   font-weight: 600;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .status-badge {
@@ -470,7 +458,7 @@
 }
 
 .impact-tracker-card {
-  background: #0F5238;
+  background: #66B018;
   border-radius: 16px;
   padding: 24px;
   color: white;

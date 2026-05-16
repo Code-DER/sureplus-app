@@ -1,0 +1,13 @@
+.user-avatar {
+  border-radius: 50%;
+  background-color: #FE6902;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 700;
+  flex-shrink: 0;
+  user-select: none;
+  box-sizing: border-box;
+}

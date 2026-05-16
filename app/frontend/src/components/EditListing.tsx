@@ -1,53 +1,126 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import './EditListing.css';
+import { foodAPI, safetyAPI } from '../api/apis';
+import type { FoodItem } from '../types/food';
 
-import BakeryIcon from '../assets/Seller/Mystery Box/Bakery.svg';
-
-interface EditListingProps {
-  item: {
-    id: number;
-    name: string;
-    category: string;
-    rescuePrice: string;
-    quantity: number;
-  };
-  onBack: () => void;
+interface Allergen {
+  allergenID: string;
+  name: string;
 }
 
-const ALLERGEN_OPTIONS = [
-  { id: 'gluten', label: 'Gluten' },
-  { id: 'dairy', label: 'Dairy' },
-  { id: 'nuts', label: 'Nuts' },
-  { id: 'soy', label: 'Soy' },
-  { id: 'shellfish', label: 'Shellfish' },
-  { id: 'eggs', label: 'Eggs' },
-  { id: 'celery', label: 'Celery' },
-  { id: 'mustard', label: 'Mustard' },
-];
+interface EditListingProps {
+  item: FoodItem;
+  onBack: () => void;
+  onSaved?: () => void;
+}
 
-export default function EditListing({ item, onBack }: EditListingProps) {
-  const [title, setTitle] = useState("Gojo's Pandesal & Pastry Bundle");
-  const [description, setDescription] = useState(
-    "Selection of fresh, daily-baked sourdough loaves and assorted pastries including croissants and danishes. Rescued from today's surplus production to ensure no delicious treat goes to waste."
+function getApiError(err: unknown): string {
+  const e = err as { response?: { data?: { detail?: string | { msg?: string }[] } } };
+  const detail = e?.response?.data?.detail;
+  if (!detail) return 'An unexpected error occurred.';
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) return detail.map((d) => d?.msg ?? '').join(', ');
+  return 'An unexpected error occurred.';
+}
+
+export default function EditListing({ item, onBack, onSaved }: EditListingProps) {
+  const [title, setTitle] = useState(item.foodName);
+  const [description, setDescription] = useState(item.description ?? '');
+  const [quantity, setQuantity] = useState(item.stockQuantity);
+  const [price, setPrice] = useState(String(Number(item.price).toFixed(2)));
+  const [expiryDate, setExpiryDate] = useState(item.expirationDate?.substring(0, 10) ?? '');
+  const [pictureUrl, setPictureUrl] = useState(item.picture ?? '');
+  const [picturePreview, setPicturePreview] = useState<string | null>(item.picture ?? null);
+  const [selectedAllergenIds, setSelectedAllergenIds] = useState<string[]>(
+    item.allergens.map((a) => a.allergenID)
   );
-  const [category, setCategory] = useState('Bakery');
-  const [quantity, setQuantity] = useState(item.quantity || 12);
-  const [selectedAllergens, setSelectedAllergens] = useState<string[]>(['gluten', 'eggs']);
-  const [originalPrice] = useState('45.00');
-  const [rescuePrice, setRescuePrice] = useState('18.50');
-  const [pickupDate] = useState('Today, Oct 24');
-  const [startTime] = useState('05:00 PM');
-  const [endTime] = useState('08:00 PM');
+
+  const [allergens, setAllergens] = useState<Allergen[]>([]);
+  const [loadingAllergens, setLoadingAllergens] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    safetyAPI.listAllergens()
+      .then((res) => setAllergens(res.data))
+      .catch(() => setAllergens([]))
+      .finally(() => setLoadingAllergens(false));
+  }, []);
 
   const toggleAllergen = (id: string) => {
-    setSelectedAllergens((prev) =>
+    setSelectedAllergenIds((prev) =>
       prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]
     );
   };
 
-  const savingsPercent = originalPrice && rescuePrice
-    ? Math.round((1 - parseFloat(rescuePrice) / parseFloat(originalPrice)) * 100)
+  const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
+  const MAX_BYTES = 5 * 1024 * 1024;
+
+  const handleFileChange = async (file: File) => {
+    if (!ALLOWED_MIME.includes(file.type)) {
+      setError('Only JPEG, PNG, or WebP images are allowed.');
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setError(`Image must be under 5 MB (your file is ${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setPicturePreview(objectUrl);
+    setIsUploadingImage(true);
+    setError(null);
+    try {
+      const res = await foodAPI.uploadImage(file);
+      setPictureUrl(res.data.url);
+    } catch (err) {
+      setError('Image upload failed: ' + getApiError(err));
+      setPicturePreview(item.picture ?? null);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setError(null);
+    if (!title.trim()) { setError('Food name is required.'); return; }
+    if (!description.trim()) { setError('Description is required.'); return; }
+    if (!pictureUrl) { setError('Please upload an image.'); return; }
+
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice) || parsedPrice < 0) { setError('Enter a valid price.'); return; }
+
+    setIsSaving(true);
+    try {
+      await foodAPI.update(item.foodID, {
+        foodName: title.trim(),
+        description: description.trim(),
+        picture: pictureUrl,
+        price: parsedPrice,
+        stockQuantity: quantity,
+        expirationDate: expiryDate || undefined,
+        allergenIDs: selectedAllergenIds,
+      });
+      setSaved(true);
+      setTimeout(() => {
+        onSaved?.();
+        onBack();
+      }, 1000);
+    } catch (err) {
+      setError(getApiError(err));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const originalPrice = Number(item.price).toFixed(2);
+  const parsedRescue = parseFloat(price);
+  const savingsPercent = !isNaN(parsedRescue) && parseFloat(originalPrice) > 0
+    ? Math.round((1 - parsedRescue / parseFloat(originalPrice)) * 100)
     : 0;
 
   return (
@@ -56,17 +129,31 @@ export default function EditListing({ item, onBack }: EditListingProps) {
       <div className="el-header">
         <div className="el-header-left">
           <button className="el-back-btn" onClick={onBack}>
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M8 5H2M2 5l3-3M2 5l3 3" stroke="#0F5238" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M8 5H2M2 5l3-3M2 5l3 3" stroke="#66B018" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             Back to Inventory
           </button>
           <h1 className="el-title">Edit Listing</h1>
           <p className="el-subtitle">Refine your surplus listing to maximize rescue impact.</p>
         </div>
         <div className="el-header-right">
-          <button className="el-btn-discard" onClick={onBack}>Discard Changes</button>
-          <button className="el-btn-save">Save Updates</button>
+          <button className="el-btn-discard" onClick={onBack} disabled={isSaving}>Discard Changes</button>
+          <button className="el-btn-save" onClick={handleSave} disabled={isSaving || isUploadingImage}>
+            {isSaving ? 'Saving…' : saved ? 'Saved!' : 'Save Updates'}
+          </button>
         </div>
       </div>
+
+      {error && (
+        <div style={{ background: '#FFEBEE', border: '1px solid #EF9A9A', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#B71C1C', fontSize: 14 }}>
+          {error}
+        </div>
+      )}
+
+      {saved && (
+        <div style={{ background: '#E8F5E9', border: '1px solid #A5D6A7', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#1B5E20', fontSize: 14 }}>
+          Listing updated successfully!
+        </div>
+      )}
 
       {/* Two Column Layout */}
       <div className="el-columns">
@@ -75,7 +162,7 @@ export default function EditListing({ item, onBack }: EditListingProps) {
           {/* Item Details Card */}
           <div className="el-card el-item-details-card">
             <div className="el-card-heading">
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="20" height="20" rx="4" stroke="#0F5238" strokeWidth="2"/><path d="M7 7h8M7 11h8M7 15h5" stroke="#0F5238" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="20" height="20" rx="4" stroke="#66B018" strokeWidth="2"/><path d="M7 7h8M7 11h8M7 15h5" stroke="#66B018" strokeWidth="1.5" strokeLinecap="round"/></svg>
               <span>Item Details</span>
             </div>
 
@@ -102,27 +189,21 @@ export default function EditListing({ item, onBack }: EditListingProps) {
 
               <div className="el-field-row">
                 <div className="el-field el-field-half">
-                  <label className="el-field-label">CATEGORY</label>
-                  <div className="el-select-wrapper">
-                    <select
-                      className="el-field-select"
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                    >
-                      <option>Bakery</option>
-                      <option>Fruits & Vegetables</option>
-                      <option>Dairy & Eggs</option>
-                      <option>Meat & Seafood</option>
-                      <option>Prepared Meals</option>
-                    </select>
-                    <svg className="el-select-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5l5 5 5-5" stroke="#6B7280" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  </div>
+                  <label className="el-field-label">EXPIRY DATE</label>
+                  <input
+                    className="el-field-input"
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                  />
                 </div>
                 <div className="el-field el-field-half">
                   <label className="el-field-label">STATUS</label>
                   <div className="el-status-badge">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" fill="#002114"/></svg>
-                    <span>Currently Active</span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <circle cx="6" cy="6" r="5" fill={item.stockQuantity > 0 ? '#002114' : '#BA1A1A'}/>
+                    </svg>
+                    <span>{item.stockQuantity > 0 ? 'Currently Active' : 'Out of Stock'}</span>
                   </div>
                 </div>
               </div>
@@ -137,8 +218,9 @@ export default function EditListing({ item, onBack }: EditListingProps) {
                 <button
                   className="el-qty-btn"
                   onClick={() => setQuantity(Math.max(0, quantity - 1))}
+                  type="button"
                 >
-                  <svg width="14" height="2" viewBox="0 0 14 2" fill="none"><rect width="14" height="2" rx="1" fill="#0F5238"/></svg>
+                  <svg width="14" height="2" viewBox="0 0 14 2" fill="none"><rect width="14" height="2" rx="1" fill="#66B018"/></svg>
                 </button>
                 <div className="el-qty-display">
                   <span className="el-qty-number">{quantity}</span>
@@ -147,8 +229,9 @@ export default function EditListing({ item, onBack }: EditListingProps) {
                 <button
                   className="el-qty-btn"
                   onClick={() => setQuantity(quantity + 1)}
+                  type="button"
                 >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect y="6" width="14" height="2" rx="1" fill="#0F5238"/><rect x="6" width="2" height="14" rx="1" fill="#0F5238"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect y="6" width="14" height="2" rx="1" fill="#66B018"/><rect x="6" width="2" height="14" rx="1" fill="#66B018"/></svg>
                 </button>
               </div>
             </div>
@@ -159,10 +242,10 @@ export default function EditListing({ item, onBack }: EditListingProps) {
                 <span>Impact</span>
               </div>
               <p className="el-impact-text">
-                Rescuing this listing will save approximately <strong>4.2kg of CO2</strong> emissions.
+                Rescuing this listing will save approximately <strong>{(quantity * 0.35).toFixed(1)}kg of CO2</strong> emissions.
               </p>
               <div className="el-impact-bar-bg">
-                <div className="el-impact-bar-fill" style={{ width: '75%' }} />
+                <div className="el-impact-bar-fill" style={{ width: `${Math.min(quantity * 5, 100)}%` }} />
               </div>
             </div>
           </div>
@@ -171,20 +254,25 @@ export default function EditListing({ item, onBack }: EditListingProps) {
           <div className="el-card el-allergen-card">
             <h3 className="el-section-title">Allergen Information</h3>
             <p className="el-allergen-hint">Select all allergens present in this food item.</p>
-            <div className="el-allergen-chips">
-              {ALLERGEN_OPTIONS.map((opt) => (
-                <button
-                  key={opt.id}
-                  className={`el-allergen-chip ${selectedAllergens.includes(opt.id) ? 'selected' : ''}`}
-                  onClick={() => toggleAllergen(opt.id)}
-                >
-                  {selectedAllergens.includes(opt.id) && (
-                    <svg width="10" height="7" viewBox="0 0 10 7" fill="none"><path d="M1 3.5L3.5 6L9 1" stroke="#002114" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  )}
-                  <span>{opt.label}</span>
-                </button>
-              ))}
-            </div>
+            {loadingAllergens ? (
+              <p style={{ fontSize: 13, color: '#707973' }}>Loading allergens…</p>
+            ) : (
+              <div className="el-allergen-chips">
+                {allergens.map((a) => (
+                  <button
+                    key={a.allergenID}
+                    className={`el-allergen-chip ${selectedAllergenIds.includes(a.allergenID) ? 'selected' : ''}`}
+                    onClick={() => toggleAllergen(a.allergenID)}
+                    type="button"
+                  >
+                    {selectedAllergenIds.includes(a.allergenID) && (
+                      <svg width="10" height="7" viewBox="0 0 10 7" fill="none"><path d="M1 3.5L3.5 6L9 1" stroke="#002114" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    )}
+                    <span>{a.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -192,13 +280,35 @@ export default function EditListing({ item, onBack }: EditListingProps) {
         <div className="el-right-col">
           {/* Media Card */}
           <div className="el-card el-media-card">
-            <div className="el-media-image">
-              <div className="el-media-placeholder">
-                <img src={BakeryIcon} alt="Product" style={{ width: '80px', height: '80px' }} />
-              </div>
+            <div
+              className="el-media-image"
+              onClick={() => !isUploadingImage && fileInputRef.current?.click()}
+              style={{ cursor: isUploadingImage ? 'wait' : 'pointer' }}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileChange(file);
+                }}
+              />
+              {picturePreview ? (
+                <img
+                  src={picturePreview}
+                  alt="Product"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+                />
+              ) : (
+                <div className="el-media-placeholder">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                </div>
+              )}
               <div className="el-media-overlay">
                 <svg width="20" height="18" viewBox="0 0 20 18" fill="none"><path d="M1 14l5-5 4 4 4-6 5 7" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                <span>Change Photo</span>
+                <span>{isUploadingImage ? 'Uploading…' : 'Change Photo'}</span>
               </div>
             </div>
             <div className="el-pricing-section">
@@ -214,42 +324,19 @@ export default function EditListing({ item, onBack }: EditListingProps) {
                     <span className="el-pricing-currency">₱</span>
                     <input
                       className="el-pricing-value-input"
-                      type="text"
-                      value={rescuePrice}
-                      onChange={(e) => setRescuePrice(e.target.value)}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
                     />
                   </div>
                 </div>
-                <div className="el-pricing-savings">
-                  {savingsPercent}% SAVINGS FOR BUYER
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Scheduling Card */}
-          <div className="el-card el-schedule-card">
-            <div className="el-schedule-heading">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#0F5238" strokeWidth="1.5"/><path d="M10 5v5.5l3.5 2" stroke="#0F5238" strokeWidth="1.5" strokeLinecap="round"/></svg>
-              <span>Pickup Window</span>
-            </div>
-            <div className="el-schedule-fields">
-              <div className="el-field">
-                <label className="el-field-label-sm">Pickup Date</label>
-                <div className="el-schedule-date">
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="#191C1A" strokeWidth="1.2"/><path d="M1 5h10M4 1v2M8 1v2" stroke="#191C1A" strokeWidth="1.2" strokeLinecap="round"/></svg>
-                  <span>{pickupDate}</span>
-                </div>
-              </div>
-              <div className="el-schedule-times">
-                <div className="el-field">
-                  <label className="el-field-label-sm">Start</label>
-                  <input className="el-time-input" type="text" defaultValue={startTime} readOnly />
-                </div>
-                <div className="el-field">
-                  <label className="el-field-label-sm">End</label>
-                  <input className="el-time-input" type="text" defaultValue={endTime} readOnly />
-                </div>
+                {savingsPercent > 0 && (
+                  <div className="el-pricing-savings">
+                    {savingsPercent}% SAVINGS FOR BUYER
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -259,18 +346,18 @@ export default function EditListing({ item, onBack }: EditListingProps) {
             <h4 className="el-health-title">Listing Health</h4>
             <div className="el-health-bar-row">
               <div className="el-health-bar-bg">
-                <div className="el-health-bar-fill" style={{ width: '90%' }} />
+                <div className="el-health-bar-fill" style={{ width: description.length > 50 && pictureUrl ? '90%' : description.length > 20 ? '60%' : '30%' }} />
               </div>
-              <span className="el-health-score">Excellent</span>
+              <span className="el-health-score">
+                {description.length > 50 && pictureUrl ? 'Excellent' : description.length > 20 ? 'Good' : 'Fair'}
+              </span>
             </div>
             <p className="el-health-text">
-              Your listing description and high-quality photo increase its rescue probability by 40%.
+              A complete description and a high-quality photo increase rescue probability by 40%.
             </p>
-            <button className="el-boost-btn">Boost Listing</button>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

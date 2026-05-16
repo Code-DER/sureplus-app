@@ -79,3 +79,9 @@ class SellerUpdate(BaseModel):
 class PasswordChange(BaseModel):
     currentPassword: str
     newPassword: str =  Field(..., min_length=8)
+
+class AdminCreateUserRequest(BaseModel):
+    firstName: str
+    lastName: str
+    emailAddress: EmailStr
+    password: str = Field(..., min_length=8)

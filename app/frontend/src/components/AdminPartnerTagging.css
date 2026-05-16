@@ -125,7 +125,7 @@
 .pt-status-chip--verified {
   background: #ECFDF5;
   border: 1px solid rgba(15, 82, 56, 0.2);
-  color: #0F5238;
+  color: #66B018;
 }
 
 .pt-status-chip--community {
@@ -183,7 +183,7 @@
   font-family: 'Work Sans', sans-serif;
   font-weight: 700;
   font-size: 11px;
-  color: #0F5238;
+  color: #66B018;
 }
 
 .pt-tag-remove {
@@ -289,7 +289,7 @@
   font-size: 11px;
   letter-spacing: -0.55px;
   text-transform: uppercase;
-  color: #0F5238;
+  color: #66B018;
   cursor: pointer;
   padding: 0;
   transition: opacity 0.15s;
@@ -359,7 +359,7 @@
   flex-shrink: 0;
 }
 
-.pt-toggle--on  { background: #0F5238; }
+.pt-toggle--on  { background: #66B018; }
 .pt-toggle--off { background: #E2E8F0; }
 
 .pt-toggle-knob {
@@ -399,7 +399,7 @@
 .pt-cat-tag--active {
   background: rgba(15, 82, 56, 0.1);
   border-color: rgba(15, 82, 56, 0.2);
-  color: #0F5238;
+  color: #66B018;
 }
 
 .pt-cat-tag:hover:not(.pt-cat-tag--active) {

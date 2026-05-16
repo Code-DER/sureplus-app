@@ -125,7 +125,7 @@
 }
 
 .action-btn.edit:hover {
-  color: #0F5238;
+  color: #66B018;
 }
 
 .action-btn.close:hover {
@@ -180,7 +180,7 @@
 }
 
 .current-amount {
-  color: #0F5238;
+  color: #66B018;
 }
 
 .target-amount {
@@ -196,7 +196,7 @@
 
 .progress-bar {
   height: 100%;
-  background-color: #0F5238;
+  background-color: #66B018;
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -208,7 +208,7 @@
 }
 
 .donate-btn {
-  background-color: #0F5238;
+  background-color: #66B018;
   color: white;
   border: none;
   border-radius: 8px;
