@@ -80,6 +80,7 @@ export const charityPostAPI = {
 export const socialImpactAPI = {
     getImpactByPurchase: (purchaseId: string) => api.get(`/social-impact/purchase/${purchaseId}`),
     getMyImpactSummary: () => api.get('/social-impact/summary'),
+    getSellerImpactSummary: (sellerId: string) => api.get(`/social-impact/seller/${sellerId}`),
 };
 
 // Food / Product API functions
@@ -109,6 +110,7 @@ export const safetyAPI = {
 // Purchases API functions
 export const purchasesAPI = {
     getSellerPurchases: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}`),
+    getSellerOrders: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}/orders`),
 };
 
 // Ratings API functions
@@ -121,6 +123,16 @@ export const notificationsAPI = {
     getMyNotifications: () => api.get('/notifications/list'),
     markNotificationAsRead: (notificationId: string) => api.patch(`/notifications/${notificationId}/read`),
     markAllNotificationsAsRead: () => api.patch('/notifications/read-all'),
+};
+
+export const purchaseAPI = {
+    createPurchase: (data) => api.post('/purchases/purchase', data),
+
+    completePurchase: (purchaseID: string) =>
+        api.put(`/purchases/purchase/${purchaseID}/complete`),
+
+    getSellerPurchases: (sellerID: string) =>
+        api.get(`/purchases/purchase/seller/${sellerID}`)
 };
 
 export const charityApplicationsAPI = {
