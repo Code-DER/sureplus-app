@@ -5,7 +5,7 @@ from uuid import UUID
 from database import supabase_admin
 from api.dependency import require_role
 from models.admin_reports import ReportsOverviewResponse, ReportsTransactionRow
-from models.user import AdminCreateUserRequest
+from models.user import AdminCreateUserRequest, UpdateUserRoleRequest
 from services import admin_reports_service, admin_activity_service
 from services.auth_service import hash_password
 
@@ -131,13 +131,17 @@ async def create_admin_user(
 
     new_user = user_res.data[0]
 
-    admin_activity_service.record_admin_activity(
-        admin_id=current_user["userID"],
-        action_type="create_admin",
-        description=f"Created admin account for {data.emailAddress}",
-        target_id=new_user["userID"],
-        target_entity="User",
-    )
+    # Record activity (non-blocking - failure won't prevent response)
+    try:
+        admin_activity_service.record_admin_activity(
+            admin_id=current_user["userID"],
+            action_type="create_admin",
+            description=f"Created admin account for {data.emailAddress}",
+            target_id=new_user["userID"],
+            target_entity="User",
+        )
+    except Exception as e:
+        print(f"Warning: Failed to record admin activity: {e}")
 
     return {"message": "Admin user created.", "userID": new_user["userID"]}
 
@@ -145,27 +149,65 @@ async def create_admin_user(
 @router.patch("/users/{user_id}/role")
 async def update_user_role(
     user_id: UUID,
-    role: str = Body(..., embed=True),
+    data: UpdateUserRoleRequest,
     current_user: dict = Depends(require_role("admin")),
 ):
-    """Change a user's role."""
+    """Change a user's role. When promoting to admin, employeeID and adminType are required."""
     allowed = {"buyer", "seller", "charity", "admin", "rider"}
-    if role not in allowed:
+    if data.role not in allowed:
         raise HTTPException(status_code=400, detail=f"Role must be one of: {allowed}")
 
-    res = supabase_admin.table("User").update({"role": role}).eq("userID", str(user_id)).execute()
+    # If promoting to admin, require employeeID and adminType
+    if data.role == "admin":
+        if not data.employeeID or not data.adminType:
+            raise HTTPException(status_code=400, detail="employeeID and adminType are required when promoting to admin.")
+
+    # Update user role
+    res = supabase_admin.table("User").update({"role": data.role}).eq("userID", str(user_id)).execute()
     if not res.data:
         raise HTTPException(status_code=404, detail="User not found")
 
-    admin_activity_service.record_admin_activity(
-        admin_id=current_user["userID"],
-        action_type="update_role",
-        description=f"Changed user role to '{role}'",
-        target_id=str(user_id),
-        target_entity="User",
-    )
+    user_id_str = str(user_id)
 
-    return {"message": f"Role updated to {role}"}
+    # Handle Admin table entry
+    if data.role == "admin":
+        # Check if Admin record already exists
+        existing_admin = supabase_admin.table("Admin").select("userID").eq("userID", user_id_str).execute()
+        
+        if not existing_admin.data:
+            # Create new Admin record
+            admin_res = supabase_admin.table("Admin").insert({
+                "userID": user_id_str,
+                "employeeID": data.employeeID,
+                "adminType": data.adminType,
+            }).execute()
+            if not admin_res.data:
+                raise HTTPException(status_code=500, detail="Failed to create admin record.")
+        else:
+            # Update existing Admin record
+            update_res = supabase_admin.table("Admin").update({
+                "employeeID": data.employeeID,
+                "adminType": data.adminType,
+            }).eq("userID", user_id_str).execute()
+            if not update_res.data:
+                raise HTTPException(status_code=500, detail="Failed to update admin record.")
+    else:
+        # If role is not admin, remove from Admin table
+        supabase_admin.table("Admin").delete().eq("userID", user_id_str).execute()
+
+    # Record activity (non-blocking - failure won't prevent response)
+    try:
+        admin_activity_service.record_admin_activity(
+            admin_id=current_user["userID"],
+            action_type="update_role",
+            description=f"Changed user role to '{data.role}'",
+            target_id=user_id_str,
+            target_entity="User",
+        )
+    except Exception as e:
+        print(f"Warning: Failed to record admin activity: {e}")
+
+    return {"message": f"Role updated to {data.role}"}
 
 
 @router.delete("/users/{user_id}")
@@ -178,13 +220,17 @@ async def delete_user(
     if not res.data:
         raise HTTPException(status_code=404, detail="User not found")
 
-    admin_activity_service.record_admin_activity(
-        admin_id=current_user["userID"],
-        action_type="delete_user",
-        description="Deleted user account",
-        target_id=str(user_id),
-        target_entity="User",
-    )
+    # Record activity (non-blocking - failure won't prevent response)
+    try:
+        admin_activity_service.record_admin_activity(
+            admin_id=current_user["userID"],
+            action_type="delete_user",
+            description="Deleted user account",
+            target_id=str(user_id),
+            target_entity="User",
+        )
+    except Exception as e:
+        print(f"Warning: Failed to record admin activity: {e}")
 
     return {"message": "User deleted"}
 
@@ -249,13 +295,17 @@ async def update_seller_tags(
     if not res.data:
         raise HTTPException(status_code=404, detail="Seller not found")
 
-    admin_activity_service.record_admin_activity(
-        admin_id=current_user["userID"],
-        action_type="update_tags",
-        description=f"Updated seller tags: {', '.join(tags) if tags else 'cleared'}",
-        target_id=str(seller_id),
-        target_entity="Seller",
-    )
+    # Record activity (non-blocking - failure won't prevent response)
+    try:
+        admin_activity_service.record_admin_activity(
+            admin_id=current_user["userID"],
+            action_type="update_tags",
+            description=f"Updated seller tags: {', '.join(tags) if tags else 'cleared'}",
+            target_id=str(seller_id),
+            target_entity="Seller",
+        )
+    except Exception as e:
+        print(f"Warning: Failed to record admin activity: {e}")
 
     return {"message": "Tags updated", "tags": tags}
 

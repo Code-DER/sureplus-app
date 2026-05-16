@@ -54,6 +54,12 @@ export default function AdminUserManagement() {
   const [addAdminLoading, setAddAdminLoading] = useState(false);
   const [addAdminError, setAddAdminError] = useState<string | null>(null);
 
+  const [showPromoteAdminModal, setShowPromoteAdminModal] = useState(false);
+  const [promoteAdminUserId, setPromoteAdminUserId] = useState<string | null>(null);
+  const [promoteAdminForm, setPromoteAdminForm] = useState({ employeeID: '', adminType: '' });
+  const [promoteAdminLoading, setPromoteAdminLoading] = useState(false);
+  const [promoteAdminError, setPromoteAdminError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!editingUserId) return;
     const handleOutsideClick = (e: MouseEvent) => {
@@ -95,9 +101,39 @@ export default function AdminUserManagement() {
   };
 
   const applyRole = async (userId: string, newRole: User['role']) => {
-    await adminAPI.updateUserRole(userId, newRole);
-    setEditingUserId(null);
-    await loadData();
+    if (newRole === 'admin') {
+      setPromoteAdminUserId(userId);
+      setPromoteAdminForm({ employeeID: '', adminType: '' });
+      setPromoteAdminError(null);
+      setShowPromoteAdminModal(true);
+      setEditingUserId(null);
+    } else {
+      await adminAPI.updateUserRole(userId, newRole);
+      setEditingUserId(null);
+      await loadData();
+    }
+  };
+
+  const handlePromoteAdmin = async () => {
+    if (!promoteAdminUserId) return;
+    if (!promoteAdminForm.employeeID || !promoteAdminForm.adminType) {
+      setPromoteAdminError('Both Employee ID and Admin Type are required.');
+      return;
+    }
+    setPromoteAdminLoading(true);
+    setPromoteAdminError(null);
+    try {
+      await adminAPI.updateUserRole(promoteAdminUserId, 'admin', promoteAdminForm.employeeID, promoteAdminForm.adminType);
+      setShowPromoteAdminModal(false);
+      setPromoteAdminUserId(null);
+      setPromoteAdminForm({ employeeID: '', adminType: '' });
+      await loadData();
+    } catch (err: unknown) {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      setPromoteAdminError(detail ?? 'Failed to promote user to admin.');
+    } finally {
+      setPromoteAdminLoading(false);
+    }
   };
 
   const deleteUser = async (user: User) => {
@@ -151,6 +187,41 @@ export default function AdminUserManagement() {
 
   return (
     <>
+    {showPromoteAdminModal && (
+      <div className="modal-overlay" onClick={() => { setShowPromoteAdminModal(false); setPromoteAdminError(null); }}>
+        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3>Promote to Admin</h3>
+            <button className="btn-icon-gray" onClick={() => { setShowPromoteAdminModal(false); setPromoteAdminError(null); }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          {promoteAdminError && <p className="modal-error">{promoteAdminError}</p>}
+          <form onSubmit={(e) => { e.preventDefault(); void handlePromoteAdmin(); }}>
+            <div className="modal-field">
+              <label>Employee ID</label>
+              <input required placeholder="e.g. EMP001" value={promoteAdminForm.employeeID} onChange={(e) => setPromoteAdminForm((f) => ({ ...f, employeeID: e.target.value }))} />
+            </div>
+            <div className="modal-field">
+              <label>Admin Type</label>
+              <select required value={promoteAdminForm.adminType} onChange={(e) => setPromoteAdminForm((f) => ({ ...f, adminType: e.target.value }))} >
+                <option value="">Select admin type...</option>
+                <option value="manager">Manager</option>
+                <option value="moderator">Moderator</option>
+                <option value="operator">Operator</option>
+                <option value="support">Support</option>
+              </select>
+            </div>
+            <div className="modal-actions">
+              <button type="button" className="btn-action outline" onClick={() => { setShowPromoteAdminModal(false); setPromoteAdminError(null); }}>Cancel</button>
+              <button type="submit" className="btn-action primary" disabled={promoteAdminLoading}>
+                {promoteAdminLoading ? 'Promoting...' : 'Promote to Admin'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
     {showAddAdminModal && (
       <div className="modal-overlay" onClick={() => { setShowAddAdminModal(false); setAddAdminError(null); }}>
         <div className="modal-card" onClick={(e) => e.stopPropagation()}>
