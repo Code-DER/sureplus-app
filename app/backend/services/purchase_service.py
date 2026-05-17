@@ -111,7 +111,7 @@ def complete_purchase(purchase_id: str):
         .single() \
         .execute()
 
-    current_points = float(buyer_res.data[0].get("points", 0))
+    current_points = float(buyer_res.data.get("points", 0))
 
     # Update buyer points
     supabase_admin.table("Buyer") \
@@ -297,18 +297,3 @@ def get_buyer_orders(buyer_id: str) -> list:
     rows.sort(key=lambda r: r.get("purchaseDate") or "", reverse=True)
     return rows
 
-
-def complete_purchase(purchase_id: str):
-    """
-    Mark a purchase as completed and trigger social impact calculation.
-    """
-    response = supabase_admin.table("Purchase") \
-        .update({"status": "completed"}) \
-        .eq("purchaseID", purchase_id) \
-        .execute()
-
-    if response.data:
-        # Hook into Social Impact
-        social_impact_service.create_impact(purchase_id)
-
-    return response

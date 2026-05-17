@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import './SalesAnalytics.css';
-import { purchasesAPI, socialImpactAPI } from '../api/apis';
+import { purchasesAPI, purchaseAPI, socialImpactAPI } from '../api/apis';
 
 interface SalesAnalyticsProps {
   onBack: () => void;
@@ -76,6 +76,32 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
   const [orders, setOrders] = useState<Order[]>([]);
   const [impact, setImpact] = useState<ImpactSummary | null>(null);
   const [loadingData, setLoadingData] = useState(false);
+
+  const handleCompleteOrder = async (purchaseID: string) => {
+  try {
+    await purchaseAPI.completePurchase(purchaseID);
+
+    // update local state
+    setOrders(prev =>
+      prev.map(order =>
+        order.purchaseID === purchaseID
+          ? { ...order, status: 'completed' }
+          : order
+      )
+    );
+
+    setPurchases(prev =>
+      prev.map(p =>
+        p.purchaseID === purchaseID
+          ? { ...p, status: 'completed' }
+          : p
+      )
+    );
+
+  } catch (error) {
+    console.error('Failed to complete order', error);
+  }
+};
 
   useEffect(() => {
     if (!sellerId) return;
@@ -299,7 +325,18 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
                         <span className="sa-freq-value">₱{order.totalPerItem.toFixed(2)}</span>
                       </div>
                       <div className="sa-buyers-td sa-buyers-td-loyalty">
-                        <span className={`sa-loyalty-badge ${statusClass}`}>{order.status.toUpperCase()}</span>
+                        {order.status === 'pending' ? (
+                          <button
+                            className={`sa-loyalty-badge ${statusClass}`}
+                            onClick={() => handleCompleteOrder(order.purchaseID)}
+                          >
+                            MARK COMPLETE
+                          </button>
+                        ) : (
+                          <span className={`sa-loyalty-badge ${statusClass}`}>
+                            {order.status.toUpperCase()}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

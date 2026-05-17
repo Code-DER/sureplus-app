@@ -116,6 +116,11 @@ export const purchasesAPI = {
 // Ratings API functions
 export const ratingsAPI = {
     getSellerRatings: (sellerId: string) => api.get(`/ratings/rating/seller/${sellerId}`),
+    createRating: (data: {
+        purchaseID: string
+        rating: number
+        comment?: string
+    }) => api.post('/ratings/rating', data),
 };
 
 // Notifications API functions
@@ -128,8 +133,7 @@ export const notificationsAPI = {
 export const purchaseAPI = {
     createPurchase: (data) => api.post('/purchases/purchase', data),
 
-    completePurchase: (purchaseID: string) =>
-        api.put(`/purchases/purchase/${purchaseID}/complete`),
+    completePurchase: (purchaseId: string) => api.put(`/purchases/purchase/${purchaseId}/complete`),
 
     getSellerPurchases: (sellerID: string) =>
         api.get(`/purchases/purchase/seller/${sellerID}`),
