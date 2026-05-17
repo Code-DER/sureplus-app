@@ -184,7 +184,7 @@ export const purchaseAPI = {
     getSellerPurchases: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}`),
     getSellerOrders: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}/orders`),
     getBuyerOrders: () => api.get('/purchases/purchase/buyer/orders'),
-    getMyFood: () => api.get('/purchases/my-food'),
+    getMyFood: () => api.get('/purchases/purchase/my-food'),
 };
 
 // Food / Product API functions
@@ -229,12 +229,6 @@ export const uploadsAPI = {
             },
         });
     },
-};
-
-export const charityApplicationsAPI = {
-    getPending: () => api.get('/charity-applications/pending'),
-    review: (applicationId: string, data: { status: 'approved' | 'rejected'; organizationName?: string }) =>
-        api.put(`/charity-applications/${applicationId}/review`, data),
 };
 
 export default api;

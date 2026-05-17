@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import './AdminUserManagement.css';
-import { adminAPI, charityApplicationsAPI } from '../api/apis';
+import { adminAPI, charityAPI } from '../api/apis';
 
 const USERS_PER_PAGE = 10;
 type RoleFilter = 'all' | 'seller' | 'buyer' | 'charity' | 'admin';
@@ -75,7 +75,7 @@ export default function AdminUserManagement() {
       setLoading(true);
       const [usersRes, pendingRes] = await Promise.all([
         adminAPI.getUsers(currentPage, USERS_PER_PAGE, roleFilter === 'all' ? undefined : roleFilter),
-        charityApplicationsAPI.getPending(),
+        charityAPI.getPendingApplications(),
       ]);
       const fetchedUsers = usersRes.data?.users ?? [];
       setUsers(fetchedUsers);
@@ -140,7 +140,13 @@ export default function AdminUserManagement() {
   };
 
   const reviewPending = async (applicationID: string, status: 'approved' | 'rejected') => {
-    await charityApplicationsAPI.review(applicationID, status === 'approved' ? { status, organizationName: 'Approved Organization' } : { status });
+    let organizationName: string | undefined;
+    if (status === 'approved') {
+      const name = window.prompt('Enter the organization name for this charity:');
+      if (!name) return; // admin cancelled
+      organizationName = name;
+    }
+    await charityAPI.reviewApplication(applicationID, { status, organizationName });
     await loadData();
   };
 

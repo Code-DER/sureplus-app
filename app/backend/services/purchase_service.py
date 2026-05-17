@@ -15,12 +15,16 @@ def _execute(query, error_detail: str):
     except Exception as exc:
         logger.exception(error_detail)
         err_msg = str(exc)
+        
+        # Handle specific stock/not found errors
         if "Not enough stock" in err_msg:
             raise HTTPException(status_code=400, detail=err_msg)
         if "Food item" in err_msg and "not found" in err_msg:
             raise HTTPException(status_code=404, detail=err_msg)
             
-        raise HTTPException(status_code=500, detail=error_detail) from exc
+        # Include the underlying message to help debug deployment issues like X-1
+        detail = f"{error_detail}: {err_msg}"
+        raise HTTPException(status_code=500, detail=detail) from exc
 
 def create_purchase(data: dict, user_id: str):
     """

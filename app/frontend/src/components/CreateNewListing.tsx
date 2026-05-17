@@ -119,7 +119,6 @@ export default function CreateNewListing({ onBack, onCreated }: CreateNewListing
         foodName: title.trim(),
         description: description.trim(),
         picture: pictureUrl,
-        isEdible: listingType === 'individual',
         price: parsedPrice,
         stockQuantity: quantity,
         expirationDate: expiryDate.substring(0, 10),

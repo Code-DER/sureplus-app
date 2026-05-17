@@ -34,12 +34,17 @@ def record_admin_activity(
     target_id: Optional[str] = None,
     target_entity: Optional[str] = None,
 ):
-    admin_activity = {
-        "userID": admin_id,
-        "actionType": action_type,
-        "description": description,
-        "targetID": target_id,
-        "targetEntity": target_entity,
-    }
+    try:
+        admin_activity = {
+            "userID": admin_id,
+            "actionType": action_type,
+            "description": description,
+            "targetID": target_id,
+            "targetEntity": target_entity,
+        }
 
-    return supabase_admin.table("AdminActivity").insert(admin_activity).execute()
+        return supabase_admin.table("AdminActivity").insert(admin_activity).execute()
+    except Exception as e:
+        # Logging failure to write admin activity should not block the main flow
+        print(f"Warning: Failed to record admin activity: {e}")
+        return None

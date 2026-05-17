@@ -159,8 +159,40 @@ async def update_user_role(
 
     user_id_str = str(user_id)
 
-    # Handle Admin table entry
-    if data.role == "admin":
+    # N-1: Ensure Charity record exists when role is "charity"
+    # B-9: Enforce role exclusivity by cleaning up other role-specific records
+    if data.role == "charity":
+        existing_charity = supabase_admin.table("Charity").select("userID").eq("userID", user_id_str).execute()
+        if not existing_charity.data:
+            charity_res = supabase_admin.table("Charity").insert({
+                "userID": user_id_str,
+                "organizationName": "Unnamed Organization", # admin can edit later
+            }).execute()
+            if not charity_res.data:
+                raise HTTPException(status_code=500, detail="Failed to create Charity record.")
+        
+        # Exclusivity: Remove from Seller and Admin (and potentially Buyer if required)
+        supabase_admin.table("Seller").delete().eq("userID", user_id_str).execute()
+        supabase_admin.table("Admin").delete().eq("userID", user_id_str).execute()
+        # Note: Buyer record (points) is often kept as a base, but for strict exclusivity:
+        # supabase_admin.table("Buyer").delete().eq("userID", user_id_str).execute()
+
+    elif data.role == "seller":
+        # Ensure Seller record exists
+        existing_seller = supabase_admin.table("Seller").select("userID").eq("userID", user_id_str).execute()
+        if not existing_seller.data:
+            supabase_admin.table("Seller").insert({
+                "userID": user_id_str,
+                "companyName": "New Seller",
+                "sellerType": "individual",
+                "isVerified": False
+            }).execute()
+        
+        # Exclusivity: Remove from Charity and Admin
+        supabase_admin.table("Charity").delete().eq("userID", user_id_str).execute()
+        supabase_admin.table("Admin").delete().eq("userID", user_id_str).execute()
+
+    elif data.role == "admin":
         # Check if Admin record already exists
         existing_admin = supabase_admin.table("Admin").select("userID").eq("userID", user_id_str).execute()
         
@@ -181,9 +213,16 @@ async def update_user_role(
             }).eq("userID", user_id_str).execute()
             if not update_res.data:
                 raise HTTPException(status_code=500, detail="Failed to update admin record.")
+        
+        # Exclusivity: Remove from Charity and Seller
+        supabase_admin.table("Charity").delete().eq("userID", user_id_str).execute()
+        supabase_admin.table("Seller").delete().eq("userID", user_id_str).execute()
+
     else:
-        # If role is not admin, remove from Admin table
+        # Default (buyer or other): Clean up all exclusive role records
         supabase_admin.table("Admin").delete().eq("userID", user_id_str).execute()
+        supabase_admin.table("Charity").delete().eq("userID", user_id_str).execute()
+        supabase_admin.table("Seller").delete().eq("userID", user_id_str).execute()
 
     # Record activity (non-blocking - failure won't prevent response)
     try:
