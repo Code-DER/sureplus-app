@@ -1,5 +1,6 @@
 from database import supabase_admin
 from fastapi import HTTPException
+from services.notification_service import send_notification
 
 def create_rating(rater_id, data):
     """
@@ -116,6 +117,14 @@ def create_rating(rater_id, data):
 
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to create rating")
+
+    send_notification(
+        user_id=str(target_id),
+        title="New Rating Received",
+        message=f"You received a {rating_value}⭐ rating.",
+        type="rating",
+        link="/seller/ratings" if purchase_id else "/impact"
+    )
 
     return result.data[0]
 
