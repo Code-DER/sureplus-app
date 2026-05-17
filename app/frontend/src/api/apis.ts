@@ -92,6 +92,8 @@ export const adminAPI = {
     togglePartnerStatus: (userId: string, isPartner: boolean) => api.put(`/admin/charities/${userId}/partner`, { isPartner }),
     getSellers: () => api.get('/admin/sellers'),
     updateSellerTags: (sellerId: string, tags: string[]) => api.patch(`/admin/sellers/${sellerId}/tags`, tags),
+    updateSellerVerification: (sellerId: string, isVerified: boolean) =>
+        api.put(`/admin/sellers/${sellerId}/verification`, { isVerified }),
     getPendingApprovals: () => api.get('/admin/pending-approvals'),
     getRecentTransactions: (limit = 10) => api.get('/admin/reports/transactions', { params: { limit } }),
     getReportsOverview: () => api.get('/admin/reports/overview'),
