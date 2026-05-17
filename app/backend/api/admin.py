@@ -4,11 +4,12 @@ from uuid import UUID
 
 from database import supabase_admin
 from api.dependency import require_role
-from models.admin_reports import ReportsOverviewResponse, ReportsTransactionRow
+from models.admin_reports import ReportsOverviewResponse, ReportsTransactionRow, ReportsTransactionsResponse
+from models.admin_partner import SellerVerificationUpdateRequest, SellerVerificationUpdateResponse
 from models.user import AdminCreateUserRequest, UpdateUserRoleRequest
 from models.charity_post import CharityPostUpdate
 from models.charity import CharityUpdate
-from services import admin_reports_service, admin_activity_service, charity_post_service, charity_service
+from services import admin_reports_service, admin_activity_service, charity_post_service, charity_service, admin_partner_service
 from services.auth_service import hash_password
 
 router = APIRouter()
@@ -358,15 +359,47 @@ async def update_seller_tags(
     return {"message": "Tags updated", "tags": tags}
 
 
+@router.put("/sellers/{seller_id}/verification", response_model=SellerVerificationUpdateResponse)
+async def update_seller_verification(
+    seller_id: UUID,
+    payload: SellerVerificationUpdateRequest,
+    current_user: dict = Depends(require_role("admin")),
+):
+    updated_seller = admin_partner_service.update_seller_verification(
+        seller_id=str(seller_id),
+        is_verified=payload.isVerified,
+    )
+    if not updated_seller:
+        raise HTTPException(status_code=404, detail="Seller not found")
+
+    try:
+        admin_activity_service.record_admin_activity(
+            admin_id=current_user["userID"],
+            action_type="verify_seller" if payload.isVerified else "unverify_seller",
+            description=f"{'Verified' if payload.isVerified else 'Unverified'} seller account",
+            target_id=str(seller_id),
+            target_entity="Seller",
+        )
+    except Exception as e:
+        print(f"Warning: Failed to record admin activity: {e}")
+
+    return {
+        "message": "Seller verification updated",
+        "userID": str(seller_id),
+        "isVerified": payload.isVerified,
+    }
+
+
 # ── Reports ───────────────────────────────────────────────────────────────────
 
-@router.get("/reports/transactions", response_model=List[ReportsTransactionRow])
+@router.get("/reports/transactions", response_model=ReportsTransactionsResponse)
 async def get_recent_transactions(
     limit: int = Query(default=10, ge=1, le=100),
+    page: int = Query(default=1, ge=1),
     current_user: dict = Depends(require_role("admin")),
 ):
     """Recent purchases for the admin reports transaction log."""
-    return admin_reports_service.fetch_recent_transactions(limit=limit)
+    return admin_reports_service.fetch_recent_transactions(limit=limit, page=page)
 
 
 @router.get("/reports/bad-actors")

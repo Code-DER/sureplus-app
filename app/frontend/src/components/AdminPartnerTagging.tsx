@@ -26,6 +26,7 @@ type SellerRecord = {
     barangay?: string;
     city?: string;
   };
+  isUpdating?: boolean;
 };
 
 export default function AdminPartnerTagging() {
@@ -37,6 +38,7 @@ export default function AdminPartnerTagging() {
   const [untaggedUsers, setUntaggedUsers] = useState(false);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [sellerLoading, setSellerLoading] = useState(false);
+  const [openSellerMenuId, setOpenSellerMenuId] = useState<string | null>(null);
 
   // Charity State
   const [charities, setCharities] = useState<CharityWithUser[]>([]);
@@ -75,9 +77,39 @@ export default function AdminPartnerTagging() {
     else fetchCharities();
   }, [mode]);
 
+  useEffect(() => {
+    const handleDocumentClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('.pt-menu-wrap')) return;
+      setOpenSellerMenuId(null);
+    };
+
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, []);
+
   const updateTags = async (sellerId: string, tags: string[]) => {
     await adminAPI.updateSellerTags(sellerId, tags);
     await loadSellers();
+  };
+
+  const handleToggleSellerVerification = async (sellerId: string, currentStatus: boolean) => {
+    try {
+      setSellers(prev => prev.map(s =>
+        s.userID === sellerId ? { ...s, isUpdating: true } : s
+      ));
+      await adminAPI.updateSellerVerification(sellerId, !currentStatus);
+      setSellers(prev => prev.map(s =>
+        s.userID === sellerId ? { ...s, isVerified: !currentStatus, isUpdating: false } : s
+      ));
+      setOpenSellerMenuId(null);
+    } catch (err) {
+      console.error('Error updating seller verification:', err);
+      alert('Failed to update verification status.');
+      setSellers(prev => prev.map(s =>
+        s.userID === sellerId ? { ...s, isUpdating: false } : s
+      ));
+    }
   };
 
   const handleTogglePartner = async (userId: string, currentStatus: boolean) => {
@@ -164,7 +196,7 @@ export default function AdminPartnerTagging() {
               <div className="pt-card" key={seller.userID}>
                 <div className="pt-img-col">
                   <img src={idx % 2 === 0 ? BakeryImg : CommunityImg} alt={seller.companyName || 'Seller'} className="pt-img" />
-                  <span className={`pt-badge pt-badge--${seller.isVerified ? 'seller' : 'pending'}`}>{seller.isVerified ? 'SELLER' : 'PENDING'}</span>
+                  <span className={`pt-badge pt-badge--${seller.isVerified ? 'verified' : 'pending'}`}>{seller.isVerified ? 'VERIFIED' : 'PENDING'}</span>
                 </div>
 
                 <div className="pt-content">
@@ -183,6 +215,27 @@ export default function AdminPartnerTagging() {
                       <span className={`pt-status-chip pt-status-chip--${seller.isVerified ? 'verified' : 'community'}`}>
                         {seller.isVerified ? 'Verified' : 'Community'}
                       </span>
+                      <div className="pt-menu-wrap">
+                        <button
+                          className="pt-dots-btn"
+                          title="Partner actions"
+                          onClick={() => setOpenSellerMenuId(prev => prev === seller.userID ? null : seller.userID)}
+                          disabled={seller.isUpdating}
+                        >
+                          <span aria-hidden="true">⋮</span>
+                        </button>
+                        {openSellerMenuId === seller.userID && (
+                          <div className="pt-actions-menu">
+                            <button
+                              className="pt-actions-menu-btn"
+                              onClick={() => void handleToggleSellerVerification(seller.userID, !!seller.isVerified)}
+                              disabled={seller.isUpdating}
+                            >
+                              {seller.isUpdating ? 'Updating...' : (seller.isVerified ? 'Unverify' : 'Verify')}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 

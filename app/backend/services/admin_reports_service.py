@@ -50,13 +50,19 @@ def fetch_reports_overview() -> dict:
     }
 
 
-def fetch_recent_transactions(limit: int) -> list[dict]:
+def fetch_recent_transactions(limit: int, page: int = 1) -> dict:
+    offset = (page - 1) * limit
     rows = []
+    total = 0
+    count_res = supabase_admin.table("Purchase").select("purchaseID", count="exact").execute()
+    total = count_res.count or 0
+
     try:
         res = (
             supabase_admin.table("Purchase")
             .select("purchaseID, totalPrice, purchaseDate, status, userID")
             .order("purchaseDate", desc=True)
+            .range(offset, offset + limit - 1)
             .limit(limit)
             .execute()
         )
@@ -67,6 +73,7 @@ def fetch_recent_transactions(limit: int) -> list[dict]:
                 supabase_admin.table("Purchase")
                 .select("purchaseID, totalPrice, status, userID, createdAt")
                 .order("createdAt", desc=True)
+                .range(offset, offset + limit - 1)
                 .limit(limit)
                 .execute()
             )
@@ -106,4 +113,9 @@ def fetch_recent_transactions(limit: int) -> list[dict]:
         if pid in quantities_by_purchase:
             row["quantity"] = quantities_by_purchase[pid]
 
-    return normalized_rows
+    return {
+        "transactions": normalized_rows,
+        "total": total,
+        "page": page,
+        "limit": limit,
+    }
