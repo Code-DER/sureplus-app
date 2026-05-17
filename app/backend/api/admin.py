@@ -4,7 +4,7 @@ from uuid import UUID
 
 from database import supabase_admin
 from api.dependency import require_role
-from models.admin_reports import ReportsOverviewResponse, ReportsTransactionRow
+from models.admin_reports import ReportsOverviewResponse, ReportsTransactionRow, ReportsTransactionsResponse
 from models.admin_partner import SellerVerificationUpdateRequest, SellerVerificationUpdateResponse
 from models.user import AdminCreateUserRequest, UpdateUserRoleRequest
 from models.charity_post import CharityPostUpdate
@@ -392,13 +392,14 @@ async def update_seller_verification(
 
 # ── Reports ───────────────────────────────────────────────────────────────────
 
-@router.get("/reports/transactions", response_model=List[ReportsTransactionRow])
+@router.get("/reports/transactions", response_model=ReportsTransactionsResponse)
 async def get_recent_transactions(
     limit: int = Query(default=10, ge=1, le=100),
+    page: int = Query(default=1, ge=1),
     current_user: dict = Depends(require_role("admin")),
 ):
     """Recent purchases for the admin reports transaction log."""
-    return admin_reports_service.fetch_recent_transactions(limit=limit)
+    return admin_reports_service.fetch_recent_transactions(limit=limit, page=page)
 
 
 @router.get("/reports/bad-actors")

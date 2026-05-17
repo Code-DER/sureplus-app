@@ -31,3 +31,10 @@ class ReportsTransactionRow(BaseModel):
     userID: str
     quantity: int = 0
     foodID: Optional[str] = None
+
+
+class ReportsTransactionsResponse(BaseModel):
+    transactions: List[ReportsTransactionRow]
+    total: int
+    page: int
+    limit: int
