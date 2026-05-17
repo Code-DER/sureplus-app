@@ -705,17 +705,19 @@ const EditCharityPostModal: React.FC<EditModalProps> = ({ post, onClose, onSucce
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Food Goal (kg)</label>
-              <input 
-                type="number" 
-                value={formData.foodGoalKg} 
-                onChange={e => setFormData({...formData, foodGoalKg: e.target.value})} 
-                min="0.1"
-                step="0.1"
-                required 
-              />
-            </div>
+            {(post.donationMode === 'food' || post.donationMode === 'both') && (
+              <div className="form-group">
+                <label>Food Goal (kg)</label>
+                <input 
+                  type="number" 
+                  value={formData.foodGoalKg} 
+                  onChange={e => setFormData({...formData, foodGoalKg: e.target.value})} 
+                  min="0.1"
+                  step="0.1"
+                  required 
+                />
+              </div>
+            )}
 
             {error && <p className="modal-error">{error}</p>}
           </div>

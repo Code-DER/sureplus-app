@@ -491,7 +491,10 @@ async def admin_delete_charity_post(
     charity_id: UUID, 
     current_user: dict = Depends(require_role("admin"))
 ):
-    charity_post_service.delete_post(str(charity_id))
+    response = charity_post_service.delete_post(str(charity_id))
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Charity post not found")
+
     admin_activity_service.record_admin_activity(
         admin_id=current_user["userID"],
         action_type="delete_charity_post",
@@ -527,7 +530,10 @@ async def admin_delete_charity(
     user_id: UUID, 
     current_user: dict = Depends(require_role("admin"))
 ):
-    supabase_admin.table("Charity").delete().eq("userID", str(user_id)).execute()
+    res = supabase_admin.table("Charity").delete().eq("userID", str(user_id)).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Charity not found")
+
     admin_activity_service.record_admin_activity(
         admin_id=current_user["userID"],
         action_type="delete_charity",

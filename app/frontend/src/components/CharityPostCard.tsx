@@ -66,6 +66,13 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
 
   const isInteractionDisabled = post.status === 'closed' || post.status === 'funded' || isFullyFunded;
 
+  const modeConfig = {
+    food: { label: "🥕 Food Drive", cls: "food" },
+    money: { label: "💰 Fundraiser", cls: "money" },
+    both: { label: "🤝 Food & Funds", cls: "both" },
+  };
+  const { label, cls } = modeConfig[post.donationMode as keyof typeof modeConfig] ?? modeConfig.food;
+
   return (
     <div className={`charity-post-card ${isFullyFunded ? 'is-funded' : ''}`}>
       {isFullyFunded && (
@@ -86,8 +93,8 @@ const CharityPostCard: React.FC<CharityPostCardProps> = ({
                 Partner
               </span>
             )}
-            <span className="mode-badge food">
-              🥕 Food Drive
+            <span className={`mode-badge ${cls}`}>
+              {label}
             </span>
           </div>
           <span className={`status-badge ${post.status}`}>{post.status}</span>

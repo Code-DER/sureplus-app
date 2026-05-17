@@ -39,7 +39,7 @@ class CharityPostResponse(BaseModel):
     title: str
     description: Optional[str] = None
     imageUrl: Optional[str] = None
-    donationMode: str = 'money'
+    donationMode: str = 'food'
     currentAmount: float = 0.0
     amountNeeded: Optional[float] = None
     currentFoodKg: float = 0.0
