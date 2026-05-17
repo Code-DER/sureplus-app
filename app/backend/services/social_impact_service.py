@@ -93,7 +93,7 @@ def fetch_summary_by_user(user_id: str):
         .select("purchaseID") \
         .eq("userID", user_id) \
         .execute()
-    purchase_ids = [r["purchaseID"] for r in purchase_res.data]
+    purchase_ids = [r["purchaseID"] for r in (purchase_res.data or [])]
     
     purchase_impact = []
     if purchase_ids:
@@ -107,7 +107,7 @@ def fetch_summary_by_user(user_id: str):
         .eq("userID", user_id) \
         .eq("donationType", "food") \
         .execute()
-    donation_ids = [r["donationID"] for r in donation_res.data]
+    donation_ids = [r["donationID"] for r in (donation_res.data or [])]
     
     donation_impact = []
     if donation_ids:
@@ -118,9 +118,9 @@ def fetch_summary_by_user(user_id: str):
     all_rows = purchase_impact + donation_impact
     
     return {
-        "totalCarbonOffset": sum(row["carbonOffset"] for row in all_rows),
-        "totalRescuedKilos": sum(row["rescuedKilos"] for row in all_rows),
-        "totalPeopleFed": sum(row["peopleFed"] for row in all_rows),
+        "totalCarbonOffset": sum(float(row.get("carbonOffset") or 0) for row in all_rows),
+        "totalRescuedKilos": sum(float(row.get("rescuedKilos") or 0) for row in all_rows),
+        "totalPeopleFed": sum(int(row.get("peopleFed") or 0) for row in all_rows),
         "purchaseCount": len(purchase_ids),
         "donationCount": len(donation_ids)
     }
@@ -139,9 +139,9 @@ def fetch_global_impact():
         .select("carbonOffset, rescuedKilos, peopleFed").execute()
     rows = res.data or []
     return {
-        "totalCarbonOffset": sum(r["carbonOffset"] for r in rows),
-        "totalRescuedKilos": sum(r["rescuedKilos"] for r in rows),
-        "totalPeopleFed":    sum(r["peopleFed"] for r in rows),
+        "totalCarbonOffset": sum(float(r.get("carbonOffset") or 0) for r in rows),
+        "totalRescuedKilos": sum(float(r.get("rescuedKilos") or 0) for r in rows),
+        "totalPeopleFed":    sum(int(r.get("peopleFed") or 0) for r in rows),
         "totalEvents":       len(rows),
     }
 
@@ -155,7 +155,7 @@ def fetch_impact_history(user_id: str):
         .select("purchaseID") \
         .eq("userID", user_id) \
         .execute()
-    purchase_ids = [r["purchaseID"] for r in purchase_res.data]
+    purchase_ids = [r["purchaseID"] for r in (purchase_res.data or [])]
     
     p_impact_data = []
     if purchase_ids:
@@ -170,7 +170,7 @@ def fetch_impact_history(user_id: str):
         .select("donationID") \
         .eq("userID", user_id) \
         .execute()
-    donation_ids = [r["donationID"] for r in donation_res.data]
+    donation_ids = [r["donationID"] for r in (donation_res.data or [])]
     
     d_impact_data = []
     if donation_ids:

@@ -36,18 +36,11 @@ async def review_application(
     current_user: dict = Depends(require_role("admin"))
 ):
     try:
-        response = charity_application_service.review_application(
+        charity_application_service.review_application(
             application_id=str(application_id),
             status=review.status,
             org_name=review.organizationName,
             admin_id=current_user["userID"]
-        )
-        admin_activity_service.record_admin_activity(
-            admin_id=current_user["userID"],
-            action_type=f"application_{review.status}",
-            description=f"Charity application {review.status}",
-            target_id=str(application_id),
-            target_entity="CharityApplication",
         )
         return {"message": f"Application {review.status} successfully."}
     except Exception as e:

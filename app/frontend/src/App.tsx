@@ -19,6 +19,7 @@ function App() {
     const u = getAuthUser();
     if (u?.role === 'charity') return 'charity';
     if (u?.role === 'admin') return 'admin';
+    if (u?.role === 'seller') return 'seller';
     return 'buyer';
   });
 
@@ -27,6 +28,7 @@ function App() {
     const u = getAuthUser();
     if (u?.role === 'charity') setView('charity');
     else if (u?.role === 'admin') setView('admin');
+    else if (u?.role === 'seller') setView('seller');
     else setView('buyer');
   };
 

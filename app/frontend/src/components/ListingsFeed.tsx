@@ -8,6 +8,7 @@ import ProfileView from './ProfileView'
 import CharityPostsFeed from './CharityPostsFeed'
 import SocialImpactView from './SocialImpactView'
 import { foodAPI, purchaseAPI, socialImpactAPI, getAuthUser, userAPI } from '../api/apis'
+import { formatExpiration } from '../utils/format'
 import UserAvatar from './UserAvatar'
 import type { FoodItem } from '../types/food'
 

@@ -4,7 +4,7 @@ from typing import List
 from uuid import UUID
 from services import user_service
 from models.user import UserResponse, SellerSignUp, UserUpdate, PasswordChange
-from api.dependency import get_current_user
+from api.dependency import get_current_user, require_role
 from services.user_service import create_seller_profile
 from services.auth_service import verify_password, hash_password
 
@@ -12,7 +12,7 @@ router = APIRouter()
 
 # Endpoint to fetch all users and their details
 @router.get("/list", response_model=List[UserResponse])
-async def get_users(current_user: dict = Depends(get_current_user)):
+async def get_users(current_user: dict = Depends(require_role("admin"))):
     # Fetch all users from the database using the user service
     response = user_service.fetch_all_users()
 

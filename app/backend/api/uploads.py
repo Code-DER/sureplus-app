@@ -1,13 +1,17 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from typing import Dict
-from database import supabase_admin, _require_env
+from database import supabase_admin
+from api.dependency import get_current_user
 import uuid
 import os
 
 router = APIRouter()
 
 @router.post("/image", response_model=Dict[str, str])
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+):
     """Uploads an image file to Supabase storage and returns the public URL."""
     try:
         # Validate file type

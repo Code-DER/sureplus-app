@@ -19,10 +19,18 @@ ALLERGEN_COLUMNS = "allergenID, name"
 
 def _execute(query, error_detail: str):
     try:
-        return query.execute()
+        res = query.execute()
+        return res
     except Exception as exc:
         logger.exception(error_detail)
-        raise HTTPException(status_code=500, detail=error_detail) from exc
+        # Extract more detail if possible from PostgREST error
+        detail = error_detail
+        if hasattr(exc, 'message'):
+            detail = f"{error_detail}: {exc.message}"
+        elif str(exc):
+            detail = f"{error_detail}: {str(exc)}"
+            
+        raise HTTPException(status_code=500, detail=detail) from exc
 
 
 def _dedupe(values: Iterable) -> List[str]:
