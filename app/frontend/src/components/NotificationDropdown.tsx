@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { notificationsAPI } from '../api/apis'
 import './NotificationDropdown.css'
 
@@ -7,122 +7,127 @@ import BellIcon from '../assets/BUYER/Notif bell Icon.svg'
 interface Notification {
   id: number
   type: 'new_listing' | 'deal' | 'order_complete' | string
-  text: string       // plain text with HTML-safe substrings
-  highlight: string  // bold portion
+  text: string
+  highlight: string
   time: string
   unread: boolean
-  meta?: string      // small grey subtitle e.g. "2.4kg CO₂ saved"
+  meta?: string
   link?: string
 }
 
-// const MOCK_NOTIFICATIONS: Notification[] = [
-//   {
-//     id: 1,
-//     type: 'new_listing',
-//     text: 'Nanami walang damit at ',
-//     highlight: 'Le Petit Bistro',
-//     time: '2m ago',
-//     unread: true,
-//   },
-//   {
-//     id: 2,
-//     type: 'deal',
-//     text: '50% off all ',
-//     highlight: 'Surplus Veggie Bundles',
-//     time: '1h ago',
-//     unread: true,
-//   },
-//   {
-//     id: 3,
-//     type: 'order_complete',
-//     text: 'Rescue from ',
-//     highlight: 'Kali Market Central',
-//     time: '',
-//     unread: false,
-//     meta: '2.4kg CO₂ saved',
-//   },
-// ]
-
-const TYPE_CONFIG: Record<Notification['type'], { label: string; iconColor: string; iconBg: string }> = {
-  new_listing: { label: 'New Listing:', iconColor: '#66B018', iconBg: 'green' },
-  deal:        { label: 'Daily Deal:', iconColor: '#A04100', iconBg: 'orange' },
-  order_complete: { label: 'Order Complete:', iconColor: '#005050', iconBg: 'teal' },
+const TYPE_CONFIG: Record<string, { label: string; iconColor: string; iconBg: string }> = {
+  new_listing:    { label: 'New Listing:',    iconColor: '#66B018', iconBg: 'green'  },
+  deal:           { label: 'Daily Deal:',     iconColor: '#A04100', iconBg: 'orange' },
+  order_complete: { label: 'Order Complete:', iconColor: '#005050', iconBg: 'teal'   },
+  order:          { label: 'Order:',          iconColor: '#005050', iconBg: 'teal'   },
+  impact:         { label: 'Impact:',         iconColor: '#66B018', iconBg: 'green'  },
 }
 
-const DEFAULT_NOTIFICATION_CONFIG = {
-  label: 'Notification:',
-  iconColor: '#555',
-  iconBg: 'gray',
-}
+const DEFAULT_CFG = { label: 'Notification:', iconColor: '#555', iconBg: 'gray' }
+
+const EXPIRY_MS = 30_000
+const FADE_MS   = 400
 
 interface NotificationDropdownProps {
   onClose: () => void
+  onUnreadCountChange?: (count: number) => void
 }
 
-export default function NotificationDropdown({ onClose }: NotificationDropdownProps) {
+export default function NotificationDropdown({ onClose, onUnreadCountChange }: NotificationDropdownProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [expiringIds, setExpiringIds] = useState<Set<number>>(new Set())
+
+  // Map from id → [fadeTimer, removeTimer]
+  const timerRefs = useRef<Map<number, [ReturnType<typeof setTimeout>, ReturnType<typeof setTimeout>]>>(new Map())
 
   const fetchNotifications = async () => {
     try {
       setLoading(true)
       setError(null)
       const response = await notificationsAPI.getMyNotifications()
-
-      // Transform the backend data into the interface of frontend
-      const transformedNotifications: Notification[] = response.data.map((notif: {
-        notificationID: number;
-        type: string;
-        message: string;
-        title: string;
-        createdAt: string;
-        isRead: boolean;
-        link?: string;
+      const transformed: Notification[] = response.data.map((notif: {
+        notificationID: number
+        type: string
+        message: string
+        title: string
+        createdAt: string
+        isRead: boolean
+        link?: string
       }) => ({
         id: notif.notificationID,
-        type: (notif.type as Notification['type']) || 'new_listing',
+        type: notif.type || 'new_listing',
         text: notif.message || '',
         highlight: notif.title || '',
         time: new Date(notif.createdAt).toLocaleString(),
         unread: !notif.isRead,
-        meta: undefined,
         link: notif.link,
       }))
-      setNotifications(transformedNotifications)
-    } catch (error: unknown) {
-      console.error('Failed to fetch notifications', error)
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch notifications'
-      setError(errorMessage)
+      setNotifications(transformed)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to fetch notifications'
+      setError(msg)
     } finally {
       setLoading(false)
     }
   }
 
-  // Fetch notifications on component mount
   useEffect(() => {
     fetchNotifications()
+    // Cleanup all timers on unmount
+    return () => {
+      timerRefs.current.forEach(([t1, t2]) => { clearTimeout(t1); clearTimeout(t2) })
+    }
   }, [])
+
+  // Notify parent of unread count whenever notifications change
+  useEffect(() => {
+    const count = notifications.filter(n => n.unread).length
+    onUnreadCountChange?.(count)
+  }, [notifications]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const scheduleRemoval = (id: number) => {
+    if (timerRefs.current.has(id)) return
+
+    const fadeTimer = setTimeout(() => {
+      setExpiringIds(prev => { const s = new Set(prev); s.add(id); return s })
+    }, EXPIRY_MS - FADE_MS)
+
+    const removeTimer = setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id))
+      setExpiringIds(prev => { const s = new Set(prev); s.delete(id); return s })
+      timerRefs.current.delete(id)
+    }, EXPIRY_MS)
+
+    timerRefs.current.set(id, [fadeTimer, removeTimer])
+  }
+
+  const handleItemClick = (notif: Notification) => {
+    if (!notif.unread) return
+    notificationsAPI.markNotificationAsRead(notif.id.toString()).catch(() => {})
+    setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, unread: false } : n))
+    scheduleRemoval(notif.id)
+  }
 
   const markAllRead = async () => {
     try {
       await notificationsAPI.markAllNotificationsAsRead()
-      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
-    } catch (error: unknown) {
-      console.error('Failed to mark all as read.', error)
+      const unreadIds = notifications.filter(n => n.unread).map(n => n.id)
+      setNotifications(prev => prev.map(n => ({ ...n, unread: false })))
+      unreadIds.forEach(id => scheduleRemoval(id))
+    } catch (err: unknown) {
+      console.error('Failed to mark all as read.', err)
     }
   }
 
   return (
     <>
-      {/* Invisible backdrop to detect outside clicks */}
       <div className="notif-backdrop" onClick={onClose} />
 
       <div className="notif-dropdown">
-        {/* Arrow pointer */}
         <div className="notif-arrow" />
 
-        {/* Header */}
         <div className="notif-header">
           <span className="notif-title">Notifications</span>
           <button className="notif-mark-read" onClick={markAllRead}>
@@ -130,56 +135,57 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
           </button>
         </div>
 
-        {/* Items */}
         <div className="notif-list">
           {loading ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>Loading...</div>
+            <div className="notif-state-msg">Loading…</div>
           ) : error ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#d32f2f' }}>{error}</div>
+            <div className="notif-state-msg notif-state-error">{error}</div>
           ) : notifications.length === 0 ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No notifications yet.</div>
+            <div className="notif-state-msg">No notifications yet.</div>
           ) : (
-          notifications.map((n) => {
-            const cfg = TYPE_CONFIG[n.type] ?? DEFAULT_NOTIFICATION_CONFIG
-            return (
-              <div key={n.id} className="notif-item">
-                {/* Colored icon */}
-                <div className={`notif-icon ${cfg.iconBg}`}>
-                  <img
-                    src={BellIcon}
-                    alt="Notification"
-                    width="18"
-                    height="18"
-                  />
-                </div>
+            notifications.map(n => {
+              const cfg = TYPE_CONFIG[n.type] ?? DEFAULT_CFG
+              const isScheduled = timerRefs.current.has(n.id) && !n.unread
+              const isExpiring  = expiringIds.has(n.id)
+              return (
+                <div
+                  key={n.id}
+                  className={[
+                    'notif-item',
+                    isScheduled ? 'notif-item--read' : '',
+                    isExpiring  ? 'notif-item--expiring' : '',
+                  ].join(' ').trim()}
+                  onClick={() => handleItemClick(n)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && handleItemClick(n)}
+                >
+                  <div className={`notif-icon ${cfg.iconBg}`}>
+                    <img src={BellIcon} alt="Notification" width="18" height="18" />
+                  </div>
 
-                {/* Text */}
-                <div className="notif-content">
-                  <span className="notif-text">
-                    <strong>{cfg.label}</strong> {n.text}
-                    <br></br>
-                    <strong>{n.highlight}</strong>
-                  </span>
-                  {n.meta ? (
-                    <span className="notif-time">🌿 {n.meta}</span>
-                  ) : (
-                    <span className="notif-time">{n.time}</span>
-                  )}
-                </div>
+                  <div className="notif-content">
+                    <span className="notif-text">
+                      <strong>{cfg.label}</strong> {n.text}
+                      <br />
+                      <strong>{n.highlight}</strong>
+                    </span>
+                    {n.meta ? (
+                      <span className="notif-time">🌿 {n.meta}</span>
+                    ) : (
+                      <span className="notif-time">{n.time}</span>
+                    )}
+                  </div>
 
-                {/* Unread dot */}
-                {n.unread && <div className="notif-unread-dot" />}
-              </div>
-            )
-          })
+                  {n.unread && <div className="notif-unread-dot" />}
+                </div>
+              )
+            })
           )}
         </div>
 
-        {/* Footer */}
         <div className="notif-footer">
-          <button className="notif-see-all" onClick={onClose}>
-            Close
-          </button>
+          <button className="notif-see-all" onClick={onClose}>Close</button>
         </div>
       </div>
     </>

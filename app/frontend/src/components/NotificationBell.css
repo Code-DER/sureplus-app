@@ -1,0 +1,48 @@
+.notif-bell-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Generic fallback style — parent passes its own class via buttonClassName */
+.notif-bell-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  transition: background 0.15s;
+  padding: 0;
+}
+
+.notif-bell-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Red badge */
+.notif-badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  background: #EF4444;
+  color: #fff;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 10px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  line-height: 1;
+  border: 1.5px solid #fff;
+  box-sizing: border-box;
+}
