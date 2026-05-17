@@ -95,7 +95,7 @@ export const adminAPI = {
     updateSellerVerification: (sellerId: string, isVerified: boolean) =>
         api.put(`/admin/sellers/${sellerId}/verification`, { isVerified }),
     getPendingApprovals: () => api.get('/admin/pending-approvals'),
-    getRecentTransactions: (limit = 10) => api.get('/admin/reports/transactions', { params: { limit } }),
+    getRecentTransactions: (limit = 10, page = 1) => api.get('/admin/reports/transactions', { params: { limit, page } }),
     getReportsOverview: () => api.get('/admin/reports/overview'),
     getBadActorsReport: (limit = 10) => api.get('/admin/reports/bad-actors', { params: { limit } }),
     createAdmin: (data: { firstName: string; lastName: string; emailAddress: string; password: string }) =>

@@ -419,6 +419,41 @@
 
 .rp-export-btn:hover { opacity: 0.88; }
 
+.rp-export-menu-wrap {
+  position: relative;
+}
+
+.rp-export-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 120px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  padding: 6px;
+  z-index: 20;
+}
+
+.rp-export-menu-btn {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: #FFFFFF;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: #191C1A;
+  cursor: pointer;
+}
+
+.rp-export-menu-btn:hover {
+  background: #F8FAFC;
+}
+
 /* Table */
 .rp-table {
   width: 100%;
@@ -527,6 +562,11 @@
 }
 
 .rp-pg-btn:hover { background: #F1F5F9; }
+
+.rp-pg-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .rp-pg-btn--active {
   border-color: #66B018;

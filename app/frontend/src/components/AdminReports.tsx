@@ -28,6 +28,7 @@ type Transaction = {
   userID: string;
   quantity: number;
 };
+const TRANSACTIONS_PER_PAGE = 10;
 
 const SVG_W = 560, CHART_H = 150, LABEL_Y = 170, PAD_X = 8;
 
@@ -61,23 +62,108 @@ export default function AdminReports() {
   const [loading, setLoading] = useState(true);
   const [overview, setOverview] = useState<Overview | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   useEffect(() => {
-    const load = async () => {
+    const loadOverview = async () => {
       try {
         setLoading(true);
-        const [overviewRes, txRes] = await Promise.all([
-          adminAPI.getReportsOverview(),
-          adminAPI.getRecentTransactions(25),
-        ]);
+        const overviewRes = await adminAPI.getReportsOverview();
         setOverview(overviewRes.data ?? null);
-        setTransactions(txRes.data ?? []);
       } finally {
         setLoading(false);
       }
     };
-    void load();
+    void loadOverview();
   }, []);
+
+  useEffect(() => {
+    const loadTransactions = async () => {
+      try {
+        setLoading(true);
+        const txRes = await adminAPI.getRecentTransactions(TRANSACTIONS_PER_PAGE, currentPage);
+        setTransactions(txRes.data?.transactions ?? []);
+        setTotalTransactions(txRes.data?.total ?? 0);
+      } finally {
+        setLoading(false);
+      }
+    };
+    void loadTransactions();
+  }, [currentPage]);
+
+  useEffect(() => {
+    const closeMenu = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('.rp-export-menu-wrap')) return;
+      setShowExportMenu(false);
+    };
+    document.addEventListener('click', closeMenu);
+    return () => document.removeEventListener('click', closeMenu);
+  }, []);
+
+  const totalPages = Math.max(1, Math.ceil(totalTransactions / TRANSACTIONS_PER_PAGE));
+  const pageStart = (currentPage - 1) * TRANSACTIONS_PER_PAGE;
+  const goTo = (page: number) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
+
+  const toCsvCell = (value: string | number) => {
+    const str = String(value ?? '');
+    const escaped = str.replace(/"/g, '""');
+    return /[",\n]/.test(escaped) ? `"${escaped}"` : escaped;
+  };
+
+  const formatTxDate = (value?: string) => (value ? new Date(value).toLocaleDateString() : '-');
+
+  const exportAllCsv = async () => {
+    try {
+      const allRows: Transaction[] = [];
+      let page = 1;
+      let totalPagesForExport = 1;
+      do {
+        const res = await adminAPI.getRecentTransactions(100, page);
+        const rows: Transaction[] = res.data?.transactions ?? [];
+        const total: number = res.data?.total ?? 0;
+        totalPagesForExport = Math.max(1, Math.ceil(total / 100));
+        allRows.push(...rows);
+        page += 1;
+      } while (page <= totalPagesForExport);
+
+      const headers = ['DATE', 'PARTNER', 'TYPE', 'WEIGHT', 'STATUS', 'REVENUE'];
+      const lines = [
+        headers.join(','),
+        ...allRows.map((tx) => ([
+          toCsvCell(formatTxDate(tx.purchaseDate)),
+          toCsvCell(`User ${tx.userID}`),
+          toCsvCell('Seller'),
+          toCsvCell(`${tx.quantity || 0}kg`),
+          toCsvCell(tx.status || ''),
+          toCsvCell(formatCurrency(tx.totalPrice || 0)),
+        ].join(','))),
+      ];
+      const blob = new Blob([`\uFEFF${lines.join('\n')}`], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `recent-transaction-log-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('CSV export failed:', err);
+      alert('Failed to export CSV.');
+    } finally {
+      setShowExportMenu(false);
+    }
+  };
+
+  const exportAllPdf = () => {
+    setShowExportMenu(false);
+    alert('PDF export is not available yet without additional dependencies. CSV export is ready.');
+  };
 
   const grouped = transactions.reduce<Record<string, { rescue: number; revenue: number }>>((acc, tx) => {
     const key = tx.purchaseDate ? new Date(tx.purchaseDate).toLocaleString('en-US', { month: 'short' }) : 'N/A';
@@ -234,22 +320,22 @@ export default function AdminReports() {
           <h3 className="rp-txlog-title">Recent Transaction Log</h3>
           <div className="rp-txlog-controls">
             <div className="rp-format-bar">
-              <svg width="10" height="12" viewBox="0 0 12 14" fill="none" stroke="#94A3B8" strokeWidth="1.5">
-                <rect x="1" y="1" width="10" height="12" rx="1.5" />
-                <line x1="3" y1="4.5" x2="9" y2="4.5" />
-                <line x1="3" y1="7" x2="9" y2="7" />
-                <line x1="3" y1="9.5" x2="6" y2="9.5" />
-              </svg>
-              <span className="rp-format-label">PDF</span>
-              <span className="rp-format-divider"></span>
-              <span className="rp-format-label">CSV</span>
+              <span className="rp-format-label">PDF / CSV</span>
             </div>
-            <button className="rp-export-btn">
-              <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="1,1 5,5 9,1" />
-              </svg>
-              Export All
-            </button>
+            <div className="rp-export-menu-wrap">
+              <button className="rp-export-btn" onClick={() => setShowExportMenu((v) => !v)}>
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="1,1 5,5 9,1" />
+                </svg>
+                Export All
+              </button>
+              {showExportMenu && (
+                <div className="rp-export-menu">
+                  <button className="rp-export-menu-btn" onClick={() => void exportAllCsv()}>CSV</button>
+                  <button className="rp-export-menu-btn" onClick={exportAllPdf}>PDF</button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -284,13 +370,17 @@ export default function AdminReports() {
         </table>
 
         <div className="rp-txlog-footer">
-          <span className="rp-txlog-count">Showing {transactions.length} recent transactions</span>
+          <span className="rp-txlog-count">
+            Showing {transactions.length === 0 ? 0 : pageStart + 1}-{pageStart + transactions.length} of {totalTransactions} recent transactions
+          </span>
           <div className="rp-pg-controls">
-            <button className="rp-pg-btn">Previous</button>
-            <button className="rp-pg-btn rp-pg-btn--active">1</button>
-            <button className="rp-pg-btn">2</button>
-            <button className="rp-pg-btn">3</button>
-            <button className="rp-pg-btn">Next</button>
+            <button className="rp-pg-btn" onClick={() => goTo(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button key={page} className={`rp-pg-btn ${currentPage === page ? 'rp-pg-btn--active' : ''}`} onClick={() => goTo(page)}>
+                {page}
+              </button>
+            ))}
+            <button className="rp-pg-btn" onClick={() => goTo(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
           </div>
         </div>
       </div>
