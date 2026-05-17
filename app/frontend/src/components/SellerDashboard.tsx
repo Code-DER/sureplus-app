@@ -4,7 +4,6 @@ import './SellerDashboard.css';
 import UserAvatar from './UserAvatar';
 import CreateNewListing from './CreateNewListing';
 import ManageListings from './ManageListings';
-import MysteryBox from './MysteryBox';
 import SalesAnalytics from './SalesAnalytics';
 import SellerReviews from './SellerReviews';
 import NotificationDropdown from './NotificationDropdown';
@@ -37,7 +36,7 @@ interface Notification {
   createdAt?: string;
 }
 
-type SidebarTab = 'dashboard' | 'manage-listings' | 'create-new' | 'mystery-box' | 'sales-reports' | 'reviews';
+type SidebarTab = 'dashboard' | 'manage-listings' | 'create-new' | 'sales-reports' | 'reviews';
 
 const SIDEBAR_ICONS: Record<SidebarTab, React.ReactNode> = {
   'dashboard': (
@@ -48,9 +47,6 @@ const SIDEBAR_ICONS: Record<SidebarTab, React.ReactNode> = {
   ),
   'create-new': (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M9 15h2v-4h4V9h-4V5H9v4H5v2h4v4zm1 5c-1.383 0-2.683-.262-3.9-.787a10.14 10.14 0 01-3.175-2.138 10.14 10.14 0 01-2.137-3.175A9.707 9.707 0 010 10c0-1.383.263-2.683.788-3.9a10.14 10.14 0 012.137-3.175A10.14 10.14 0 016.1.788 9.707 9.707 0 0110 0c1.383 0 2.683.263 3.9.788a10.14 10.14 0 013.175 2.137 10.14 10.14 0 012.137 3.175A9.707 9.707 0 0120 10c0 1.383-.263 2.683-.788 3.9a10.14 10.14 0 01-2.137 3.175 10.14 10.14 0 01-3.175 2.138A9.707 9.707 0 0110 20zm0-2c2.233 0 4.125-.775 5.675-2.325C17.225 14.125 18 12.233 18 10s-.775-4.125-2.325-5.675C14.125 2.775 12.233 2 10 2S5.875 2.775 4.325 4.325C2.775 5.875 2 7.767 2 10s.775 4.125 2.325 5.675C5.875 17.225 7.767 18 10 18z" fill="currentColor"/></svg>
-  ),
-  'mystery-box': (
-    <svg width="20" height="19" viewBox="0 0 20 19" fill="none"><path d="M2 12h16v-2H2v2zm0-10h4.2c-.117-.15-.17-.308-.2-.475A2.5 2.5 0 016 1c0-.833.292-1.542.875-2.125A2.893 2.893 0 019-2.5c.5 0 .963.13 1.388.387.425.258.792.58 1.112.963l.5.65.5-.65c.3-.4.667-.725 1.1-.975.433-.25.9-.375 1.4-.375.833 0 1.542.292 2.125.875A2.893 2.893 0 0118.5 1c0 .183-.012.358-.037.525S18.383 1.85 18.3 2H20c.55 0 1.02.196 1.413.587.391.392.587.863.587 1.413v12c0 .55-.196 1.02-.587 1.413A1.926 1.926 0 0120 18H2c-.55 0-1.02-.196-1.413-.587A1.926 1.926 0 010 16V4c0-.55.196-.854.588-1.246A1.926 1.926 0 012 2zm0 7h16V4H12.9l2.1 2.85-1.6 1.15L10 3.4 6.6 8 5 6.85 7.05 4H2v5zm5 2c.283 0 .52-.096.713-.288A.968.968 0 008 1c0-.283-.096-.52-.288-.713A.968.968 0 007 0c-.283 0-.52.096-.713.288A.968.968 0 006 1c0 .283.096.52.288.713.191.191.429.287.712.287zm6 0c.283 0 .52-.096.713-.288A.968.968 0 0014 1c0-.283-.096-.52-.288-.713A.968.968 0 0013 0c-.283 0-.52.096-.713.288A.968.968 0 0012 1c0 .283.096.52.288.713.191.191.429.287.712.287z" fill="currentColor"/></svg>
   ),
   'sales-reports': (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 14h2V9H4v5zm6 0h2V4h-2v10zm-3 0h2v-3H7v3zm0-5h2V7H7v2zM2 18c-.55 0-1.02-.196-1.413-.587A1.926 1.926 0 010 16V2C0 1.45.196.98.588.587A1.926 1.926 0 012 0h14c.55 0 1.02.196 1.413.587.391.392.587.863.587 1.413v14c0 .55-.196 1.02-.587 1.413A1.926 1.926 0 0116 18H2zM2 16h14V2H2v14z" fill="currentColor"/></svg>
@@ -64,7 +60,6 @@ const SIDEBAR_ITEMS: { id: SidebarTab; label: string }[] = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'manage-listings', label: 'Manage Listings' },
   { id: 'create-new', label: 'Create New' },
-  { id: 'mystery-box', label: 'Mystery Box' },
   { id: 'sales-reports', label: 'Sales Reports' },
   { id: 'reviews', label: 'Reviews' },
 ];
@@ -235,8 +230,6 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
               onBack={() => setActiveTab('dashboard')}
               sellerId={sellerId}
             />
-          ) : activeTab === 'mystery-box' ? (
-            <MysteryBox onBack={() => setActiveTab('dashboard')} />
           ) : activeTab === 'sales-reports' ? (
             <SalesAnalytics onBack={() => setActiveTab('dashboard')} sellerId={sellerId} />
           ) : activeTab === 'reviews' ? (
