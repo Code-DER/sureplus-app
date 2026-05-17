@@ -16,7 +16,7 @@ export type { FoodItem as FoodListingFull }
 interface ProductDetailProps {
   listing: FoodItem
   onBack: () => void
-  onAddToOrder: (listing: FoodItem, qty: number) => void
+  onAddToOrder: (listing: FoodItem, qty: number) => boolean
 }
 
 export default function ProductDetail({ listing, onBack, onAddToOrder }: ProductDetailProps) {
@@ -122,8 +122,8 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
             className="detail-add-btn"
             disabled={listing.stockQuantity === 0}
             onClick={() => {
-              onAddToOrder(listing, qty)
-              onBack()
+              const added = onAddToOrder(listing, qty)
+              if (added) onBack()
             }}
           >
             <img src={CartIcon} alt="Cart" width="20" height="20" />
