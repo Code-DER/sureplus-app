@@ -8,9 +8,40 @@
   gap: 16px;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
 }
 
-.charity-post-card:hover {
+.charity-post-card.is-funded {
+  border: 2px solid #15803d;
+  background: #F0FDF4;
+}
+
+.funded-banner {
+  position: absolute;
+  top: 12px;
+  right: -30px;
+  background: #15803d;
+  color: white;
+  padding: 4px 40px;
+  transform: rotate(45deg);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 10;
+}
+
+.celebration-emoji {
+  font-size: 0.9rem;
+}
+
+.charity-post-header {
+
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -21,6 +52,50 @@
   align-items: flex-start;
   gap: 12px;
 }
+
+.title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.partner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #0F5238;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #F3F4F6;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+}
+
+.mode-badge.money { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
+.mode-badge.food { background: #FFF7ED; color: #EA580C; border-color: #FFEDD5; }
+.mode-badge.both { background: #EFF6FF; color: #2563EB; border-color: #DBEAFE; }
 
 .charity-post-title {
   margin: 0;
@@ -53,8 +128,30 @@
   color: #66B018;
 }
 
+.action-btn.close:hover {
+  color: #BA1A1A;
+}
+
+.action-btn.reopen:hover {
+  color: #0369a1;
+}
+
 .action-btn.delete:hover {
   color: #BA1A1A;
+}
+
+.charity-post-image {
+  width: 100%;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #F3F4F6;
+}
+
+.charity-post-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .charity-post-description {
@@ -119,9 +216,78 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  margin-top: 4px;
 }
 
 .donate-btn:hover {
   background-color: #0D4731;
 }
+
+.charity-post-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.charity-post-footer button {
+  flex: 1;
+}
+
+.view-profile-btn {
+  background-color: white;
+  color: #0F5238;
+  border: 1px solid #0F5238;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.view-profile-btn:hover {
+  background-color: #F0FDF4;
+}
+
+.view-donations-btn {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-donations-btn:hover {
+  background-color: #e5e7eb;
+}
+
+.view-donations-btn.active {
+  background-color: #374151;
+  color: white;
+  border-color: #374151;
+}
+
+.charity-post-donations-drawer {
+  margin-top: 10px;
+  border-top: 1px dashed #e5e7eb;
+  padding-top: 10px;
+  animation: slide-down 0.3s ease-out;
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.status-badge.active { background-color: #e0f2fe; color: #0369a1; }
+.status-badge.funded { background-color: #dcfce7; color: #15803d; }
+.status-badge.closed { background-color: #f3f4f6; color: #4b5563; }

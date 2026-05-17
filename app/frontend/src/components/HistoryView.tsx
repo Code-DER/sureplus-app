@@ -1,18 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './HistoryView.css'
-import { socialImpactAPI } from '../api/apis'
-
-// TODO (blocked by purchase list integration, out of scope):
-// Replace MOCK_HISTORY with real purchases from the purchases API.
-// Once real purchaseIDs are available, the socialImpactAPI calls in
-// handleSelectOrder will resolve correctly.
+import { socialImpactAPI, purchaseAPI, ratingsAPI } from '../api/apis'
 
 interface PurchasedItem {
   id: string
   name: string
   details: string
   price: number
-  imagePlaceholder?: boolean
+  picture: string | null
 }
 
 interface OrderHistory {
@@ -22,7 +17,7 @@ interface OrderHistory {
   storeName: string
   location: string
   rating: number
-  status: 'COMPLETED' | 'ARCHIVED'
+  status: 'COMPLETED' | 'PENDING' | 'CANCELLED'
   total: number
   savings: number
   co2: number
@@ -31,89 +26,171 @@ interface OrderHistory {
 }
 
 interface SocialImpactRecord {
-  impactID: string;
-  purchaseID: string;
-  carbonOffset: number;
-  rescuedKilos: number;
-  peopleFed: number;
+  impactID: string
+  purchaseID: string
+  carbonOffset: number
+  rescuedKilos: number
+  peopleFed: number
 }
 
+interface ApiPurchaseItem {
+  foodID: string
+  foodName: string
+  picture: string | null
+  quantity: number
+  price: number
+  totalPerItem: number
+}
 
-const MOCK_HISTORY: OrderHistory[] = [
-  {
-    id: '1',
-    orderNumber: 'SP-88294',
-    dateStr: 'MAY 02, 2026',
-    storeName: 'Kali Market Central',
-    location: 'Kalimudan, UP Rd',
-    rating: 4.0,
-    status: 'COMPLETED',
-    total: 120.00,
-    savings: 620,
-    co2: 2.4,
-    paymentMethod: 'Visa ** 4242',
-    items: [
-      {
-        id: 'i1',
-        name: 'Roronoa Zoro (Large)',
-        details: 'Qty: 1 • Includes organic kale, hotdog, beets',
-        price: 300.00,
-      },
-      {
-        id: 'i2',
-        name: 'Gojo Satoru',
-        details: 'Qty: 1 • Day-end surplus, perfect for toasting',
-        price: 150.00,
-      }
-    ]
-  },
-  {
-    id: '2',
-    orderNumber: 'SP-88293',
-    dateStr: 'MAY 01, 2026',
-    storeName: 'CSM Bakery & Co.',
-    location: 'UP Mindanao, Tugbok',
-    rating: 5.0,
-    status: 'ARCHIVED',
-    total: 85.60,
-    savings: 200,
-    co2: 1.1,
-    paymentMethod: 'GCash',
-    items: []
-  },
-  {
-    id: '3',
-    orderNumber: 'SP-88290',
-    dateStr: 'APR 29, 2026',
-    storeName: 'Namanok Chicken',
-    location: 'Davao-Bukidnon Rd',
-    rating: 3.0,
-    status: 'COMPLETED',
-    total: 620.80,
-    savings: 150,
-    co2: 0.8,
-    paymentMethod: 'Cash',
-    items: []
+interface ApiPurchase {
+  purchaseID: string
+  purchaseDate: string | null
+  storeName: string
+  paymentMethod: string
+  totalPrice: number
+  status: string
+  items: ApiPurchaseItem[]
+}
+
+function formatPurchaseDate(dateStr: string | null): string {
+  if (!dateStr) return 'Unknown Date'
+  return new Date(dateStr)
+    .toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
+    .toUpperCase()
+}
+
+function mapToOrderHistory(p: ApiPurchase): OrderHistory {
+  const statusMap: Record<string, OrderHistory['status']> = {
+    completed: 'COMPLETED',
+    pending: 'PENDING',
+    cancelled: 'CANCELLED',
   }
-]
+  return {
+    id: p.purchaseID,
+    orderNumber: `SP-${p.purchaseID.slice(-5).toUpperCase()}`,
+    dateStr: formatPurchaseDate(p.purchaseDate),
+    storeName: p.storeName,
+    location: '',
+    rating: 0,
+    status: statusMap[p.status] ?? 'PENDING',
+    total: p.totalPrice,
+    savings: 0,
+    co2: 0,
+    paymentMethod: p.paymentMethod || 'N/A',
+    items: p.items.map((item, idx) => ({
+      id: `${p.purchaseID}-${idx}`,
+      name: item.foodName,
+      picture: item.picture,
+      details: `Qty: ${item.quantity}`,
+      price: item.totalPerItem,
+    })),
+  }
+}
 
 export default function HistoryView() {
-  const [selectedOrder, setSelectedOrder] = useState<OrderHistory>(MOCK_HISTORY[0])
-  const [purchaseImpacts, setPurchaseImpacts] = useState<Record<string, SocialImpactRecord>>({});
+  const [orders, setOrders] = useState<OrderHistory[]>([])
+  const [selectedOrder, setSelectedOrder] = useState<OrderHistory | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [purchaseImpacts, setPurchaseImpacts] = useState<Record<string, SocialImpactRecord>>({})
   const [reviewRating, setReviewRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
+  const [reviewTitle, setReviewTitle] = useState('')
+  const [reviewFeedback, setReviewFeedback] = useState('')
+  const [submittingReview, setSubmittingReview] = useState(false)
+  const [reviewMessage, setReviewMessage] = useState('')
+
+  useEffect(() => {
+    purchaseAPI.getBuyerOrders()
+      .then(res => {
+        const mapped = (res.data as ApiPurchase[]).map(mapToOrderHistory)
+        setOrders(mapped)
+        if (mapped.length > 0) setSelectedOrder(mapped[0])
+      })
+      .catch(err => {
+        const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+        setError(detail ?? 'Failed to load order history.')
+      })
+      .finally(() => setLoading(false))
+  }, [])
 
   const handleSelectOrder = async (order: OrderHistory) => {
-    setSelectedOrder(order);
+    setSelectedOrder(order)
+    setReviewRating(0)
+    setHoverRating(0)
     if (!purchaseImpacts[order.id]) {
       try {
-        const res = await socialImpactAPI.getImpactByPurchase(order.id);
-        setPurchaseImpacts((prev) => ({ ...prev, [order.id]: res.data }));
+        const res = await socialImpactAPI.getImpactByPurchase(order.id)
+        setPurchaseImpacts(prev => ({ ...prev, [order.id]: res.data }))
       } catch {
-        // Impact not found for this purchase — fail silently
+        // Impact not yet recorded for this purchase — fail silently
       }
     }
-  };
+  }
+
+  const handleSubmitReview = async () => {
+    if (!selectedOrder) return
+
+    if (selectedOrder.status !== 'COMPLETED') {
+      setReviewMessage('Only completed purchases can be reviewed.')
+      return
+    }
+
+    if (reviewRating < 1) {
+      setReviewMessage('Please select a rating.')
+      return
+    }
+
+    try {
+      setSubmittingReview(true)
+      setReviewMessage('')
+
+      await ratingsAPI.createRating({
+        purchaseID: selectedOrder.id,
+        rating: reviewRating,
+        comment: `${reviewTitle}\n\n${reviewFeedback}`.trim(),
+      })
+
+      setReviewMessage('Review submitted successfully!')
+
+      setReviewTitle('')
+      setReviewFeedback('')
+      setReviewRating(0)
+      setHoverRating(0)
+
+    } catch (err) {
+      const errorMessage =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+
+      setReviewMessage(errorMessage ?? 'Failed to submit review.')
+    } finally {
+      setSubmittingReview(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#707973', fontFamily: 'Work Sans, sans-serif' }}>
+        Loading order history...
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#BA1A1A', fontFamily: 'Work Sans, sans-serif' }}>
+        {error}
+      </div>
+    )
+  }
+
+  if (orders.length === 0 || !selectedOrder) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#707973', fontFamily: 'Work Sans, sans-serif' }}>
+        No orders yet. Start shopping to see your order history here!
+      </div>
+    )
+  }
 
   return (
     <div className="history-view">
@@ -129,7 +206,7 @@ export default function HistoryView() {
         </div>
 
         <div className="history-list">
-          {MOCK_HISTORY.map((order) => (
+          {orders.map((order) => (
             <div
               key={order.id}
               className={`history-card ${selectedOrder.id === order.id ? 'active' : ''}`}
@@ -144,9 +221,11 @@ export default function HistoryView() {
                 <span className="history-price">₱ {order.total.toFixed(2)}</span>
               </div>
               <h3 className="history-store">{order.storeName}</h3>
-              <div className="history-loc">
-                <span className="pin-icon">📍</span> {order.location}
-              </div>
+              {order.location && (
+                <div className="history-loc">
+                  <span className="pin-icon">📍</span> {order.location}
+                </div>
+              )}
               <div className="history-card-bottom">
                 <div className="history-rating">
                   {'★★★★★'.split('').map((star, i) => (
@@ -154,7 +233,7 @@ export default function HistoryView() {
                       {star}
                     </span>
                   ))}
-                  <span className="rating-val">{order.rating.toFixed(1)}</span>
+                  {order.rating > 0 && <span className="rating-val">{order.rating.toFixed(1)}</span>}
                 </div>
                 <div className={`history-badge ${order.status.toLowerCase()}`}>
                   {order.status}
@@ -182,7 +261,7 @@ export default function HistoryView() {
         <div className="history-stats-bar">
           <div className="stat-col">
             <label>STATUS</label>
-            <span className="stat-val status-delivered">Delivered</span>
+            <span className="stat-val status-delivered">{selectedOrder.status}</span>
           </div>
           <div className="stat-col">
             <label>PAYMENT</label>
@@ -205,7 +284,15 @@ export default function HistoryView() {
           <div className="history-items-list">
             {selectedOrder.items.length > 0 ? selectedOrder.items.map((item) => (
               <div key={item.id} className="history-item-row">
-                <div className="item-img-placeholder"></div>
+                <div className="item-img-placeholder">
+                  {item.picture && (
+                    <img
+                      src={item.picture}
+                      alt={item.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    />
+                  )}
+                </div>
                 <div className="item-info">
                   <h4>{item.name}</h4>
                   <p>{item.details}</p>
@@ -215,7 +302,7 @@ export default function HistoryView() {
                 </div>
               </div>
             )) : (
-              <div className="history-item-row"><p>No items details available.</p></div>
+              <div className="history-item-row"><p>No item details available.</p></div>
             )}
           </div>
         </div>
@@ -229,18 +316,19 @@ export default function HistoryView() {
           <div className="review-box">
             <h3>Rate and review</h3>
             <p>How was your experience with {selectedOrder.storeName}?</p>
-            
+
             <div className="review-stars-large" onMouseLeave={() => setHoverRating(0)}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <span
                   key={star}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Rate ${star} star${star !== 1 ? 's' : ''}`}
                   className={star <= (hoverRating || reviewRating) ? 'star filled' : 'star empty'}
                   onMouseEnter={() => setHoverRating(star)}
-                  onClick={() => setReviewRating(star)}
-                  onKeyDown={(e) => e.key === 'Enter' && setReviewRating(star)}
+                  onClick={() => {
+                    if (selectedOrder.status === 'COMPLETED') {
+                      setReviewRating(star)
+                    }
+                  }}
+                  style={{ cursor: 'pointer' }}
                 >
                   ★
                 </span>
@@ -250,14 +338,35 @@ export default function HistoryView() {
             <div className="review-form">
               <div className="form-group">
                 <label>Review Title</label>
-                <input type="text" placeholder="Summary of your experience" />
+                <input
+                  type="text"
+                  placeholder="Summary of your experience"
+                  value={reviewTitle}
+                  onChange={(e) => setReviewTitle(e.target.value)}
+                />
               </div>
               <div className="form-group">
                 <label>Your Feedback</label>
-                <textarea placeholder="Tell us more about the food quality and service..." rows={3}></textarea>
+                <textarea
+                  placeholder="Tell us more about the food quality and service..."
+                  rows={3}
+                  value={reviewFeedback}
+                  onChange={(e) => setReviewFeedback(e.target.value)}
+                ></textarea>
               </div>
               <div className="review-actions">
-                <button className="btn-submit-review">Submit Review</button>
+                {reviewMessage && (
+                  <p style={{ marginTop: '10px', color: '#707973' }}>
+                    {reviewMessage}
+                  </p>
+                )}
+                <button
+                  className="btn-submit-review"
+                  onClick={handleSubmitReview}
+                  disabled={submittingReview || selectedOrder.status !== 'COMPLETED'}
+                >
+                  {submittingReview ? 'Submitting...' : 'Submit Review'}
+                </button>
                 <button className="btn-cancel-review">Cancel</button>
               </div>
             </div>

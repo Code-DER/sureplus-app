@@ -1,0 +1,83 @@
+.donation-history-container {
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.donation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.donation-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.donation-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.donor-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.donation-details {
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.donation-date {
+  font-size: 12px;
+  color: #a0aec0;
+}
+
+.rate-btn {
+  padding: 6px 12px;
+  background: #edf2f7;
+  color: #4a5568;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rate-btn:hover {
+  background: #e2e8f0;
+  color: #2d3748;
+}
+
+.rated-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #f0fff4;
+  color: #2f855a;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rated-badge svg {
+  color: #48bb78;
+}
+
+.no-donations {
+  text-align: center;
+  color: #718096;
+  font-size: 14px;
+  padding: 20px 0;
+}

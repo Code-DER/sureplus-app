@@ -533,6 +533,7 @@
   border-radius: 8px;
   background: #ECEEEA;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .order-item-info {

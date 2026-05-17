@@ -16,9 +16,10 @@ export interface ImpactStats {
 interface OrderSuccessModalProps {
   stats: ImpactStats
   onClose: () => void
+  title?: string
 }
 
-export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalProps) {
+export default function OrderSuccessModal({ stats, onClose, title = "Order Successful!" }: OrderSuccessModalProps) {
   const [animated, setAnimated] = useState(false)
 
   useEffect(() => {
@@ -33,24 +34,24 @@ export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalP
         <img src={FoodSavedIcon} alt="Food Saved" width="15" height="15" />
       ),
       label: 'Food Saved',
-      value: `${stats.foodSaved} %`,
-      percent: stats.foodSaved,
+      value: `${stats.foodSaved} kg`,
+      percent: Math.min(stats.foodSaved * 10, 100), // Scaled for visualization
     },
     {
       icon: (
         <img src={CarbonReducedIcon} alt="Carbon Reduced" width="14" height="14" />
       ),
-      label: 'Carbon Reduced',
-      value: `${stats.carbonReduced} %`,
-      percent: stats.carbonReduced,
+      label: 'Carbon Offset',
+      value: `${stats.carbonReduced} kg CO₂e`,
+      percent: Math.min(stats.carbonReduced * 5, 100), // Scaled for visualization
     },
     {
       icon: (
         <img src={PeopleFedIcon} alt="People Fed" width="18" height="14" />
       ),
-      label: 'People Fed',
-      value: `${stats.peopleFed} %`,
-      percent: stats.peopleFed,
+      label: 'Meals Provided',
+      value: `${stats.peopleFed} ${stats.peopleFed === 1 ? 'Meal' : 'Meals'}`,
+      percent: Math.min(stats.peopleFed * 20, 100), // Scaled for visualization
     },
     {
       icon: (
@@ -76,7 +77,7 @@ export default function OrderSuccessModal({ stats, onClose }: OrderSuccessModalP
         </div>
 
         {/* Heading */}
-        <h2 className="success-heading">Order Successful!</h2>
+        <h2 className="success-heading">{title}</h2>
         <p className="success-subtext">You've made a real difference today.</p>
 
         {/* Stats */}

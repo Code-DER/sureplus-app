@@ -7,10 +7,9 @@ import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
 import CharityPostsFeed from './CharityPostsFeed'
 import SocialImpactView from './SocialImpactView'
-import { foodAPI, userAPI, purchaseAPI } from '../api/apis'
+import { foodAPI, purchaseAPI, socialImpactAPI, getAuthUser, userAPI } from '../api/apis'
 import UserAvatar from './UserAvatar'
 import type { FoodItem } from '../types/food'
-import { formatExpiration } from '../utils/format'
 
 interface ListingsFeedProps {
   isSeller?: boolean
@@ -25,6 +24,8 @@ interface OrderItem {
   name: string
   price: number
   qty: number
+  weightKg: number
+  picture: string | null
 }
 
 export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: ListingsFeedProps) {
@@ -71,17 +72,13 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   const [navOpen, setNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'listings' | 'charity' | 'history' | 'impact' | 'profile'>('listings')
 
-  const [impactStats] = useState<ImpactStats>({
-    foodSaved: 67,
-    carbonReduced: 32,
-    peopleFed: 40,
-    pointsEarned: 67,
-  })
+  const [impactStats, setImpactStats] = useState<ImpactStats | null>(null)
+  const [isOrdering, setIsOrdering] = useState(false)
 
   // ── Order helpers ─────────────────────────────────────────────────────────
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
 
-  const addToOrder = (listing: { id: string; name: string; price: number }, qty = 1) => {
+  const addToOrder = (listing: { id: string; name: string; price: number; weightKg: number; picture: string | null }, qty = 1) => {
     setOrderItems((prev) => {
       const existing = prev.find((o) => o.id === listing.id)
       if (existing) {
@@ -89,12 +86,12 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
           o.id === listing.id ? { ...o, qty: o.qty + qty } : o
         )
       }
-      return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty }]
+      return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty, weightKg: listing.weightKg, picture: listing.picture }]
     })
   }
 
   const addFromDetail = (listing: FoodItem, qty: number) => {
-    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price) }, qty)
+    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price), weightKg: listing.weightKg, picture: listing.picture }, qty)
   }
 
   const removeFromOrder = (id: string) => {
@@ -102,21 +99,60 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   }
 
   const handleConfirmOrder = async () => {
+    const user = getAuthUser()
+    if (!user) {
+      alert('Please log in to place an order.')
+      return
+    }
+
+    setIsOrdering(true)
     try {
-      const payload = {
+      // 1. Create Purchase
+      const createResp = await purchaseAPI.create({
         paymentMethod,
         items: orderItems.map(item => ({
           foodID: item.id,
           quantity: item.qty
         }))
+      })
+
+      const purchaseId = createResp.data.purchaseID
+
+      // 2. Complete Purchase (This triggers social impact creation in backend)
+      const completeResp = await purchaseAPI.complete(purchaseId)
+      const pointsEarned = completeResp.data.pointsEarned
+
+      // 3. Get Social Impact Stats (with fallback to estimation if fetch fails)
+      let liveStats: ImpactStats
+      try {
+        const impactResp = await socialImpactAPI.getImpactByPurchase(purchaseId)
+        const impact = impactResp.data
+        liveStats = {
+          foodSaved: Math.round(impact.rescuedKilos * 10) / 10,
+          carbonReduced: Math.round(impact.carbonOffset * 10) / 10,
+          peopleFed: impact.peopleFed,
+          pointsEarned: pointsEarned,
+        }
+      } catch (impactErr) {
+        console.error('Failed to fetch real-time impact stats, using estimation:', impactErr)
+        // Fallback estimation using known frontend data
+        const totalKg = orderItems.reduce((sum, item) => sum + (item.weightKg * item.qty), 0)
+        liveStats = {
+          foodSaved: Math.round(totalKg * 10) / 10,
+          carbonReduced: Math.round(totalKg * 2.5 * 10) / 10, // 2.5 CO2 multiplier
+          peopleFed: Math.floor(totalKg / 0.5), // 0.5kg per meal
+          pointsEarned: pointsEarned,
+        }
       }
 
-      await purchaseAPI.createPurchase(payload)
+      setImpactStats(liveStats)
       setShowSuccess(true)
       setOrderItems([])
-    } catch (err) {
-      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
-      alert(detail ?? 'Failed to place order')
+    } catch (err: any) {
+      console.error('Order failed:', err)
+      alert(err?.response?.data?.detail || 'Failed to place order. Please try again.')
+    } finally {
+      setIsOrdering(false)
     }
   }
 
@@ -354,7 +390,15 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                 ) : (
                   orderItems.map((item) => (
                     <div key={item.id} className="order-item">
-                      <div className="order-item-img" aria-label={item.name} />
+                      <div className="order-item-img">
+                        {item.picture && (
+                          <img
+                            src={item.picture}
+                            alt={item.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                          />
+                        )}
+                      </div>
                       <div className="order-item-info">
                         <span className="order-item-name">{item.name}</span>
                         <span className="order-item-qty">Qty: {item.qty}</span>
@@ -401,7 +445,7 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
               <button
                 className="confirm-btn"
-                disabled={orderItems.length === 0}
+                disabled={orderItems.length === 0 || isOrdering}
                 onClick={handleConfirmOrder}
               >
                 <span>Confirm Order</span>
@@ -413,12 +457,12 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
       </div>
 
       {/* Success Modal */}
-      {showSuccess && (
+      {showSuccess && impactStats && (
         <OrderSuccessModal
           stats={impactStats}
           onClose={() => {
             setShowSuccess(false)
-            setOrderItems([])
+            setImpactStats(null)
           }}
         />
       )}

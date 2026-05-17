@@ -188,43 +188,324 @@
   color: #FFFFFF;
 }
 
-/* ============================================================
-   RESPONSIVE — SOCIAL IMPACT VIEW
-   ============================================================ */
+.impact-content-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 32px;
+  margin-top: 8px;
+}
 
-@media (max-width: 768px) {
-  .social-impact-view {
-    padding: 20px 16px;
-    gap: 20px;
+.impact-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.impact-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* History Timeline */
+.impact-history-section {
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.impact-history-section .section-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.impact-history-section .section-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6B7280;
+}
+
+.history-timeline {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.history-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #F1F5F9;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 32px;
+  padding-bottom: 24px;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 16px;
+  height: 16px;
+  background: #0F5238;
+  border: 3px solid white;
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: 0 0 0 2px #F1F5F9;
+}
+
+.timeline-content {
+  background: #F8FAFC;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #F1F5F9;
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.timeline-type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748B;
+  letter-spacing: 0.5px;
+}
+
+.timeline-date {
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+.timeline-title {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.timeline-impact-details {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.detail-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid #E2E8F0;
+  color: #0F5238;
+}
+
+/* Badges */
+.badges-section {
+  background: white;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.badges-section h4 {
+  margin: 0 0 16px 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badges-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.badge-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #F1F5F9;
+  transition: all 0.2s;
+}
+
+.badge-card.achieved {
+  background: #F0FDF4;
+  border-color: #DCFCE7;
+}
+
+.badge-card.locked {
+  opacity: 0.6;
+  background: #F8FAFC;
+  filter: grayscale(1);
+}
+
+.badge-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.badge-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.badge-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.badge-desc {
+  font-size: 0.7rem;
+  color: #64748B;
+}
+
+/* Sidebar Summary Card */
+.impact-summary-card {
+  background: #2D6A4F;
+  padding: 24px;
+  border-radius: 20px;
+  color: white;
+}
+
+.impact-summary-card h4 {
+  margin: 0 0 16px 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-row-alt {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 0.875rem;
+}
+
+.summary-row-alt:last-child {
+  margin-bottom: 0;
+}
+
+.summary-row-alt strong {
+  font-size: 1.25rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Platform Impact Banner */
+.platform-impact-banner {
+  background: linear-gradient(135deg, #111827 0%, #1F2937 100%);
+  border-radius: 24px;
+  padding: 32px 40px;
+  color: white;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 8px;
+}
+
+.banner-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+}
+
+.banner-text h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #66B018;
+}
+
+.banner-text p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.8;
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+.banner-stats {
+  display: flex;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.banner-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.banner-stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #FFFFFF;
+}
+
+.banner-stat-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #94A3B8;
+}
+
+@media (max-width: 900px) {
+  .banner-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
   }
-
-  .impact-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .impact-header p {
-    font-size: 1rem;
-  }
-
-  .impact-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .impact-empty-state {
-    padding: 48px 16px;
+  
+  .banner-stats {
+    width: 100%;
+    justify-content: space-between;
+    gap: 24px;
   }
 }
 
-@media (max-width: 480px) {
-  .social-impact-view {
-    padding: 16px 8px;
+@media (max-width: 600px) {
+  .banner-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
-
-  .impact-stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .browse-btn {
-    padding: 10px 24px;
+  
+  .banner-stat-item:last-child {
+    grid-column: span 2;
   }
 }

@@ -14,7 +14,6 @@ function App() {
   });
 
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
-  // const [view, setView] = useState<'buyer' | 'seller' | 'admin' | 'charity'>('buyer')
 
   const [view, setView] = useState<'buyer' | 'seller' | 'admin' | 'charity'>(() => {
     const u = getAuthUser();
@@ -29,7 +28,7 @@ function App() {
     if (u?.role === 'charity') setView('charity');
     else if (u?.role === 'admin') setView('admin');
     else setView('buyer');
-  }
+  };
 
   const user = getAuthUser();
   const isSeller = user?.role === 'seller';

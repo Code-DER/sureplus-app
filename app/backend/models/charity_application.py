@@ -5,12 +5,14 @@ from typing import Optional, Literal
 class CharityApplicationCreate(BaseModel):
     purpose: str
     govID: str
+    secRegistration: Optional[str] = None
 
 class CharityApplicationResponse(BaseModel):
     applicationID: UUID
     userID: UUID
-    purpose: Optional[str] = None
-    govID: Optional[str] = None
+    purpose: str
+    govID: str
+    secRegistration: Optional[str] = None
     status: str
 
 class CharityApplicationReview(BaseModel):

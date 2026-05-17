@@ -156,6 +156,14 @@
   background: #E5E7EB;
   color: #4B5563;
 }
+.history-badge.pending {
+  background: #FEF3C7;
+  color: #92400E;
+}
+.history-badge.cancelled {
+  background: #FEE2E2;
+  color: #991B1B;
+}
 
 /* ====== Right Panel ====== */
 .history-detail-panel {
@@ -265,6 +273,8 @@
   height: 48px;
   background: linear-gradient(135deg, #FCA5A5, #60A5FA);
   border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .item-info {
