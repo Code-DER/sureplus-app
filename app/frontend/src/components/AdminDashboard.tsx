@@ -35,7 +35,7 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
       {/* Floating Topbar */}
       <div className="admin-topbar-floating">
         <div className="topbar-left">
-          <button className="icon-btn admin-hamburger-btn" onClick={() => setSidebarOpen(v => !v)} aria-label="Open menu">
+          <button className="icon-btn admin-hamburger-btn admin-mobile-only" onClick={() => setSidebarOpen(v => !v)} aria-label="Open menu">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2.5" strokeLinecap="round">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>

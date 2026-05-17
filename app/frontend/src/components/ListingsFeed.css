@@ -805,8 +805,12 @@
   /* visible by default; hidden on mobile below */
 }
 
+.nav-mobile-only {
+  display: none !important;
+}
+
 .nav-hamburger-btn {
-  display: none;
+  display: none !important;
 }
 
 .mobile-nav-overlay {
@@ -865,7 +869,7 @@
   color: #A04100;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .nav-links-desktop {
     display: none;
   }
@@ -874,8 +878,12 @@
     display: none;
   }
 
+  .nav-mobile-only {
+    display: flex !important;
+  }
+
   .nav-hamburger-btn {
-    display: flex;
+    display: flex !important;
   }
 
   .navbar {
