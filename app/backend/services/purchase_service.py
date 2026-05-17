@@ -22,7 +22,7 @@ def _execute(query, error_detail: str):
             
         raise HTTPException(status_code=500, detail=error_detail) from exc
 
-def create_purchase(data):
+def create_purchase(data: dict, user_id: str):
     """
     Creates a purchase atomically using a Postgres RPC.
     """
@@ -31,7 +31,7 @@ def create_purchase(data):
 
     response = _execute(
         supabase_admin.rpc("create_purchase_atomic", {
-            "p_user_id": data["userID"],
+            "p_user_id": user_id,
             "p_payment_method": data["paymentMethod"],
             "p_items": data["items"]
         }),
@@ -55,7 +55,7 @@ def complete_purchase(purchase_id: str):
 
     purchase = purchase_res.data
 
-    # Prevent double completion
+    # Prevent duplicate completion
     if purchase["status"] == "completed":
         raise HTTPException(status_code=400, detail="Purchase already completed")
 
@@ -192,7 +192,7 @@ def get_seller_purchase_list(seller_id):
 
     if not food_ids:
         return []
-    
+
     # Get purchase items
     items_res = _execute(
         supabase_admin.table("PurchaseItems") \
@@ -205,7 +205,7 @@ def get_seller_purchase_list(seller_id):
 
     if not purchase_ids:
         return []
-    
+
     # Get purchases
     purchases_res = _execute(
         supabase_admin.table("Purchase") \
@@ -215,3 +215,157 @@ def get_seller_purchase_list(seller_id):
     )
 
     return purchases_res.data
+
+def get_seller_orders(seller_id: str) -> list:
+    """
+    Return enriched order rows for a seller — one row per purchase item.
+    Each row includes buyer name, food name, quantity, per-item total, and status.
+    """
+    foods_res = _execute(
+        supabase_admin.table("Food") \
+            .select("foodID, foodName") \
+            .eq("userID", seller_id),
+        "Failed to fetch seller's food for orders"
+    )
+
+    food_map = {f["foodID"]: f["foodName"] for f in (foods_res.data or [])}
+    food_ids = list(food_map.keys())
+    if not food_ids:
+        return []
+
+    items_res = _execute(
+        supabase_admin.table("PurchaseItems") \
+            .select("purchaseID, foodID, quantity, totalPerItem") \
+            .in_("foodID", food_ids),
+        "Failed to fetch purchase items for orders"
+    )
+
+    items = items_res.data or []
+    if not items:
+        return []
+
+    purchase_ids = list({i["purchaseID"] for i in items})
+
+    purchases_res = _execute(
+        supabase_admin.table("Purchase") \
+            .select("purchaseID, userID, status, purchaseDate") \
+            .in_("purchaseID", purchase_ids),
+        "Failed to fetch purchases for orders"
+    )
+    purchase_map = {p["purchaseID"]: p for p in (purchases_res.data or [])}
+
+    buyer_ids = list({p["userID"] for p in purchase_map.values() if p.get("userID")})
+    user_map: dict = {}
+    if buyer_ids:
+        users_res = _execute(
+            supabase_admin.table("User") \
+                .select("userID, firstName, lastName") \
+                .in_("userID", buyer_ids),
+            "Failed to fetch users for orders"
+        )
+        user_map = {u["userID"]: u for u in (users_res.data or [])}
+
+    rows = []
+    for item in items:
+        purchase = purchase_map.get(item["purchaseID"], {})
+        buyer_id = purchase.get("userID")
+        buyer = user_map.get(buyer_id, {})
+        first = buyer.get("firstName") or ""
+        last  = buyer.get("lastName")  or ""
+        rows.append({
+            "purchaseID":  item["purchaseID"],
+            "buyerName":   f"{first} {last}".strip() or "Unknown",
+            "foodName":    food_map.get(item["foodID"], "Unknown"),
+            "quantity":    item.get("quantity", 0),
+            "totalPerItem": float(item.get("totalPerItem") or 0),
+            "status":      purchase.get("status", "unknown"),
+            "purchaseDate": purchase.get("purchaseDate"),
+        })
+
+    rows.sort(key=lambda r: r.get("purchaseDate") or "", reverse=True)
+    return rows
+
+def get_buyer_orders(buyer_id: str) -> list:
+    """Return enriched purchase history for a buyer."""
+    purchases_res = _execute(
+        supabase_admin.table("Purchase") \
+            .select("purchaseID, paymentMethod, totalPrice, status, purchaseDate") \
+            .eq("userID", buyer_id),
+        "Failed to fetch buyer purchases for history"
+    )
+
+    purchases = purchases_res.data or []
+    if not purchases:
+        return []
+
+    purchase_ids = [p["purchaseID"] for p in purchases]
+
+    items_res = _execute(
+        supabase_admin.table("PurchaseItems") \
+            .select("purchaseID, foodID, quantity, price, totalPerItem") \
+            .in_("purchaseID", purchase_ids),
+        "Failed to fetch purchase items for history"
+    )
+    items = items_res.data or []
+
+    food_ids = list({i["foodID"] for i in items})
+    food_map: dict = {}
+    if food_ids:
+        foods_res = _execute(
+            supabase_admin.table("Food") \
+                .select("foodID, foodName, userID, picture") \
+                .in_("foodID", food_ids),
+            "Failed to fetch food details for history"
+        )
+        food_map = {f["foodID"]: f for f in (foods_res.data or [])}
+
+    seller_ids = list({f.get("userID") for f in food_map.values() if f.get("userID")})
+    seller_name_map: dict = {}
+    if seller_ids:
+        sellers_res = _execute(
+            supabase_admin.table("Seller") \
+                .select("userID, companyName") \
+                .in_("userID", seller_ids),
+            "Failed to fetch seller names for history"
+        )
+        for s in (sellers_res.data or []):
+            seller_name_map[s["userID"]] = s.get("companyName") or "Unknown Seller"
+
+    items_by_purchase: dict = {}
+    for item in items:
+        pid = item["purchaseID"]
+        if pid not in items_by_purchase:
+            items_by_purchase[pid] = []
+        food = food_map.get(item["foodID"], {})
+        items_by_purchase[pid].append({
+            "foodID": item["foodID"],
+            "foodName": food.get("foodName", "Unknown"),
+            "picture": food.get("picture"),
+            "quantity": item.get("quantity", 0),
+            "price": float(item.get("price") or 0),
+            "totalPerItem": float(item.get("totalPerItem") or 0),
+        })
+
+    rows = []
+    for p in purchases:
+        pid = p["purchaseID"]
+        purchase_items = items_by_purchase.get(pid, [])
+        seller_name = "Unknown Seller"
+        if purchase_items:
+            food = food_map.get(purchase_items[0]["foodID"], {})
+            seller_uid = food.get("userID")
+            if seller_uid:
+                seller_name = seller_name_map.get(seller_uid, "Unknown Seller")
+
+        rows.append({
+            "purchaseID": pid,
+            "purchaseDate": p.get("purchaseDate"),
+            "storeName": seller_name,
+            "paymentMethod": p.get("paymentMethod", ""),
+            "totalPrice": float(p.get("totalPrice") or 0),
+            "status": p.get("status", "pending"),
+            "items": purchase_items,
+        })
+
+    rows.sort(key=lambda r: r.get("purchaseDate") or "", reverse=True)
+    return rows

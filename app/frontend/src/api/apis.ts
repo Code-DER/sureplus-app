@@ -163,6 +163,7 @@ export const socialImpactAPI = {
     getMyImpactSummary: () => api.get('/social-impact/summary'),
     getImpactHistory: () => api.get('/social-impact/history'),
     getGlobalImpact: () => api.get('/social-impact/global'),
+    getSellerImpactSummary: (sellerId: string) => api.get(`/social-impact/seller/${sellerId}`),
 };
 
 // Ratings API functions
@@ -178,9 +179,11 @@ export const ratingsAPI = {
 
 // Purchase API functions
 export const purchaseAPI = {
-    create: (data: { userID: string, paymentMethod: string, items: { foodID: string, quantity: number }[] }) => api.post('/purchases/purchase', data),
+    create: (data: { paymentMethod: string, items: { foodID: string, quantity: number }[] }) => api.post('/purchases/purchase', data),
     complete: (purchaseId: string) => api.put(`/purchases/purchase/${purchaseId}/complete`),
     getSellerPurchases: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}`),
+    getSellerOrders: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}/orders`),
+    getBuyerOrders: () => api.get('/purchases/purchase/buyer/orders'),
     getMyFood: () => api.get('/purchases/my-food'),
 };
 

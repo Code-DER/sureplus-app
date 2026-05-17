@@ -60,6 +60,30 @@ def fetch_impact_by_purchase(purchase_id: str):
         .single() \
         .execute()
 
+def fetch_summary_by_seller(seller_id: str) -> dict:
+    """
+    Aggregate social impact for all purchases containing food sold by this seller.
+    """
+    foods_res = supabase_admin.table("Food").select("foodID").eq("userID", seller_id).execute()
+    food_ids = [f["foodID"] for f in (foods_res.data or [])]
+    if not food_ids:
+        return {"totalCarbonOffset": 0.0, "totalRescuedKilos": 0.0, "totalPeopleFed": 0, "purchaseCount": 0}
+
+    items_res = supabase_admin.table("PurchaseItems").select("purchaseID").in_("foodID", food_ids).execute()
+    purchase_ids = list({i["purchaseID"] for i in (items_res.data or [])})
+    if not purchase_ids:
+        return {"totalCarbonOffset": 0.0, "totalRescuedKilos": 0.0, "totalPeopleFed": 0, "purchaseCount": 0}
+
+    impact_res = supabase_admin.table("SocialImpact").select("carbonOffset, rescuedKilos, peopleFed").in_("purchaseID", purchase_ids).execute()
+    rows = impact_res.data or []
+    return {
+        "totalCarbonOffset": sum(float(r.get("carbonOffset") or 0) for r in rows),
+        "totalRescuedKilos": sum(float(r.get("rescuedKilos") or 0) for r in rows),
+        "totalPeopleFed": sum(int(r.get("peopleFed") or 0) for r in rows),
+        "purchaseCount": len(purchase_ids),
+    }
+
+
 def fetch_summary_by_user(user_id: str):
     """
     Fetch and aggregate social impact metrics for a specific user (purchases + donations).

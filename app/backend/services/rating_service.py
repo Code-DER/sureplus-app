@@ -1,4 +1,5 @@
 from database import supabase_admin
+from fastapi import HTTPException
 
 def create_rating(rater_id, data):
     """
@@ -10,13 +11,15 @@ def create_rating(rater_id, data):
     comment = data.get("comment")
 
     if not purchase_id and not donation_id:
-        raise Exception("Either purchaseID or donationID must be provided")
+        raise HTTPException(status_code=400, detail="Either purchaseID or donationID must be provided")
     
     if purchase_id and donation_id:
-        raise Exception("Only one of purchaseID or donationID can be provided")
+        raise HTTPException(status_code=400, detail="Only one of purchaseID or donationID can be provided")
 
     if rating_value < 1 or rating_value > 5:
-        raise Exception("Rating must be between 1 and 5")
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
+
+    target_id = None
 
     if purchase_id:
         # Purchase rating: Buyer rates Seller
@@ -27,14 +30,14 @@ def create_rating(rater_id, data):
             .execute()
         
         if not purchase_res.data:
-            raise Exception("Purchase not found")
+            raise HTTPException(status_code=404, detail="Purchase not found")
         
         purchase = purchase_res.data
         if str(purchase["userID"]) != str(rater_id):
-            raise Exception("You can only rate your own purchases")
+            raise HTTPException(status_code=403, detail="You can only rate your own purchases")
             
         if purchase["status"] != "completed":
-            raise Exception("You can only rate completed purchases")
+            raise HTTPException(status_code=400, detail="You can only rate completed purchases")
         
         # Prevent duplicate
         existing = supabase_admin.table("Rating") \
@@ -42,7 +45,7 @@ def create_rating(rater_id, data):
             .eq("purchaseID", str(purchase_id)) \
             .execute()
         if existing.data:
-            raise Exception("You already rated this purchase")
+            raise HTTPException(status_code=400, detail="You already rated this purchase")
 
         # Get target sellerID
         purchase_items = supabase_admin.table("PurchaseItems") \
@@ -50,13 +53,17 @@ def create_rating(rater_id, data):
             .eq("purchaseID", str(purchase_id)) \
             .execute()
         if not purchase_items.data:
-            raise Exception("No items found for this purchase")
+            raise HTTPException(status_code=400, detail="No items found for this purchase")
         
         food_res = supabase_admin.table("Food") \
             .select("userID") \
             .eq("foodID", purchase_items.data[0]["foodID"]) \
             .single() \
             .execute()
+        
+        if not food_res.data:
+            raise HTTPException(status_code=404, detail="Food item not found")
+            
         target_id = food_res.data["userID"]
 
     else:
@@ -68,11 +75,11 @@ def create_rating(rater_id, data):
             .execute()
         
         if not donation_res.data:
-            raise Exception("Donation not found")
+            raise HTTPException(status_code=404, detail="Donation not found")
         
         donation = donation_res.data
         if donation["status"] != "completed":
-            raise Exception("You can only rate completed donations")
+            raise HTTPException(status_code=400, detail="You can only rate completed donations")
         
         # Check if rater is the charity who owns the post
         post_res = supabase_admin.table("CharityPost") \
@@ -80,11 +87,12 @@ def create_rating(rater_id, data):
             .eq("charityID", donation["postID"]) \
             .single() \
             .execute()
+        
         if not post_res.data or str(post_res.data["userID"]) != str(rater_id):
-            raise Exception("You can only rate donations made to your own posts")
+            raise HTTPException(status_code=403, detail="You can only rate donations made to your own posts")
         
         if not donation["userID"]:
-             raise Exception("Cannot rate anonymous donation")
+             raise HTTPException(status_code=400, detail="Cannot rate anonymous donation")
 
         target_id = donation["userID"]
 
@@ -94,7 +102,7 @@ def create_rating(rater_id, data):
             .eq("donationID", str(donation_id)) \
             .execute()
         if existing.data:
-            raise Exception("You already rated this donation")
+            raise HTTPException(status_code=400, detail="You already rated this donation")
 
     # Insert rating
     result = supabase_admin.table("Rating").insert({
@@ -105,6 +113,9 @@ def create_rating(rater_id, data):
         "rating": rating_value,
         "comment": comment
     }).execute()
+
+    if not result.data:
+        raise HTTPException(status_code=500, detail="Failed to create rating")
 
     return result.data[0]
 

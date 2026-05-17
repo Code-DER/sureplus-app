@@ -26,6 +26,7 @@ interface OrderItem {
   price: number
   qty: number
   weightKg: number
+  picture: string | null
 }
 
 function formatExpiration(dateStr: string | null): string {
@@ -90,7 +91,7 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   // ── Order helpers ─────────────────────────────────────────────────────────
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
 
-  const addToOrder = (listing: { id: string; name: string; price: number; weightKg: number }, qty = 1) => {
+  const addToOrder = (listing: { id: string; name: string; price: number; weightKg: number; picture: string | null }, qty = 1) => {
     setOrderItems((prev) => {
       const existing = prev.find((o) => o.id === listing.id)
       if (existing) {
@@ -98,12 +99,12 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
           o.id === listing.id ? { ...o, qty: o.qty + qty } : o
         )
       }
-      return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty, weightKg: listing.weightKg }]
+      return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty, weightKg: listing.weightKg, picture: listing.picture }]
     })
   }
 
   const addFromDetail = (listing: FoodItem, qty: number) => {
-    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price), weightKg: listing.weightKg }, qty)
+    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price), weightKg: listing.weightKg, picture: listing.picture }, qty)
   }
 
   const removeFromOrder = (id: string) => {
@@ -121,7 +122,6 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
     try {
       // 1. Create Purchase
       const createResp = await purchaseAPI.create({
-        userID: user.userID,
         paymentMethod,
         items: orderItems.map(item => ({
           foodID: item.id,
@@ -160,9 +160,10 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
       setImpactStats(liveStats)
       setShowSuccess(true)
-    } catch (err) {
+      setOrderItems([])
+    } catch (err: any) {
       console.error('Order failed:', err)
-      alert('Failed to place order. Please try again.')
+      alert(err?.response?.data?.detail || 'Failed to place order. Please try again.')
     } finally {
       setIsOrdering(false)
     }
@@ -196,13 +197,6 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                 <path d="M2 17V15H4V8C4 6.61667 4.4167 5.3875 5.25 4.3125C6.0833 3.2375 7.1667 2.5333 8.5 2.2V1.5C8.5 1.0833 8.6458 0.7292 8.9375 0.4375C9.2292 0.1458 9.5833 0 10 0C10.4167 0 10.7708 0.1458 11.0625 0.4375C11.3542 0.7292 11.5 1.0833 11.5 1.5V2.2C12.8333 2.5333 13.9167 3.2375 14.75 4.3125C15.5833 5.3875 16 6.6167 16 8V15H18V17H2ZM10 20C9.45 20 8.9792 19.8042 8.5875 19.4125C8.1958 19.0208 8 18.55 8 18H12C12 18.55 11.8042 19.0208 11.4125 19.4125C11.0208 19.8042 10.55 20 10 20ZM6 15H14V8C14 6.9 13.6083 5.9583 12.825 5.175C12.0417 4.3917 11.1 4 10 4C8.9 4 7.9583 4.3917 7.175 5.175C6.3917 5.9583 6 6.9 6 8V15Z" />
               </svg>
             </button>
-            {/* <button className="icon-btn" aria-label="Cart">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="#6B7280">
-                <circle cx="6" cy="20" r="2" />
-                <circle cx="16" cy="20" r="2" />
-                <path d="M5.15 4L7.55 9H14.55L17.3 4H5.15ZM4.2 2H18.95C19.3333 2 19.625 2.1708 19.8333 2.5125C20.0333 2.8542 20.0333 3.2 19.85 3.55L16.3 9.95C16.1167 10.2833 15.875 10.5417 15.5625 10.725C15.25 10.9083 14.9167 11 14.55 11H7.1L6 13H18V15H6C5.25 15 4.6833 14.6708 4.3 14.0125C3.9167 13.3542 3.9 12.7 4.25 12.05L5.6 9.6L2 2H0V0H3.25L4.2 2ZM7.55 9H14.55H7.55Z" />
-              </svg>
-            </button> */}
             <UserAvatar
               firstName={navProfile?.firstName}
               lastName={navProfile?.lastName}
@@ -392,7 +386,15 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                 ) : (
                   orderItems.map((item) => (
                     <div key={item.id} className="order-item">
-                      <div className="order-item-img" aria-label={item.name} />
+                      <div className="order-item-img">
+                        {item.picture && (
+                          <img
+                            src={item.picture}
+                            alt={item.name}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                          />
+                        )}
+                      </div>
                       <div className="order-item-info">
                         <span className="order-item-name">{item.name}</span>
                         <span className="order-item-qty">Qty: {item.qty}</span>
@@ -455,7 +457,6 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
           onClose={() => {
             setShowSuccess(false)
             setImpactStats(null)
-            setOrderItems([])
           }}
         />
       )}

@@ -80,3 +80,13 @@ async def get_my_impact_history(
     Fetch historical timeline of impact events for the current user.
     """
     return social_impact_service.fetch_impact_history(current_user["userID"])
+
+@router.get("/seller/{seller_id}", response_model=SocialImpactSummary)
+async def get_seller_impact_summary(
+    seller_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Fetch aggregated social impact for all food sold by a seller.
+    """
+    return social_impact_service.fetch_summary_by_seller(seller_id)
