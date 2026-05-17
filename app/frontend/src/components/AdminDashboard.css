@@ -25,6 +25,12 @@
   box-sizing: border-box;
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .topbar-left h2 {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 800;
@@ -77,9 +83,9 @@
 .admin-sidebar-floating {
   position: absolute;
   width: 275px;
-  height: calc(100vh - 112px);
+  height: calc(100vh - 155px);
   left: 45px;
-  top: 112px;
+  top: 134px;
   background: #FFFFFF;
   border-right: 1px solid #F3F4F6;
   border-radius: 0px 24px 24px 0px;
@@ -251,7 +257,11 @@
    ============================================================ */
 
 .admin-hamburger-btn {
-  display: none;
+  display: none !important;
+}
+
+.admin-mobile-only {
+  display: none !important;
 }
 
 .admin-sidebar-overlay {
@@ -295,7 +305,11 @@
 
 @media (max-width: 768px) {
   .admin-hamburger-btn {
-    display: flex;
+    display: flex !important;
+  }
+
+  .admin-mobile-only {
+    display: flex !important;
   }
 
   .admin-topbar-floating {
