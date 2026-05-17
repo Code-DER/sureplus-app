@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-
 import './SalesAnalytics.css';
-import { purchasesAPI, purchaseAPI, socialImpactAPI } from '../api/apis';
+import { purchaseAPI, socialImpactAPI, foodAPI } from '../api/apis';
 
 interface SalesAnalyticsProps {
   onBack: () => void;
@@ -78,37 +77,37 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
   const [loadingData, setLoadingData] = useState(false);
 
   const handleCompleteOrder = async (purchaseID: string) => {
-  try {
-    await purchaseAPI.completePurchase(purchaseID);
+    try {
+      await purchaseAPI.complete(purchaseID);
 
-    // update local state
-    setOrders(prev =>
-      prev.map(order =>
-        order.purchaseID === purchaseID
-          ? { ...order, status: 'completed' }
-          : order
-      )
-    );
+      // update local state
+      setOrders(prev =>
+        prev.map(order =>
+          order.purchaseID === purchaseID
+            ? { ...order, status: 'completed' }
+            : order
+        )
+      );
 
-    setPurchases(prev =>
-      prev.map(p =>
-        p.purchaseID === purchaseID
-          ? { ...p, status: 'completed' }
-          : p
-      )
-    );
+      setPurchases(prev =>
+        prev.map(p =>
+          p.purchaseID === purchaseID
+            ? { ...p, status: 'completed' }
+            : p
+        )
+      );
 
-  } catch (error) {
-    console.error('Failed to complete order', error);
-  }
-};
+    } catch (error) {
+      console.error('Failed to complete order', error);
+    }
+  };
 
   useEffect(() => {
     if (!sellerId) return;
     setLoadingData(true);
     Promise.allSettled([
-      purchasesAPI.getSellerPurchases(sellerId),
-      purchasesAPI.getSellerOrders(sellerId),
+      purchaseAPI.getSellerPurchases(sellerId),
+      purchaseAPI.getSellerOrders(sellerId),
       socialImpactAPI.getSellerImpactSummary(sellerId),
     ]).then(([purchasesResult, ordersResult, impactResult]) => {
       if (purchasesResult.status === 'fulfilled') setPurchases(purchasesResult.value.data ?? []);

@@ -5,9 +5,11 @@ from services.purchase_service import (
     create_purchase,
     complete_purchase,
     get_seller_purchase_list,
+    get_buyer_food_list,
     get_seller_orders,
     get_buyer_orders,
 )
+from api.dependency import require_role
 
 router = APIRouter(prefix="/purchase")
 
@@ -18,6 +20,13 @@ def create(data: PurchaseCreate, current_user: dict = Depends(get_current_user))
 @router.put("/{purchase_id}/complete")
 def complete(purchase_id: str):
     return complete_purchase(purchase_id)
+
+@router.get("/my-food")
+def get_my_food(current_user: dict = Depends(require_role("buyer"))):
+    """
+    Returns food items the buyer has purchased that can be donated.
+    """
+    return get_buyer_food_list(current_user["userID"])
 
 @router.get("/buyer/orders")
 def buyer_order_history(current_user: dict = Depends(get_current_user)):

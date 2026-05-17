@@ -4,12 +4,14 @@ import AdminDashboardHome from './AdminDashboardHome';
 import AdminUserManagement from './AdminUserManagement';
 import AdminPartnerTagging from './AdminPartnerTagging';
 import AdminReports from './AdminReports';
+import AdminCharityApplications from './AdminCharityApplications';
+import AdminCharityPosts from './AdminCharityPosts';
 import AdminInbox from './AdminInbox';
 import NotificationDropdown from './NotificationDropdown';
 
 import StoreLogo from '../assets/ADMIN/Store Logo.svg';
 import NotificationIcon from '../assets/ADMIN/notification.svg';
-// import QuestionIcon from '../assets/ADMIN/Question.svg';
+import QuestionIcon from '../assets/ADMIN/Question.svg';
 import DashboardIcon from '../assets/ADMIN/Dashboard.svg';
 import UserManagementIcon from '../assets/ADMIN/user management.svg';
 import PartnerTaggingIcon from '../assets/ADMIN/Partner Tagging.svg';
@@ -23,7 +25,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
   void onSwitchRole;
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'partners' | 'reports' | 'inbox'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'partners' | 'reports' | 'inbox' | 'charity-apps' | 'charity-posts'>('dashboard');
   const [showNotifs, setShowNotifs] = useState(false);
 
   return (
@@ -39,9 +41,9 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
             <img src={NotificationIcon} alt="Notifications" width="20" height="20" />
           </button>
           {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
-          {/* <button className="icon-btn">
+          <button className="icon-btn">
             <img src={QuestionIcon} alt="Help" width="20" height="20" />
-          </button> */}
+          </button>
           <div className="avatar-wrapper">
             <img src={StoreLogo} alt="Admin" className="admin-avatar" />
           </div>
@@ -73,6 +75,14 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
             <img src={PartnerTaggingIcon} alt="" width="20" height="20" />
             Partner Tagging
           </button>
+          <button className={`admin-nav-item ${activeTab === 'charity-apps' ? 'active' : ''}`} onClick={() => setActiveTab('charity-apps')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Charity Apps
+          </button>
+          <button className={`admin-nav-item ${activeTab === 'charity-posts' ? 'active' : ''}`} onClick={() => setActiveTab('charity-posts')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 21 2 21l0-5.5L17 3z"></path></svg>
+            Charity Posts
+          </button>
           <button className={`admin-nav-item ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
             <img src={ReportsIcon} alt="" width="18" height="18" />
             Reports
@@ -96,11 +106,13 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
 
       {/* Main Content Area */}
       <div className="admin-main-content">
-        {activeTab === 'dashboard' && <AdminDashboardHome />}
-        {activeTab === 'users'     && <AdminUserManagement />}
-        {activeTab === 'partners'  && <AdminPartnerTagging />}
-        {activeTab === 'reports'   && <AdminReports />}
-        {activeTab === 'inbox'     && <AdminInbox />}
+        {activeTab === 'dashboard'    && <AdminDashboardHome />}
+        {activeTab === 'users'        && <AdminUserManagement />}
+        {activeTab === 'partners'     && <AdminPartnerTagging />}
+        {activeTab === 'charity-apps' && <AdminCharityApplications />}
+        {activeTab === 'charity-posts' && <AdminCharityPosts />}
+        {activeTab === 'reports'      && <AdminReports />}
+        {activeTab === 'inbox'        && <AdminInbox />}
       </div>
     </div>
   );

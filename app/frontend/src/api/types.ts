@@ -17,6 +17,13 @@ export interface UserProfile {
 
 export interface CharityProfile extends UserProfile {
   organizationName: string;
+  isPartner: boolean;
+}
+
+export interface CharityResponse {
+  userID: string;
+  organizationName: string;
+  isPartner: boolean;
 }
 
 export interface CharityPost {
@@ -24,14 +31,26 @@ export interface CharityPost {
   userID: string;
   title: string;
   description?: string;
+  imageUrl?: string;
+  donationMode: "money" | "food" | "both";
   currentAmount: number;
-  amountNeeded: number;
+  amountNeeded: number | null;
+  currentFoodKg: number;
+  foodGoalKg: number | null;
+  status: "active" | "funded" | "closed";
+  isPartner: boolean;
   createdAt: string;
+}
+
+export interface CharityDonationResult {
+  post: CharityPost;
+  donationID?: string;
 }
 
 export interface SocialImpactRecord {
   impactID: string;
-  purchaseID: string;
+  purchaseID?: string;
+  donationID?: string;
   carbonOffset: number;
   rescuedKilos: number;
   peopleFed: number;
@@ -42,4 +61,33 @@ export interface SocialImpactSummary {
   totalRescuedKilos: number;
   totalPeopleFed: number;
   purchaseCount: number;
+  donationCount: number;
+}
+
+export interface CharityApplication {
+  applicationID: string;
+  userID: string;
+  purpose: string;
+  govID: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+}
+
+export interface CharityApplicationResponse extends CharityApplication {}
+
+export interface Donation {
+  donationID: string;
+  postID: string;
+  userID: string | null;
+  donationType: 'money' | 'food';
+  amount?: number;
+  foodID?: string;
+  quantity?: number;
+  foodKg?: number;
+  status: 'completed' | 'refunded';
+  createdAt: string;
+  // Joined info
+  donorName?: string;
+  postTitle?: string;
+  isRated?: boolean;
 }

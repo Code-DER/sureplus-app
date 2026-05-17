@@ -21,6 +21,12 @@ def update_charity(user_id: str, data: dict):
     """
     return supabase_admin.table("Charity").update(data).eq("userID", user_id).execute()
 
+def toggle_partner_status(user_id: str, is_partner: bool):
+    """
+    Toggle a charity's partner status.
+    """
+    return supabase_admin.table("Charity").update({"isPartner": is_partner}).eq("userID", user_id).execute()
+
 def fetch_charity_profile(user_id: str):
     """
     Fetch a charity's profile by joining with the User table.

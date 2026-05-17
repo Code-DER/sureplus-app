@@ -8,7 +8,7 @@ import MysteryBox from './MysteryBox';
 import SalesAnalytics from './SalesAnalytics';
 import SellerReviews from './SellerReviews';
 import NotificationDropdown from './NotificationDropdown';
-import { userAPI, foodAPI, notificationsAPI, purchasesAPI } from '../api/apis';
+import { userAPI, foodAPI, notificationsAPI, purchaseAPI } from '../api/apis';
 import type { FoodItem } from '../types/food';
 
 interface SellerDashboardProps {
@@ -102,7 +102,7 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
         if (listingsRes.status === 'fulfilled') setListings(listingsRes.value.data);
         if (notifsRes.status === 'fulfilled') setNotifications(notifsRes.value.data);
 
-        const purchasesRes = await purchasesAPI.getSellerPurchases(p.userID).catch(() => null);
+        const purchasesRes = await purchaseAPI.getSellerPurchases(p.userID).catch(() => null);
         if (!cancelled && purchasesRes) setPurchases(purchasesRes.data);
       } catch {
         // profile fetch failure is critical; sub-data failures are silent

@@ -64,11 +64,6 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch notifications on component mount
-  useEffect(() => {
-    fetchNotifications()
-  }, [])
-
   const fetchNotifications = async () => {
     try {
       setLoading(true)
@@ -76,7 +71,15 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
       const response = await notificationsAPI.getMyNotifications()
 
       // Transform the backend data into the interface of frontend
-      const transformedNotifications: Notification[] = response.data.map((notif: any) => ({
+      const transformedNotifications: Notification[] = response.data.map((notif: {
+        notificationID: number;
+        type: string;
+        message: string;
+        title: string;
+        createdAt: string;
+        isRead: boolean;
+        link?: string;
+      }) => ({
         id: notif.notificationID,
         type: (notif.type as Notification['type']) || 'new_listing',
         text: notif.message || '',
@@ -87,19 +90,25 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
         link: notif.link,
       }))
       setNotifications(transformedNotifications)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch notifications', error)
-      setError(error.message || 'Failed to fetch notifications')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch notifications'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
   }
 
+  // Fetch notifications on component mount
+  useEffect(() => {
+    fetchNotifications()
+  }, [])
+
   const markAllRead = async () => {
     try {
       await notificationsAPI.markAllNotificationsAsRead()
       setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to mark all as read.', error)
     }
   }

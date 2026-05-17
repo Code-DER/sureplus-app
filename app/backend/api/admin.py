@@ -6,7 +6,9 @@ from database import supabase_admin
 from api.dependency import require_role
 from models.admin_reports import ReportsOverviewResponse, ReportsTransactionRow
 from models.user import AdminCreateUserRequest, UpdateUserRoleRequest
-from services import admin_reports_service, admin_activity_service
+from models.charity_post import CharityPostUpdate
+from models.charity import CharityUpdate
+from services import admin_reports_service, admin_activity_service, charity_post_service, charity_service
 from services.auth_service import hash_password
 
 router = APIRouter()
@@ -239,6 +241,25 @@ async def get_pending_approvals(current_user: dict = Depends(require_role("admin
 
 # ── Partner / seller management ───────────────────────────────────────────────
 
+@router.get("/charities")
+async def list_charities(current_user: dict = Depends(require_role("admin"))):
+    """List all approved charities."""
+    res = supabase_admin.table("Charity").select("*, User(firstName, lastName, emailAddress)").execute()
+    return res.data or []
+
+@router.put("/charities/{user_id}/partner")
+async def toggle_charity_partner(
+    user_id: UUID,
+    isPartner: bool = Body(..., embed=True),
+    current_user: dict = Depends(require_role("admin")),
+):
+    """Toggle a charity's partner status."""
+    res = supabase_admin.table("Charity").update({"isPartner": isPartner}).eq("userID", str(user_id)).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Charity not found")
+
+    return {"message": f"Partner status updated to {isPartner}", "isPartner": isPartner}
+
 @router.get("/sellers")
 async def list_sellers(current_user: dict = Depends(require_role("admin"))):
     """List all sellers with their basic user info."""
@@ -440,3 +461,84 @@ async def get_bad_actor_report(
         "badActors": bad_actors[:limit],
         "recentIncidents": recent_incidents,
     }
+
+
+# ── Charity & Post Management (Admin) ──────────────────────────────────────────
+
+# Full edit of any charity post (bypasses ownership check)
+@router.put("/charity-posts/{charity_id}")
+async def admin_update_charity_post(
+    charity_id: UUID, 
+    data: CharityPostUpdate, 
+    current_user: dict = Depends(require_role("admin"))
+):
+    response = charity_post_service.update_post(str(charity_id), data.model_dump(exclude_unset=True))
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Charity post not found")
+        
+    admin_activity_service.record_admin_activity(
+        admin_id=current_user["userID"],
+        action_type="edit_charity_post",
+        description=f"Edited charity post {charity_id}",
+        target_id=str(charity_id),
+        target_entity="CharityPost",
+    )
+    return response.data[0]
+
+# Delete any charity post (bypasses ownership check)
+@router.delete("/charity-posts/{charity_id}")
+async def admin_delete_charity_post(
+    charity_id: UUID, 
+    current_user: dict = Depends(require_role("admin"))
+):
+    response = charity_post_service.delete_post(str(charity_id))
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Charity post not found")
+
+    admin_activity_service.record_admin_activity(
+        admin_id=current_user["userID"],
+        action_type="delete_charity_post",
+        description=f"Deleted charity post {charity_id}",
+        target_id=str(charity_id),
+        target_entity="CharityPost",
+    )
+    return {"message": "Charity post deleted"}
+
+# Edit a charity's organizationName
+@router.put("/charities/{user_id}")
+async def admin_update_charity(
+    user_id: UUID, 
+    data: CharityUpdate, 
+    current_user: dict = Depends(require_role("admin"))
+):
+    response = charity_service.update_charity(str(user_id), data.model_dump(exclude_unset=True))
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Charity not found")
+        
+    admin_activity_service.record_admin_activity(
+        admin_id=current_user["userID"],
+        action_type="edit_charity",
+        description=f"Edited charity organization {user_id}",
+        target_id=str(user_id),
+        target_entity="Charity",
+    )
+    return response.data[0]
+
+# Remove a charity organization record (does not delete the User account)
+@router.delete("/charities/{user_id}")
+async def admin_delete_charity(
+    user_id: UUID, 
+    current_user: dict = Depends(require_role("admin"))
+):
+    res = supabase_admin.table("Charity").delete().eq("userID", str(user_id)).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Charity not found")
+
+    admin_activity_service.record_admin_activity(
+        admin_id=current_user["userID"],
+        action_type="delete_charity",
+        description=f"Removed charity organization record for user {user_id}",
+        target_id=str(user_id),
+        target_entity="Charity",
+    )
+    return {"message": "Charity organization removed"}

@@ -10,10 +10,11 @@ class UserResponse(BaseModel):
     lastName: str
     emailAddress: EmailStr
     role: str
-    street: str
-    residentialName: str
-    barangay: str
-    city: str
+    phoneNumber: Optional[str] = None
+    street: Optional[str] = None
+    residentialName: Optional[str] = None
+    barangay: Optional[str] = None
+    city: Optional[str] = None
 
 class SellerSignUp(BaseModel):
     sellerType: Optional[str] = None
@@ -24,11 +25,11 @@ class UserSignUp(BaseModel):
     lastName: str
     emailAddress: EmailStr
     password: str
-    phoneNumber: str
-    street: str
-    residentialName: str
-    barangay: str
-    city: str
+    phoneNumber: Optional[str] = None
+    street: Optional[str] = None
+    residentialName: Optional[str] = None
+    barangay: Optional[str] = None
+    city: Optional[str] = None
     becomeSeller: bool = False
     sellerInfo: Optional[SellerSignUp] = None
 

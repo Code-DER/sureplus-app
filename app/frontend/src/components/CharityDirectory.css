@@ -1,0 +1,121 @@
+.charity-directory {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.directory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 10px 16px;
+  width: 100%;
+  max-width: 400px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-container:focus-within {
+  border-color: #0F5238;
+  box-shadow: 0 0 0 3px rgba(15, 82, 56, 0.1);
+}
+
+.search-container svg {
+  color: #6B7280;
+}
+
+.search-container input {
+  border: none;
+  background: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.charity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.charity-list-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.charity-list-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.charity-logo-small {
+  width: 48px;
+  height: 48px;
+  background: #0F5238;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.charity-item-info {
+  flex: 1;
+}
+
+.charity-item-info h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.view-btn {
+  padding: 8px 16px;
+  background-color: white;
+  color: #0F5238;
+  border: 1px solid #0F5238;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.view-btn:hover {
+  background-color: #F0FDF4;
+}
+
+.charity-directory-loading, .charity-directory-error, .directory-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  text-align: center;
+  gap: 16px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #E5E7EB;
+}
+
+.directory-empty p {
+  color: #6B7280;
+  margin: 0;
+}
