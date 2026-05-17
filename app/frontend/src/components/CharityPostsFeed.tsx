@@ -16,9 +16,8 @@ const CharityPostsFeed: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<CharityPost | null>(null);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
 
-  // Pagination, Search & Filters
   const [search, setSearch] = useState('');
-  const [filterMode, setFilterMode] = useState<string>('all');
+  const [filterMode] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('active');
   const offsetRef = useRef(0);
   const [hasMore, setHasMore] = useState(true);
@@ -62,14 +61,11 @@ const CharityPostsFeed: React.FC = () => {
     }
   };
 
-  // Handle search, filters and tab switch
   useEffect(() => {
     if (activeTab !== 'posts') return;
-    
     const timer = setTimeout(() => {
       fetchPosts(true);
     }, search ? 500 : 0);
-    
     return () => clearTimeout(timer);
   }, [activeTab, search, filterMode, filterStatus]);
 
@@ -78,100 +74,95 @@ const CharityPostsFeed: React.FC = () => {
 
     const observer = new IntersectionObserver(
       entries => {
-        if (entries[0].isIntersecting) {
-          fetchPosts(false);
-        }
+        if (entries[0].isIntersecting) fetchPosts(false);
       },
       { threshold: 1.0, rootMargin: '100px' }
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-
+    if (observerTarget.current) observer.observe(observerTarget.current);
     return () => observer.disconnect();
   }, [activeTab, hasMore, loading, loadingMore]);
 
-  const handleLoadMore = () => {
-    if (!loadingMore && hasMore) {
-      fetchPosts(false);
-    }
-  };
-
   const handleDonateSuccess = (updatedPost: CharityPost) => {
-    setPosts(prevPosts => 
+    setPosts(prevPosts =>
       prevPosts.map(p => p.charityID === updatedPost.charityID ? updatedPost : p)
     );
   };
 
   if (profileUserId) {
     return (
-      <CharityProfileView 
-        userId={profileUserId} 
-        onBack={() => setProfileUserId(null)} 
+      <CharityProfileView
+        userId={profileUserId}
+        onBack={() => setProfileUserId(null)}
       />
     );
   }
 
+  const STATUS_FILTERS = [
+    { value: 'all', label: 'All' },
+    { value: 'active', label: 'Active' },
+    { value: 'funded', label: 'Funded' },
+    { value: 'closed', label: 'Closed' },
+  ];
+
   return (
     <div className="charity-posts-feed">
-      <div className="feed-header">
+      {/* ── Header row ── */}
+      <div className="feed-header-top">
         <div className="header-text">
-          <h2>Charity Support</h2>
+          <h1>Charity Support</h1>
           <p>Support local organizations in their mission to reduce food waste and help the community.</p>
         </div>
-        
-        <div className="header-actions">
-          {activeTab === 'posts' && (
-            <div className="search-box">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <input 
-                type="text" 
-                placeholder="Search campaigns..." 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          )}
-          <div className="feed-tabs">
-            <button 
-              className={`feed-tab ${activeTab === 'posts' ? 'active' : ''}`}
-              onClick={() => setActiveTab('posts')}
-            >
-              Donation Posts
-            </button>
-            <button 
-              className={`feed-tab ${activeTab === 'directory' ? 'active' : ''}`}
-              onClick={() => setActiveTab('directory')}
-            >
-              Organizations
-            </button>
-          </div>
+        <div className="feed-tabs">
+          <button
+            className={`feed-tab ${activeTab === 'posts' ? 'active' : ''}`}
+            onClick={() => setActiveTab('posts')}
+          >
+            Donation Posts
+          </button>
+          <button
+            className={`feed-tab ${activeTab === 'directory' ? 'active' : ''}`}
+            onClick={() => setActiveTab('directory')}
+          >
+            Organizations
+          </button>
         </div>
       </div>
 
       {activeTab === 'posts' && (
-        <div className="feed-filters">
-          <div className="filter-group">
-            <span className="filter-label">Status:</span>
-            <div className="filter-chips">
-              {['all', 'active', 'funded', 'closed'].map(status => (
-                <button 
-                  key={status}
-                  className={`filter-chip ${filterStatus === status ? 'active' : ''}`}
-                  onClick={() => setFilterStatus(status)}
+        <>
+          {/* ── Search ── */}
+          <div className="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search campaigns..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          {/* ── Status filter pills ── */}
+          <div className="feed-filters">
+            <div className="filter-pills-container">
+              {STATUS_FILTERS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  className={`filter-chip ${filterStatus === value ? 'active' : ''}`}
+                  onClick={() => setFilterStatus(value)}
                 >
-                  {status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}
+                  {label}
                 </button>
               ))}
             </div>
           </div>
-        </div>
+        </>
       )}
 
+      {/* ── Content ── */}
       {activeTab === 'posts' ? (
         <>
           {loading ? (
@@ -199,15 +190,15 @@ const CharityPostsFeed: React.FC = () => {
             <>
               <div className="posts-grid">
                 {posts.map(post => (
-                  <CharityPostCard 
-                    key={post.charityID} 
-                    post={post} 
+                  <CharityPostCard
+                    key={post.charityID}
+                    post={post}
                     onDonate={(p) => setSelectedPost(p)}
                     onViewProfile={setProfileUserId}
                   />
                 ))}
               </div>
-              
+
               <div ref={observerTarget} className="infinite-scroll-sentinel">
                 {loadingMore && (
                   <div className="load-more-loader">
@@ -227,9 +218,9 @@ const CharityPostsFeed: React.FC = () => {
       )}
 
       {selectedPost && (
-        <DonateModal 
-          post={selectedPost} 
-          onClose={() => setSelectedPost(null)} 
+        <DonateModal
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
           onSuccess={handleDonateSuccess}
         />
       )}
