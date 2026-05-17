@@ -71,14 +71,68 @@ export default function AdminInbox() {
   }, []);
 
   const incidents = report?.recentIncidents ?? [];
-  const monthly = incidents.reduce<Record<string, { bad: number; total: number }>>((acc, row) => {
-    const month = row.createdAt ? new Date(row.createdAt).toLocaleString('en-US', { month: 'short' }) : 'N/A';
-    if (!acc[month]) acc[month] = { bad: 0, total: 0 };
-    acc[month].bad += 1;
-    acc[month].total += 1;
-    return acc;
-  }, {});
-  const chartData = Object.entries(monthly).map(([label, values]) => ({ label, bad: values.bad, total: values.total })).slice(-7);
+  const grouped: Record<string, { bad: number; total: number }> = {};
+
+  if (period === 'monthly') {
+    // Last 7 months
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+
+      const label = d.toLocaleString('en-US', {
+        month: 'short',
+      });
+
+      grouped[label] = { bad: 0, total: 0 };
+    }
+
+    incidents.forEach((row) => {
+      if (!row.createdAt) return;
+
+      const date = new Date(row.createdAt);
+
+      const label = date.toLocaleString('en-US', {
+        month: 'short',
+      });
+
+      if (!grouped[label]) return;
+
+      grouped[label].total += 1;
+
+      if (row.rating <= 2) {
+        grouped[label].bad += 1;
+      }
+    });
+
+  } else {
+    // Days of current week
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    days.forEach((day) => {
+      grouped[day] = { bad: 0, total: 0 };
+    });
+
+    incidents.forEach((row) => {
+      if (!row.createdAt) return;
+
+      const date = new Date(row.createdAt);
+
+      const label = days[date.getDay()];
+
+      grouped[label].total += 1;
+
+      if (row.rating <= 2) {
+        grouped[label].bad += 1;
+      }
+    });
+  }
+
+  const chartData = Object.entries(grouped).map(([label, values]) => ({
+    label,
+    bad: values.bad,
+    total: values.total,
+  }));
+  
   const pts = buildChart(chartData.length > 0 ? chartData : [{ label: 'N/A', bad: 0, total: 0 }]);
   const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.lineX},${p.lineY}`).join(' ');
   const guides = [0.25, 0.5, 0.75, 1];

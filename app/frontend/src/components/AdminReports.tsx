@@ -165,16 +165,70 @@ export default function AdminReports() {
     alert('PDF export is not available yet without additional dependencies. CSV export is ready.');
   };
 
-  const grouped = transactions.reduce<Record<string, { rescue: number; revenue: number }>>((acc, tx) => {
-    const key = tx.purchaseDate ? new Date(tx.purchaseDate).toLocaleString('en-US', { month: 'short' }) : 'N/A';
-    if (!acc[key]) acc[key] = { rescue: 0, revenue: 0 };
-    acc[key].rescue += Number(tx.quantity || 0);
-    acc[key].revenue += Number(tx.totalPrice || 0);
-    return acc;
-  }, {});
-  const chartData = Object.entries(grouped)
-    .map(([label, values]) => ({ label, rescue: values.rescue, revenue: values.revenue }))
-    .slice(-7);
+  const grouped: Record<string, { rescue: number; revenue: number }> = {};
+
+  if (period === 'monthly') {
+
+    // Last 7 months
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+
+      const label = d.toLocaleString('en-US', {
+        month: 'short',
+      });
+
+      grouped[label] = {
+        rescue: 0,
+        revenue: 0,
+      };
+    }
+
+    transactions.forEach((tx) => {
+      if (!tx.purchaseDate) return;
+
+      const date = new Date(tx.purchaseDate);
+
+      const label = date.toLocaleString('en-US', {
+        month: 'short',
+      });
+
+      if (!grouped[label]) return;
+
+      grouped[label].rescue += Number(tx.quantity || 0);
+      grouped[label].revenue += Number(tx.totalPrice || 0);
+    });
+
+  } else {
+
+    // Days of the week
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    days.forEach((day) => {
+      grouped[day] = {
+        rescue: 0,
+        revenue: 0,
+      };
+    });
+
+    transactions.forEach((tx) => {
+      if (!tx.purchaseDate) return;
+
+      const date = new Date(tx.purchaseDate);
+
+      const label = days[date.getDay()];
+
+      grouped[label].rescue += Number(tx.quantity || 0);
+      grouped[label].revenue += Number(tx.totalPrice || 0);
+    });
+  }
+
+  const chartData = Object.entries(grouped).map(([label, values]) => ({
+    label,
+    rescue: values.rescue,
+    revenue: values.revenue,
+  }));
+  
   const pts = buildChart(chartData.length > 0 ? chartData : [{ label: 'N/A', rescue: 0, revenue: 0 }]);
   const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.lineX},${p.lineY}`).join(' ');
   const guides = [0.25, 0.5, 0.75, 1];
