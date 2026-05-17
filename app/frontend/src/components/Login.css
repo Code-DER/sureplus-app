@@ -111,7 +111,7 @@
   gap: 32px;
   width: 100%;
   max-width: 447px;
-  height: 591px;
+  min-height: 591px;
   background: #FFFFFF;
   border: 1px solid #E9ECEF;
   border-radius: 11.5px;
@@ -339,8 +339,9 @@
 .login-badges {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   width: 100%;
 }
@@ -349,11 +350,12 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 4px 12px;
-  gap: 4px;
-  height: 32px;
+  padding: 8px 12px;
+  gap: 8px;
+  min-height: 32px;
   background: #ECEEEA;
   border-radius: 8px;
+  max-width: 100%;
 }
 
 .login-badge span {
@@ -361,6 +363,7 @@
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
+  white-space: normal;
 }
 
 .badge-green span { color: #66B018; }

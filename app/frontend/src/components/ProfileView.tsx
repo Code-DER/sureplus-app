@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import './ProfileView.css';
 import EditProfileView from './EditProfileView';
 import UserAvatar from './UserAvatar';
-import { userAPI, charityAPI, socialImpactAPI } from '../api/apis';
+import { userAPI, charityAPI, socialImpactAPI, ratingsAPI } from '../api/apis';
 
 import CheckmarkIcon from '../assets/Global Profile System/Checkmark.svg';
 import EcoIcon from '../assets/Global Profile System/Eco Icon.svg';
@@ -57,6 +57,7 @@ export default function ProfileView() {
   const [buyerProfile, setBuyerProfile] = useState<BuyerProfile | null>(null);
   const [sellerProfile, setSellerProfile] = useState<SellerProfile | null>(null);
   const [charityProfile, setCharityProfile] = useState<CharityProfile | null>(null);
+  const [userRating, setUserRating] = useState<number | null>(null);
   const [impactSummary, setImpactSummary] = useState<SocialImpactSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [showSellerModal, setShowSellerModal] = useState(false);
@@ -72,6 +73,7 @@ export default function ProfileView() {
   const [hasPendingApplication, setHasPendingApplication] = useState(false);
 
   const fetchProfileData = useCallback(async () => {
+    setUserRating(null);
     const token = localStorage.getItem('token');
 
     if (!token) {
@@ -102,6 +104,21 @@ export default function ProfileView() {
             .catch(error => {
               console.log('Seller profile not found:', error);
               setSellerProfile(null);
+            })
+        );
+
+        fetchPromises.push(
+          ratingsAPI.getSellerRatings(userData.userID)
+            .then((response) => {
+              const ratings = response.data ?? [];
+              const avg = ratings.length
+                ? ratings.reduce((sum: number, item: { rating: number }) => sum + item.rating, 0) / ratings.length
+                : 0;
+              setUserRating(ratings.length ? Math.round(avg * 10) / 10 : null);
+            })
+            .catch((error) => {
+              console.log('Seller rating not found:', error);
+              setUserRating(null);
             })
         );
       } else if (userData.role === 'charity') {
@@ -238,7 +255,7 @@ export default function ProfileView() {
           <div className="user-badges-row">
             <span className="role-pill" style={{ textTransform: 'capitalize' }}>{profile.role}</span>
             <span className="rating-pill">
-              <span className="star-icon">★</span> 4.8
+              <span className="star-icon">★</span> {userRating !== null ? userRating.toFixed(1) : '0'}
             </span>
           </div>
           
