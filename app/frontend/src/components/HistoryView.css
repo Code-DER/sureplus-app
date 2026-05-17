@@ -496,3 +496,41 @@
     font-size: 13px;
   }
 }
+
+/* Pending order banner */
+.history-pending-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFF8F0;
+  border: 1px solid #FECDA6;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0 24px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #92400E;
+}
+
+.history-pending-banner svg {
+  flex-shrink: 0;
+  color: #D97706;
+}
+
+/* Locked review box */
+.review-box--locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px;
+  text-align: center;
+}
+
+.review-locked-msg {
+  font-size: 14px;
+  color: #707973;
+  max-width: 320px;
+  line-height: 1.5;
+  margin: 0;
+}

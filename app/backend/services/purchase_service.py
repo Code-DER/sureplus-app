@@ -120,6 +120,58 @@ def fetch_purchase_owner(purchase_id: str) -> Optional[str]:
     )
     return res.data["userID"] if res.data else None
 
+def approve_purchase(purchase_id: str, seller_id: str):
+    """
+    Seller approves a pending purchase that contains their items.
+    Triggers completion, social impact, points, and buyer notification.
+    """
+    # 1. Verify purchase exists and is still pending
+    purchase_res = _execute(
+        supabase_admin.table("Purchase")
+            .select("purchaseID, userID, status")
+            .eq("purchaseID", purchase_id)
+            .single(),
+        "Failed to fetch purchase for approval"
+    )
+    purchase = purchase_res.data
+    if not purchase:
+        raise HTTPException(status_code=404, detail="Purchase not found")
+    if purchase["status"] != "pending":
+        raise HTTPException(status_code=400, detail="Only pending orders can be approved")
+
+    # 2. Verify at least one item belongs to this seller's shop
+    foods_res = _execute(
+        supabase_admin.table("Food").select("foodID").eq("userID", seller_id),
+        "Failed to fetch seller food"
+    )
+    seller_food_ids = {f["foodID"] for f in (foods_res.data or [])}
+    if not seller_food_ids:
+        raise HTTPException(status_code=403, detail="No listings found for your shop")
+
+    items_res = _execute(
+        supabase_admin.table("PurchaseItems").select("foodID").eq("purchaseID", purchase_id),
+        "Failed to fetch purchase items"
+    )
+    purchase_food_ids = {i["foodID"] for i in (items_res.data or [])}
+
+    if not seller_food_ids.intersection(purchase_food_ids):
+        raise HTTPException(status_code=403, detail="This order does not contain items from your shop")
+
+    # 3. Complete the purchase (status → completed, social impact, points, impact notification)
+    result = complete_purchase(purchase_id)
+
+    # 4. Notify buyer that their order was approved
+    notification_service.send_notification(
+        user_id=purchase["userID"],
+        title="Order Approved ✅",
+        message="Your order has been approved by the seller and is now complete!",
+        type="order",
+        link="/history"
+    )
+
+    return result
+
+
 def get_buyer_food_list(buyer_id: str):
     """
     Fetch all food items purchased by a buyer that have remaining donatable quantity.

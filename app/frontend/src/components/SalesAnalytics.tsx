@@ -78,7 +78,7 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
 
   const handleCompleteOrder = async (purchaseID: string) => {
     try {
-      await purchaseAPI.complete(purchaseID);
+      await purchaseAPI.approve(purchaseID);
 
       // update local state
       setOrders(prev =>

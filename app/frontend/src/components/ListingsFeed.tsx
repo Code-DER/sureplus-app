@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import './ListingsFeed.css'
 import ProductDetail from './ProductDetail'
-import OrderSuccessModal, { type ImpactStats } from './OrderSuccessModal'
 import NotificationDropdown from './NotificationDropdown'
 import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
 import CharityPostsFeed from './CharityPostsFeed'
 import SocialImpactView from './SocialImpactView'
 import Toast, { type ToastItem } from './Toast'
-import { foodAPI, purchaseAPI, socialImpactAPI, getAuthUser, userAPI } from '../api/apis'
+import { foodAPI, purchaseAPI, getAuthUser, userAPI } from '../api/apis'
 import { formatExpiration } from '../utils/format'
 import UserAvatar from './UserAvatar'
 import type { FoodItem } from '../types/food'
@@ -85,12 +84,11 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   const [currentShopUserID, setCurrentShopUserID] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState('GCash')
   const [selectedListing, setSelectedListing] = useState<FoodItem | null>(null)
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [showPendingSuccess, setShowPendingSuccess] = useState(false)
   const [showNotifs, setShowNotifs] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'listings' | 'charity' | 'history' | 'impact' | 'profile'>('listings')
 
-  const [impactStats, setImpactStats] = useState<ImpactStats | null>(null)
   const [isOrdering, setIsOrdering] = useState(false)
 
   // ── Order helpers ─────────────────────────────────────────────────────────
@@ -170,8 +168,7 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
     setIsOrdering(true)
     try {
-      // 1. Create Purchase
-      const createResp = await purchaseAPI.create({
+      await purchaseAPI.create({
         paymentMethod,
         items: orderItems.map(item => ({
           foodID: item.id,
@@ -179,36 +176,7 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
         }))
       })
 
-      const purchaseId = createResp.data.purchaseID
-
-      // 2. Complete Purchase
-      const completeResp = await purchaseAPI.complete(purchaseId)
-      const pointsEarned = completeResp.data.pointsEarned
-
-      // 3. Get Social Impact Stats (with fallback)
-      let liveStats: ImpactStats
-      try {
-        const impactResp = await socialImpactAPI.getImpactByPurchase(purchaseId)
-        const impact = impactResp.data
-        liveStats = {
-          foodSaved: Math.round(impact.rescuedKilos * 10) / 10,
-          carbonReduced: Math.round(impact.carbonOffset * 10) / 10,
-          peopleFed: impact.peopleFed,
-          pointsEarned,
-        }
-      } catch (impactErr) {
-        console.error('Failed to fetch real-time impact stats, using estimation:', impactErr)
-        const totalKg = orderItems.reduce((sum, item) => sum + (item.weightKg * item.qty), 0)
-        liveStats = {
-          foodSaved: Math.round(totalKg * 10) / 10,
-          carbonReduced: Math.round(totalKg * 2.5 * 10) / 10,
-          peopleFed: Math.floor(totalKg / 0.5),
-          pointsEarned,
-        }
-      }
-
-      setImpactStats(liveStats)
-      setShowSuccess(true)
+      setShowPendingSuccess(true)
       setOrderItems([])
       setCurrentShopUserID(null)
     } catch (err: any) {
@@ -549,15 +517,24 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
         )}
       </div>
 
-      {/* Success Modal */}
-      {showSuccess && impactStats && (
-        <OrderSuccessModal
-          stats={impactStats}
-          onClose={() => {
-            setShowSuccess(false)
-            setImpactStats(null)
-          }}
-        />
+      {/* Pending Success Modal */}
+      {showPendingSuccess && (
+        <div className="pending-success-overlay" onClick={() => setShowPendingSuccess(false)}>
+          <div className="pending-success-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="pending-success-icon">
+              <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                <circle cx="28" cy="28" r="28" fill="#E8F5E9"/>
+                <path d="M18 28.5L24.5 35L38 21" stroke="#2D6A4F" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h2 className="pending-success-heading">Order Placed!</h2>
+            <p className="pending-success-sub">Awaiting Seller Approval</p>
+            <p className="pending-success-body">Your order has been submitted. The seller will review and approve it shortly. You can track your order status in History.</p>
+            <button className="pending-success-btn" onClick={() => setShowPendingSuccess(false)}>
+              Continue Shopping
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Toast notifications */}
