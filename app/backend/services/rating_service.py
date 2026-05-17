@@ -1,4 +1,5 @@
 from database import supabase_admin
+from fastapi import HTTPException
 
 def create_rating(data):
 
@@ -12,8 +13,8 @@ def create_rating(data):
 
     # Check rating range
     if rating_value < 1 or rating_value > 5:
-        raise Exception("Rating Mus be between 1 and 5")
-
+        raise HTTPException(status_code=400, detail="Rating Mus be between 1 and 5")
+    
     # Check if purchase exist and belongs to buyer
     purchase_res = supabase_admin.table("Purchase") \
         .select("userID, status") \
@@ -22,14 +23,14 @@ def create_rating(data):
         .execute()
     
     if not purchase_res.data:
-        raise Exception("Purchase not found")
+        raise HTTPException(status_code=400, detail="Purchase not found")
     
     purchase = purchase_res.data
     buyer_id = purchase["userID"]
     
     # Check if purchase is completed
     if purchase["status"] != "completed":
-        raise Exception("You can only rate completed purchases")
+        raise HTTPException(status_code=400, detail="You can only rate completed purchases")
     
     # Prevent duplicate rating for same purchases
     existing_rating = supabase_admin.table("Rating") \
@@ -39,7 +40,7 @@ def create_rating(data):
         .execute()
     
     if existing_rating.data:
-        raise Exception("You already rated this purchase")
+        raise HTTPException(status_code=400, detail="You already rated this purchase")
     
     # Get sellerID from PurchaseItems
     purchase_items = supabase_admin.table("PurchaseItems") \
@@ -48,7 +49,7 @@ def create_rating(data):
         .execute()
     
     if not purchase_items.data:
-        raise Exception("No items found for this purchase")
+        raise HTTPException(status_code=400, detail="No items found for this purchase")
     
     # Assuming one seller per purchase
     food_id = purchase_items.data[0]["foodID"]
@@ -60,7 +61,7 @@ def create_rating(data):
         .execute()
 
     if not food_res.data:
-        raise Exception("Food not found")
+        raise HTTPException(status_code=400, detail="Food Not Found")
 
     seller_id = food_res.data["userID"]
     

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './HistoryView.css'
-import { socialImpactAPI, purchaseAPI } from '../api/apis'
+import { socialImpactAPI, purchaseAPI, ratingsAPI } from '../api/apis'
 
 interface PurchasedItem {
   id: string
@@ -95,6 +95,10 @@ export default function HistoryView() {
   const [purchaseImpacts, setPurchaseImpacts] = useState<Record<string, SocialImpactRecord>>({})
   const [reviewRating, setReviewRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
+  const [reviewTitle, setReviewTitle] = useState('')
+  const [reviewFeedback, setReviewFeedback] = useState('')
+  const [submittingReview, setSubmittingReview] = useState(false)
+  const [reviewMessage, setReviewMessage] = useState('')
 
   useEffect(() => {
     purchaseAPI.getBuyerOrders()
@@ -121,6 +125,46 @@ export default function HistoryView() {
       } catch {
         // Impact not yet recorded for this purchase — fail silently
       }
+    }
+  }
+
+  const handleSubmitReview = async () => {
+    if (!selectedOrder) return
+
+    if (selectedOrder.status !== 'COMPLETED') {
+      setReviewMessage('Only completed purchases can be reviewed.')
+      return
+    }
+
+    if (reviewRating < 1) {
+      setReviewMessage('Please select a rating.')
+      return
+    }
+
+    try {
+      setSubmittingReview(true)
+      setReviewMessage('')
+
+      await ratingsAPI.createRating({
+        purchaseID: selectedOrder.id,
+        rating: reviewRating,
+        comment: `${reviewTitle}\n\n${reviewFeedback}`.trim(),
+      })
+
+      setReviewMessage('Review submitted successfully!')
+
+      setReviewTitle('')
+      setReviewFeedback('')
+      setReviewRating(0)
+      setHoverRating(0)
+
+    } catch (err) {
+      const errorMessage =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+
+      setReviewMessage(errorMessage ?? 'Failed to submit review.')
+    } finally {
+      setSubmittingReview(false)
     }
   }
 
@@ -275,7 +319,11 @@ export default function HistoryView() {
                   key={star}
                   className={star <= (hoverRating || reviewRating) ? 'star filled' : 'star empty'}
                   onMouseEnter={() => setHoverRating(star)}
-                  onClick={() => setReviewRating(star)}
+                  onClick={() => {
+                    if (selectedOrder.status === 'COMPLETED') {
+                      setReviewRating(star)
+                    }
+                  }}
                   style={{ cursor: 'pointer' }}
                 >
                   ★
@@ -286,14 +334,35 @@ export default function HistoryView() {
             <div className="review-form">
               <div className="form-group">
                 <label>Review Title</label>
-                <input type="text" placeholder="Summary of your experience" />
+                <input
+                  type="text"
+                  placeholder="Summary of your experience"
+                  value={reviewTitle}
+                  onChange={(e) => setReviewTitle(e.target.value)}
+                />
               </div>
               <div className="form-group">
                 <label>Your Feedback</label>
-                <textarea placeholder="Tell us more about the food quality and service..." rows={3}></textarea>
+                <textarea
+                  placeholder="Tell us more about the food quality and service..."
+                  rows={3}
+                  value={reviewFeedback}
+                  onChange={(e) => setReviewFeedback(e.target.value)}
+                ></textarea>
               </div>
               <div className="review-actions">
-                <button className="btn-submit-review">Submit Review</button>
+                {reviewMessage && (
+                  <p style={{ marginTop: '10px', color: '#707973' }}>
+                    {reviewMessage}
+                  </p>
+                )}
+                <button
+                  className="btn-submit-review"
+                  onClick={handleSubmitReview}
+                  disabled={submittingReview || selectedOrder.status !== 'COMPLETED'}
+                >
+                  {submittingReview ? 'Submitting...' : 'Submit Review'}
+                </button>
                 <button className="btn-cancel-review">Cancel</button>
               </div>
             </div>
