@@ -68,6 +68,7 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   const [selectedListing, setSelectedListing] = useState<FoodItem | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNotifs, setShowNotifs] = useState(false)
+  const [navOpen, setNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'listings' | 'charity' | 'history' | 'impact' | 'profile'>('listings')
 
   const [impactStats] = useState<ImpactStats>({
@@ -126,17 +127,19 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
         <nav className="navbar">
           <div className="navbar-left">
             <span className="brand">Sureplus</span>
-            <button type="button" className={`nav-link ${activeTab === 'listings' ? 'active' : ''}`} onClick={() => setActiveTab('listings')}>Listings</button>
-            <button type="button" className={`nav-link ${activeTab === 'charity' ? 'active' : ''}`} onClick={() => setActiveTab('charity')}>Charity</button>
-            <button type="button" className={`nav-link ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>History</button>
-            <button type="button" className={`nav-link ${activeTab === 'impact' ? 'active' : ''}`} onClick={() => setActiveTab('impact')}>Impact</button>
-            <button type="button" className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>Profile</button>
+            <div className="nav-links-desktop">
+              <button type="button" className={`nav-link ${activeTab === 'listings' ? 'active' : ''}`} onClick={() => setActiveTab('listings')}>Listings</button>
+              <button type="button" className={`nav-link ${activeTab === 'charity' ? 'active' : ''}`} onClick={() => setActiveTab('charity')}>Charity</button>
+              <button type="button" className={`nav-link ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>History</button>
+              <button type="button" className={`nav-link ${activeTab === 'impact' ? 'active' : ''}`} onClick={() => setActiveTab('impact')}>Impact</button>
+              <button type="button" className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>Profile</button>
+            </div>
           </div>
           <div className="navbar-right">
             {isSeller && onOpenSellerDashboard && (
               <button
                 type="button"
-                className="seller-dashboard-btn"
+                className="seller-dashboard-btn nav-desktop-only"
                 onClick={onOpenSellerDashboard}
               >
                 Seller Dashboard
@@ -155,10 +158,32 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
               onClick={() => setActiveTab('profile')}
               title="View Profile"
             />
-
+            <button className="icon-btn nav-hamburger-btn" aria-label="Open menu" onClick={(e) => { e.stopPropagation(); setNavOpen(v => !v) }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
             {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
           </div>
         </nav>
+        {navOpen && (
+          <>
+            <div className="mobile-nav-overlay" onClick={() => setNavOpen(false)} />
+            <div className="mobile-nav-menu">
+              {(['listings', 'charity', 'history', 'impact', 'profile'] as const).map(tab => (
+                <button key={tab} className={`mobile-nav-link ${activeTab === tab ? 'active' : ''}`}
+                  onClick={() => { setActiveTab(tab); setNavOpen(false); }}>
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+              {isSeller && onOpenSellerDashboard && (
+                <button className="mobile-nav-link mobile-nav-seller" onClick={() => { onOpenSellerDashboard(); setNavOpen(false); }}>
+                  Seller Dashboard
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Main content */}

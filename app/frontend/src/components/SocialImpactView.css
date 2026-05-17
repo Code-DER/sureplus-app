@@ -187,3 +187,44 @@
 .admin-stat-card.dark .stat-value {
   color: #FFFFFF;
 }
+
+/* ============================================================
+   RESPONSIVE — SOCIAL IMPACT VIEW
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .social-impact-view {
+    padding: 20px 16px;
+    gap: 20px;
+  }
+
+  .impact-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .impact-header p {
+    font-size: 1rem;
+  }
+
+  .impact-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .impact-empty-state {
+    padding: 48px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-impact-view {
+    padding: 16px 8px;
+  }
+
+  .impact-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .browse-btn {
+    padding: 10px 24px;
+  }
+}

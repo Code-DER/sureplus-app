@@ -25,6 +25,7 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
   void onSwitchRole;
   const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'partners' | 'reports' | 'inbox'>('dashboard');
   const [showNotifs, setShowNotifs] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="admin-container">
@@ -32,6 +33,11 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
       {/* Floating Topbar */}
       <div className="admin-topbar-floating">
         <div className="topbar-left">
+          <button className="icon-btn admin-hamburger-btn" onClick={() => setSidebarOpen(v => !v)} aria-label="Open menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
           <h2>Sureplus Admin</h2>
         </div>
         <div className="topbar-right">
@@ -48,8 +54,10 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
         </div>
       </div>
 
+      {sidebarOpen && <div className="admin-sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+
       {/* Floating Sidebar */}
-      <div className="admin-sidebar-floating">
+      <div className={`admin-sidebar-floating${sidebarOpen ? ' open' : ''}`}>
         <div className="admin-brand">
           <div className="admin-brand-icon">
             <img src={StoreLogo} alt="Sureplus" width="40" height="40" style={{ borderRadius: 8 }} />
@@ -61,23 +69,23 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
         </div>
 
         <nav className="admin-nav">
-          <button className={`admin-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+          <button className={`admin-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => { setActiveTab('dashboard'); setSidebarOpen(false); }}>
             <img src={DashboardIcon} alt="" width="18" height="18" />
             Dashboard
           </button>
-          <button className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
+          <button className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`} onClick={() => { setActiveTab('users'); setSidebarOpen(false); }}>
             <img src={UserManagementIcon} alt="" width="20" height="16" />
             User Management
           </button>
-          <button className={`admin-nav-item ${activeTab === 'partners' ? 'active' : ''}`} onClick={() => setActiveTab('partners')}>
+          <button className={`admin-nav-item ${activeTab === 'partners' ? 'active' : ''}`} onClick={() => { setActiveTab('partners'); setSidebarOpen(false); }}>
             <img src={PartnerTaggingIcon} alt="" width="20" height="20" />
             Partner Tagging
           </button>
-          <button className={`admin-nav-item ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
+          <button className={`admin-nav-item ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => { setActiveTab('reports'); setSidebarOpen(false); }}>
             <img src={ReportsIcon} alt="" width="18" height="18" />
             Reports
           </button>
-          <button className={`admin-nav-item ${activeTab === 'inbox' ? 'active' : ''}`} onClick={() => setActiveTab('inbox')}>
+          <button className={`admin-nav-item ${activeTab === 'inbox' ? 'active' : ''}`} onClick={() => { setActiveTab('inbox'); setSidebarOpen(false); }}>
             <img src={InboxIcon} alt="" width="20" height="16" />
             Inbox
           </button>
