@@ -58,6 +58,7 @@
 }
 
 .pt-badge--seller  { background: rgba(15, 82, 56, 0.9); }
+.pt-badge--verified { background: rgba(15, 82, 56, 0.9); }
 .pt-badge--pending { background: rgba(71, 85, 105, 0.9); }
 
 /* Content column */
@@ -146,6 +147,46 @@
 }
 
 .pt-dots-btn:hover { background: #F1F5F9; }
+
+.pt-menu-wrap {
+  position: relative;
+}
+
+.pt-actions-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 120px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  background: #FFFFFF;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  padding: 6px;
+  z-index: 20;
+}
+
+.pt-actions-menu-btn {
+  width: 100%;
+  border: none;
+  background: #FFFFFF;
+  text-align: left;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  color: #191C1A;
+  cursor: pointer;
+}
+
+.pt-actions-menu-btn:hover:not(:disabled) {
+  background: #F8FAFC;
+}
+
+.pt-actions-menu-btn:disabled {
+  color: #94A3B8;
+  cursor: not-allowed;
+}
 
 /* Applied Tags */
 .pt-tags-block {
