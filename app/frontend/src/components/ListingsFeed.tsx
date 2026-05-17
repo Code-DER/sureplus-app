@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './ListingsFeed.css'
 import ProductDetail from './ProductDetail'
 import OrderSuccessModal, { type ImpactStats } from './OrderSuccessModal'
@@ -7,6 +7,7 @@ import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
 import CharityPostsFeed from './CharityPostsFeed'
 import SocialImpactView from './SocialImpactView'
+import Toast, { type ToastItem } from './Toast'
 import { foodAPI, purchaseAPI, socialImpactAPI, getAuthUser, userAPI } from '../api/apis'
 import { formatExpiration } from '../utils/format'
 import UserAvatar from './UserAvatar'
@@ -30,6 +31,8 @@ interface OrderItem {
 }
 
 export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: ListingsFeedProps) {
+  const authUser = getAuthUser()
+
   // ── Listings API state ────────────────────────────────────────────────────
   const [listings, setListings] = useState<FoodItem[]>([])
   const [loadingListings, setLoadingListings] = useState(true)
@@ -64,8 +67,22 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
     userAPI.getMyProfile().then(r => setNavProfile(r.data)).catch(() => {})
   }, [])
 
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  const [toasts, setToasts] = useState<ToastItem[]>([])
+  const toastCounter = useRef(0)
+
+  const showToast = (message: string, type: ToastItem['type'] = 'error') => {
+    const id = ++toastCounter.current
+    setToasts(prev => [...prev, { id, message, type }])
+  }
+
+  const removeToast = (id: number) => {
+    setToasts(prev => prev.filter(t => t.id !== id))
+  }
+
   // ── Order state ───────────────────────────────────────────────────────────
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
+  const [currentShopUserID, setCurrentShopUserID] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState('GCash')
   const [selectedListing, setSelectedListing] = useState<FoodItem | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
@@ -79,7 +96,28 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   // ── Order helpers ─────────────────────────────────────────────────────────
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
 
-  const addToOrder = (listing: { id: string; name: string; price: number; weightKg: number; picture: string | null }, qty = 1) => {
+  const addToOrder = (
+    listing: { id: string; name: string; price: number; weightKg: number; picture: string | null; sellerUserID: string },
+    qty = 1
+  ): boolean => {
+    const authUser = getAuthUser()
+
+    // Rule 1 — seller cannot buy from own shop
+    if (authUser && listing.sellerUserID === authUser.userID) {
+      showToast('You cannot purchase products from your own shop.', 'error')
+      return false
+    }
+
+    // Rule 2 — single shop per order
+    if (currentShopUserID && listing.sellerUserID !== currentShopUserID) {
+      showToast('You can only order from one shop at a time. Please clear your current order first.', 'error')
+      return false
+    }
+
+    if (!currentShopUserID) {
+      setCurrentShopUserID(listing.sellerUserID)
+    }
+
     setOrderItems((prev) => {
       const existing = prev.find((o) => o.id === listing.id)
       if (existing) {
@@ -89,20 +127,44 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
       }
       return [...prev, { id: listing.id, name: listing.name, price: listing.price, qty, weightKg: listing.weightKg, picture: listing.picture }]
     })
+    return true
   }
 
-  const addFromDetail = (listing: FoodItem, qty: number) => {
-    addToOrder({ id: listing.foodID, name: listing.foodName, price: Number(listing.price), weightKg: listing.weightKg, picture: listing.picture }, qty)
+  const addFromDetail = (listing: FoodItem, qty: number): boolean => {
+    return addToOrder({
+      id: listing.foodID,
+      name: listing.foodName,
+      price: Number(listing.price),
+      weightKg: listing.weightKg,
+      picture: listing.picture,
+      sellerUserID: listing.userID,
+    }, qty)
   }
 
   const removeFromOrder = (id: string) => {
-    setOrderItems((prev) => prev.filter((o) => o.id !== id))
+    setOrderItems((prev) => {
+      const remaining = prev.filter((o) => o.id !== id)
+      if (remaining.length === 0) setCurrentShopUserID(null)
+      return remaining
+    })
+  }
+
+  const handleCardClick = (item: FoodItem) => {
+    if (authUser && item.userID === authUser.userID) {
+      showToast('You cannot purchase products from your own shop.', 'error')
+      return
+    }
+    if (currentShopUserID && item.userID !== currentShopUserID) {
+      showToast('You can only order from one shop at a time. Please clear your current order first.', 'error')
+      return
+    }
+    setSelectedListing(item)
   }
 
   const handleConfirmOrder = async () => {
     const user = getAuthUser()
     if (!user) {
-      alert('Please log in to place an order.')
+      showToast('Please log in to place an order.', 'error')
       return
     }
 
@@ -119,11 +181,11 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
       const purchaseId = createResp.data.purchaseID
 
-      // 2. Complete Purchase (This triggers social impact creation in backend)
+      // 2. Complete Purchase
       const completeResp = await purchaseAPI.complete(purchaseId)
       const pointsEarned = completeResp.data.pointsEarned
 
-      // 3. Get Social Impact Stats (with fallback to estimation if fetch fails)
+      // 3. Get Social Impact Stats (with fallback)
       let liveStats: ImpactStats
       try {
         const impactResp = await socialImpactAPI.getImpactByPurchase(purchaseId)
@@ -132,26 +194,26 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
           foodSaved: Math.round(impact.rescuedKilos * 10) / 10,
           carbonReduced: Math.round(impact.carbonOffset * 10) / 10,
           peopleFed: impact.peopleFed,
-          pointsEarned: pointsEarned,
+          pointsEarned,
         }
       } catch (impactErr) {
         console.error('Failed to fetch real-time impact stats, using estimation:', impactErr)
-        // Fallback estimation using known frontend data
         const totalKg = orderItems.reduce((sum, item) => sum + (item.weightKg * item.qty), 0)
         liveStats = {
           foodSaved: Math.round(totalKg * 10) / 10,
-          carbonReduced: Math.round(totalKg * 2.5 * 10) / 10, // 2.5 CO2 multiplier
-          peopleFed: Math.floor(totalKg / 0.5), // 0.5kg per meal
-          pointsEarned: pointsEarned,
+          carbonReduced: Math.round(totalKg * 2.5 * 10) / 10,
+          peopleFed: Math.floor(totalKg / 0.5),
+          pointsEarned,
         }
       }
 
       setImpactStats(liveStats)
       setShowSuccess(true)
       setOrderItems([])
+      setCurrentShopUserID(null)
     } catch (err: any) {
       console.error('Order failed:', err)
-      alert(err?.response?.data?.detail || 'Failed to place order. Please try again.')
+      showToast(err?.response?.data?.detail || 'Failed to place order. Please try again.', 'error')
     } finally {
       setIsOrdering(false)
     }
@@ -249,6 +311,22 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                   <p className="listings-subtitle">High-quality surplus food from local favorites at sustainable prices.</p>
                 </div>
 
+                {/* Shop lock banner */}
+                {currentShopUserID && (
+                  <div className="shop-lock-banner">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <span>Showing products from one shop. Clear your order to browse all shops.</span>
+                    <button
+                      className="shop-lock-clear"
+                      onClick={() => { setOrderItems([]); setCurrentShopUserID(null) }}
+                    >
+                      Clear order
+                    </button>
+                  </div>
+                )}
+
                 {/* Filters */}
                 <div className="category-filters">
                   <button
@@ -305,67 +383,81 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                 {/* Grid */}
                 {!loadingListings && !listingsError && listings.length > 0 && (
                   <div className="listings-grid">
-                    {listings.map((item) => (
-                      <div
-                        key={item.foodID}
-                        className="listing-card"
-                        onClick={() => setSelectedListing(item)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => e.key === 'Enter' && setSelectedListing(item)}
-                        aria-label={`View details for ${item.foodName}`}
-                      >
-                        {item.picture ? (
-                          <img
-                            className="listing-img-placeholder"
-                            src={item.picture}
-                            alt={item.foodName}
-                          />
-                        ) : (
-                          <div className="listing-img-placeholder" role="img" aria-label={`No photo for ${item.foodName}`}>
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5" aria-hidden="true">
-                              <rect x="3" y="3" width="18" height="18" rx="2" />
-                              <circle cx="8.5" cy="8.5" r="1.5" />
-                              <polyline points="21 15 16 10 5 21" />
-                            </svg>
-                            <span className="placeholder-label">No photo</span>
-                          </div>
-                        )}
-
-                        <div className="listing-info">
-                          <div className="listing-header">
-                            <span className="listing-name">{item.foodName}</span>
-                            <span className="listing-price">₱{Number(item.price).toFixed(2)}</span>
-                          </div>
-                          <p className="listing-desc">{item.description ?? ''}</p>
-
-                          <div className="listing-meta">
-                            {item.stockQuantity > 0 ? (
-                              <div className="meta-row">
-                                <img src={ExpiryIcon} alt="" width="11" height="12" aria-hidden="true" />
-                                <span>{item.stockQuantity} available</span>
-                              </div>
-                            ) : (
-                              <div className="meta-row oos">
-                                <span>Out of stock</span>
-                              </div>
-                            )}
-                            {item.expirationDate && (
-                              <div className="meta-row expiry">
-                                <img src={ExpiryIcon} alt="" width="11" height="12" aria-hidden="true" />
-                                <span>Expiration: {formatExpiration(item.expirationDate)}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {item.isSafeForCurrentUser === false && (
-                            <div className="listing-allergen-warning" role="alert">
-                              ⚠ Contains your allergens
+                    {listings.map((item) => {
+                      const isOwnShop = authUser !== null && item.userID === authUser.userID
+                      const isLocked = isOwnShop || (currentShopUserID !== null && item.userID !== currentShopUserID)
+                      return (
+                        <div
+                          key={item.foodID}
+                          className={`listing-card${isLocked ? ' listing-card--locked' : ''}`}
+                          onClick={() => handleCardClick(item)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === 'Enter' && handleCardClick(item)}
+                          aria-label={isLocked ? `${item.foodName} — from a different shop` : `View details for ${item.foodName}`}
+                          aria-disabled={isLocked}
+                        >
+                          {item.picture ? (
+                            <img
+                              className="listing-img-placeholder"
+                              src={item.picture}
+                              alt={item.foodName}
+                            />
+                          ) : (
+                            <div className="listing-img-placeholder" role="img" aria-label={`No photo for ${item.foodName}`}>
+                              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5" aria-hidden="true">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                              </svg>
+                              <span className="placeholder-label">No photo</span>
                             </div>
                           )}
+
+                          <div className="listing-info">
+                            <div className="listing-header">
+                              <span className="listing-name">{item.foodName}</span>
+                              <span className="listing-price">₱{Number(item.price).toFixed(2)}</span>
+                            </div>
+                            <p className="listing-desc">{item.description ?? ''}</p>
+
+                            <div className="listing-meta">
+                              {item.stockQuantity > 0 ? (
+                                <div className="meta-row">
+                                  <img src={ExpiryIcon} alt="" width="11" height="12" aria-hidden="true" />
+                                  <span>{item.stockQuantity} available</span>
+                                </div>
+                              ) : (
+                                <div className="meta-row oos">
+                                  <span>Out of stock</span>
+                                </div>
+                              )}
+                              {item.expirationDate && (
+                                <div className="meta-row expiry">
+                                  <img src={ExpiryIcon} alt="" width="11" height="12" aria-hidden="true" />
+                                  <span>Expiration: {formatExpiration(item.expirationDate)}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {item.isSafeForCurrentUser === false && (
+                              <div className="listing-allergen-warning" role="alert">
+                                ⚠ Contains your allergens
+                              </div>
+                            )}
+
+                            {isLocked && (
+                              <div className="listing-locked-hint">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                {isOwnShop ? 'Your listing' : 'Different shop'}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </div>
@@ -467,6 +559,9 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
           }}
         />
       )}
+
+      {/* Toast notifications */}
+      <Toast toasts={toasts} onRemove={removeToast} />
     </div>
   )
 }
