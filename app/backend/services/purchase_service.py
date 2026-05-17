@@ -71,17 +71,23 @@ def complete_purchase(purchase_id: str):
         "Failed to update purchase status"
     )
 
-    # 3. Compute and persist social impact
-    social_impact_service.create_impact(purchase_id)
+    # 3. Compute and persist social impact (non-critical — log and continue on failure)
+    try:
+        social_impact_service.create_impact(purchase_id)
+    except Exception as exc:
+        logger.warning("Social impact creation failed for purchase %s: %s", purchase_id, exc)
 
-    # L-4: Notify buyer on impact creation
-    notification_service.send_notification(
-        user_id=purchase["userID"],
-        title="Your Impact Summary is Ready 🌱",
-        message="Your purchase rescued food and offset carbon. Check your impact!",
-        type="impact",
-        link="/impact"
-    )
+    # L-4: Notify buyer on impact creation (non-critical — never fail the purchase)
+    try:
+        notification_service.send_notification(
+            user_id=purchase["userID"],
+            title="Your Impact Summary is Ready 🌱",
+            message="Your purchase rescued food and offset carbon. Check your impact!",
+            type="impact",
+            link="/impact"
+        )
+    except Exception as exc:
+        logger.warning("Impact notification failed for purchase %s: %s", purchase_id, exc)
 
     # 4. Award buyer points (₱10 = 1 point)
     points_earned = int(float(purchase["totalPrice"]) // 10)
@@ -160,14 +166,17 @@ def approve_purchase(purchase_id: str, seller_id: str):
     # 3. Complete the purchase (status → completed, social impact, points, impact notification)
     result = complete_purchase(purchase_id)
 
-    # 4. Notify buyer that their order was approved
-    notification_service.send_notification(
-        user_id=purchase["userID"],
-        title="Order Approved ✅",
-        message="Your order has been approved by the seller and is now complete!",
-        type="order",
-        link="/history"
-    )
+    # 4. Notify buyer that their order was approved (non-critical)
+    try:
+        notification_service.send_notification(
+            user_id=purchase["userID"],
+            title="Order Approved ✅",
+            message="Your order has been approved by the seller and is now complete!",
+            type="order",
+            link="/history"
+        )
+    except Exception as exc:
+        logger.warning("Order approval notification failed for purchase %s: %s", purchase_id, exc)
 
     return result
 

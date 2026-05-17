@@ -90,15 +90,51 @@
   background: #F5FBF0;
 }
 
-/* Error banner */
+/* Banners */
+.oa-error,
+.oa-success {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .oa-error {
   background: #FFF5F2;
   border: 1px solid #FCCBC4;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 13px;
   color: #9B1C1C;
+}
+
+.oa-success {
+  background: #F2FCF0;
+  border: 1px solid #AEDFA6;
+  color: #1A5C16;
+}
+
+.oa-success svg {
+  flex-shrink: 0;
+  color: #2D8A27;
+}
+
+.oa-banner-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.oa-banner-close:hover {
+  opacity: 1;
 }
 
 /* Table card */
@@ -247,19 +283,53 @@
   color: #8E9E97;
 }
 
+/* Tablet: hide Date column */
 @media (max-width: 700px) {
   .oa-table-header,
   .oa-table-row {
-    grid-template-columns: 1fr 1fr 0.5fr 0.8fr;
+    grid-template-columns: 1.8fr 1.6fr 0.5fr 0.9fr 1fr;
   }
 
+  /* Hide Date column (5th) */
   .oa-th:nth-child(5),
   .oa-td:nth-child(5) {
     display: none;
   }
 
-  .oa-th-action,
+  .oa-title {
+    font-size: 22px;
+  }
+}
+
+/* Mobile: card layout, one row per order */
+@media (max-width: 520px) {
+  .oa-table-header {
+    display: none;
+  }
+
+  .oa-table-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  /* Show all hidden cells on mobile card */
+  .oa-td:nth-child(5) {
+    display: flex;
+  }
+
   .oa-td-action {
     justify-content: flex-start;
+  }
+
+  .oa-approve-btn {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .oa-title {
+    font-size: 20px;
   }
 }

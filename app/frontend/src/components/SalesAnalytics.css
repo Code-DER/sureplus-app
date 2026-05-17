@@ -614,6 +614,7 @@
   padding: 8px 48px 8px 64px;
   background: #FFFFFF;
   border-top: 1px solid #F9FAFB;
+  overflow-x: auto;
 }
 
 .sa-buyers-subtable-border {
@@ -836,27 +837,72 @@
 
 /* === Responsive === */
 @media (max-width: 900px) {
-  .sa-metrics-row {
-    grid-template-columns: 1fr;
+  .sa-title {
+    font-size: 28px;
+    line-height: 36px;
   }
+
+  .sa-metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .sa-metric-card {
+    padding: 20px;
+  }
+
   .sa-middle-row {
     grid-template-columns: 1fr;
   }
+
   .sa-buyers-thead {
     display: none;
   }
+
   .sa-buyers-row {
     grid-template-columns: 1fr;
     gap: 16px;
-    padding: 24px;
+    padding: 20px;
   }
+
   .sa-buyers-td-loyalty {
     justify-content: flex-start;
   }
+
+  .sa-buyers-subtable-wrapper {
+    padding: 8px 16px 8px 24px;
+  }
+
   .sa-buyers-pagination {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .sa-title {
+    font-size: 22px;
+    line-height: 30px;
+  }
+
+  .sa-metrics-row {
+    grid-template-columns: 1fr;
+  }
+
+  .sa-metric-value {
+    font-size: 24px;
+  }
+
+  .sa-chart-card,
+  .sa-impact-card {
+    padding: 20px 16px;
+  }
+
+  .sa-buyers-header {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
   }
 }
 

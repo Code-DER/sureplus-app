@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import './ListingsFeed.css'
 import ProductDetail from './ProductDetail'
-import NotificationDropdown from './NotificationDropdown'
+import NotificationBell from './NotificationBell'
 import HistoryView from './HistoryView'
 import ProfileView from './ProfileView'
 import CharityPostsFeed from './CharityPostsFeed'
@@ -85,7 +85,6 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   const [paymentMethod, setPaymentMethod] = useState('GCash')
   const [selectedListing, setSelectedListing] = useState<FoodItem | null>(null)
   const [showPendingSuccess, setShowPendingSuccess] = useState(false)
-  const [showNotifs, setShowNotifs] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'listings' | 'charity' | 'history' | 'impact' | 'profile'>('listings')
 
@@ -212,11 +211,11 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                 Seller Dashboard
               </button>
             )}
-            <button className="icon-btn" aria-label="Notifications" onClick={(e) => { e.stopPropagation(); setShowNotifs((v) => !v) }}>
+            <NotificationBell buttonClassName="icon-btn">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="#6B7280">
                 <path d="M2 17V15H4V8C4 6.61667 4.4167 5.3875 5.25 4.3125C6.0833 3.2375 7.1667 2.5333 8.5 2.2V1.5C8.5 1.0833 8.6458 0.7292 8.9375 0.4375C9.2292 0.1458 9.5833 0 10 0C10.4167 0 10.7708 0.1458 11.0625 0.4375C11.3542 0.7292 11.5 1.0833 11.5 1.5V2.2C12.8333 2.5333 13.9167 3.2375 14.75 4.3125C15.5833 5.3875 16 6.6167 16 8V15H18V17H2ZM10 20C9.45 20 8.9792 19.8042 8.5875 19.4125C8.1958 19.0208 8 18.55 8 18H12C12 18.55 11.8042 19.0208 11.4125 19.4125C11.0208 19.8042 10.55 20 10 20ZM6 15H14V8C14 6.9 13.6083 5.9583 12.825 5.175C12.0417 4.3917 11.1 4 10 4C8.9 4 7.9583 4.3917 7.175 5.175C6.3917 5.9583 6 6.9 6 8V15Z" />
               </svg>
-            </button>
+            </NotificationBell>
             <UserAvatar
               firstName={navProfile?.firstName}
               lastName={navProfile?.lastName}
@@ -230,7 +229,6 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                 <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
               </svg>
             </button>
-            {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
           </div>
         </nav>
         {navOpen && (

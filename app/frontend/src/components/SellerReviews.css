@@ -405,18 +405,22 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .seller-reviews-container {
+    padding: 24px 20px;
+  }
+
   .overall-rating-card {
     flex-direction: column;
-    padding: 32px;
-    gap: 32px;
+    padding: 24px;
+    gap: 24px;
   }
-  
+
   .rating-divider {
     width: 100%;
     height: 1px;
     margin: 0;
   }
-  
+
   .rating-right {
     width: 100%;
   }
@@ -427,6 +431,27 @@
 
   .promo-right-graphic {
     display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .seller-reviews-container {
+    padding: 16px 14px;
+  }
+
+  .rating-left h1 {
+    font-size: 48px;
+    line-height: 48px;
+  }
+
+  .review-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .recent-reviews-title {
+    font-size: 18px;
+    margin: 32px 0 12px;
   }
 }
 

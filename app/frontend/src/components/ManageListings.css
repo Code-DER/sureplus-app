@@ -503,23 +503,90 @@
 
 /* === Responsive === */
 @media (max-width: 900px) {
+  .ml-title {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .ml-header-section {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ml-header-right {
+    margin-top: 0;
+    width: 100%;
+  }
+
+  .ml-search-bar {
+    flex: 1;
+    width: auto;
+  }
+
+  .ml-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Hide table column headers */
+  .ml-table-header {
+    display: none;
+  }
+
+  /* Card layout: 2-col grid per row */
+  .ml-table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 16px;
+    align-items: start;
+  }
+
+  /* Product cell spans full width */
+  .ml-item-details {
+    grid-column: 1 / -1;
+  }
+
+  /* Stock control in left column */
+  .ml-stock-control {
+    justify-content: flex-start;
+  }
+
+  /* Expiry in right column, constrained */
+  .ml-expiry-col {
+    min-width: 0;
+  }
+
+  /* Actions span full width at bottom */
+  .ml-actions-col {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 560px) {
+  .ml-title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
   .ml-stats-row {
     grid-template-columns: 1fr;
   }
-  .ml-table-header,
+
+  /* Single column card on small phones */
   .ml-table-row {
     grid-template-columns: 1fr;
-    gap: 12px;
   }
-  .ml-th-stock,
-  .ml-th-expiry,
-  .ml-th-actions {
-    display: none;
+
+  .ml-expiry-col {
+    grid-column: 1;
   }
-  .ml-header-section {
+
+  .ml-table-footer {
     flex-direction: column;
-  }
-  .ml-header-right {
-    margin-top: 0;
+    gap: 12px;
+    align-items: flex-start;
   }
 }

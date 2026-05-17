@@ -7,7 +7,7 @@ import AdminReports from './AdminReports';
 import AdminCharityApplications from './AdminCharityApplications';
 import AdminCharityPosts from './AdminCharityPosts';
 import AdminInbox from './AdminInbox';
-import NotificationDropdown from './NotificationDropdown';
+import NotificationBell from './NotificationBell';
 
 import StoreLogo from '../assets/ADMIN/Store Logo.svg';
 import NotificationIcon from '../assets/ADMIN/notification.svg';
@@ -26,7 +26,6 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
   void onSwitchRole;
   const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'partners' | 'reports' | 'inbox' | 'charity-apps' | 'charity-posts'>('dashboard');
-  const [showNotifs, setShowNotifs] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -43,10 +42,9 @@ export default function AdminDashboard({ onSwitchRole }: AdminDashboardProps) {
           <h2>Sureplus Admin</h2>
         </div>
         <div className="topbar-right">
-          <button className="icon-btn" onClick={(e) => { e.stopPropagation(); setShowNotifs((v) => !v); }} aria-label="Notifications">
+          <NotificationBell buttonClassName="icon-btn">
             <img src={NotificationIcon} alt="Notifications" width="20" height="20" />
-          </button>
-          {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
+          </NotificationBell>
           <button className="icon-btn">
             <img src={QuestionIcon} alt="Help" width="20" height="20" />
           </button>
