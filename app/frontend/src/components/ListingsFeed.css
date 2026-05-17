@@ -266,6 +266,71 @@
   transform: translateY(-2px);
 }
 
+/* Locked card — different shop while cart has items */
+.listing-card--locked {
+  opacity: 0.38;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+  pointer-events: auto;
+}
+
+.listing-card--locked:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.listing-locked-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6B7280;
+  margin-top: 4px;
+}
+
+/* Shop-lock info banner */
+.shop-lock-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFF8F2;
+  border: 1px solid #FFD4B0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #7A3700;
+  margin-bottom: 4px;
+}
+
+.shop-lock-banner svg {
+  flex-shrink: 0;
+  color: #C9600A;
+}
+
+.shop-lock-banner span {
+  flex: 1;
+}
+
+.shop-lock-clear {
+  background: none;
+  border: 1px solid #C9600A;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #C9600A;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.shop-lock-clear:hover {
+  background: #C9600A;
+  color: white;
+}
+
 /* Image placeholder */
 .listing-img-placeholder {
   width: 100%;
