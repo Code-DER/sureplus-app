@@ -29,6 +29,7 @@ export default function OrderApproval({ onBack, sellerId }: OrderApprovalProps) 
   const [loading, setLoading] = useState(true);
   const [approvingID, setApprovingID] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const fetchOrders = () => {
     if (!sellerId) return;
@@ -49,11 +50,15 @@ export default function OrderApproval({ onBack, sellerId }: OrderApprovalProps) 
 
   const handleApprove = async (purchaseID: string) => {
     setApprovingID(purchaseID);
+    setError(null);
+    setSuccessMsg(null);
     try {
       await purchaseAPI.approve(purchaseID);
       setOrders(prev => prev.filter(o => o.purchaseID !== purchaseID));
+      setSuccessMsg('Order approved successfully!');
     } catch (err: any) {
-      setError(err?.response?.data?.detail ?? 'Failed to approve order.');
+      const detail = (err as any)?.response?.data?.detail;
+      setError(detail ?? 'Failed to approve order.');
     } finally {
       setApprovingID(null);
     }
@@ -85,7 +90,20 @@ export default function OrderApproval({ onBack, sellerId }: OrderApprovalProps) 
       </div>
 
       {error && (
-        <div className="oa-error">{error}</div>
+        <div className="oa-error" role="alert">
+          {error}
+          <button className="oa-banner-close" onClick={() => setError(null)} aria-label="Dismiss">✕</button>
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="oa-success" role="status">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          {successMsg}
+          <button className="oa-banner-close" onClick={() => setSuccessMsg(null)} aria-label="Dismiss">✕</button>
+        </div>
       )}
 
       <div className="oa-table-card">
