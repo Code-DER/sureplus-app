@@ -183,6 +183,7 @@ export const ratingsAPI = {
 export const purchaseAPI = {
     create: (data: { paymentMethod: string, items: { foodID: string, quantity: number }[] }) => api.post('/purchases/purchase', data),
     complete: (purchaseId: string) => api.put(`/purchases/purchase/${purchaseId}/complete`),
+    approve: (purchaseId: string) => api.patch(`/purchases/purchase/${purchaseId}/approve`),
     getSellerPurchases: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}`),
     getSellerOrders: (sellerId: string) => api.get(`/purchases/purchase/seller/${sellerId}/orders`),
     getBuyerOrders: () => api.get('/purchases/purchase/buyer/orders'),

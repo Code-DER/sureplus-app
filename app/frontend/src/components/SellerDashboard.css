@@ -214,6 +214,18 @@
   color: #EA580C;
 }
 
+.sidebar-badge {
+  margin-left: auto;
+  background: #EA580C;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+}
+
 
 /* === MAIN CONTENT === */
 .seller-main {

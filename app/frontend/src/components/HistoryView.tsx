@@ -145,7 +145,7 @@ export default function HistoryView() {
       setSubmittingReview(true)
       setReviewMessage('')
 
-      await ratingsAPI.createRating({
+      await ratingsAPI.rate({
         purchaseID: selectedOrder.id,
         rating: reviewRating,
         comment: `${reviewTitle}\n\n${reviewFeedback}`.trim(),
@@ -279,6 +279,15 @@ export default function HistoryView() {
           </div>
         </div>
 
+        {selectedOrder.status === 'PENDING' && (
+          <div className="history-pending-banner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+            <span>This order is awaiting seller approval.</span>
+          </div>
+        )}
+
         <div className="history-items-section">
           <h3>Purchased Items</h3>
           <div className="history-items-list">
@@ -313,64 +322,73 @@ export default function HistoryView() {
         </div>
 
         <div className="history-review-section">
-          <div className="review-box">
-            <h3>Rate and review</h3>
-            <p>How was your experience with {selectedOrder.storeName}?</p>
+          {selectedOrder.status === 'COMPLETED' ? (
+            <div className="review-box">
+              <h3>Rate and review</h3>
+              <p>How was your experience with {selectedOrder.storeName}?</p>
 
-            <div className="review-stars-large" onMouseLeave={() => setHoverRating(0)}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span
-                  key={star}
-                  className={star <= (hoverRating || reviewRating) ? 'star filled' : 'star empty'}
-                  onMouseEnter={() => setHoverRating(star)}
-                  onClick={() => {
-                    if (selectedOrder.status === 'COMPLETED') {
-                      setReviewRating(star)
-                    }
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
+              <div className="review-stars-large" onMouseLeave={() => setHoverRating(0)}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className={star <= (hoverRating || reviewRating) ? 'star filled' : 'star empty'}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onClick={() => setReviewRating(star)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
 
-            <div className="review-form">
-              <div className="form-group">
-                <label>Review Title</label>
-                <input
-                  type="text"
-                  placeholder="Summary of your experience"
-                  value={reviewTitle}
-                  onChange={(e) => setReviewTitle(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Your Feedback</label>
-                <textarea
-                  placeholder="Tell us more about the food quality and service..."
-                  rows={3}
-                  value={reviewFeedback}
-                  onChange={(e) => setReviewFeedback(e.target.value)}
-                ></textarea>
-              </div>
-              <div className="review-actions">
-                {reviewMessage && (
-                  <p style={{ marginTop: '10px', color: '#707973' }}>
-                    {reviewMessage}
-                  </p>
-                )}
-                <button
-                  className="btn-submit-review"
-                  onClick={handleSubmitReview}
-                  disabled={submittingReview || selectedOrder.status !== 'COMPLETED'}
-                >
-                  {submittingReview ? 'Submitting...' : 'Submit Review'}
-                </button>
-                <button className="btn-cancel-review">Cancel</button>
+              <div className="review-form">
+                <div className="form-group">
+                  <label>Review Title</label>
+                  <input
+                    type="text"
+                    placeholder="Summary of your experience"
+                    value={reviewTitle}
+                    onChange={(e) => setReviewTitle(e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Your Feedback</label>
+                  <textarea
+                    placeholder="Tell us more about the food quality and service..."
+                    rows={3}
+                    value={reviewFeedback}
+                    onChange={(e) => setReviewFeedback(e.target.value)}
+                  ></textarea>
+                </div>
+                <div className="review-actions">
+                  {reviewMessage && (
+                    <p style={{ marginTop: '10px', color: '#707973' }}>
+                      {reviewMessage}
+                    </p>
+                  )}
+                  <button
+                    className="btn-submit-review"
+                    onClick={handleSubmitReview}
+                    disabled={submittingReview}
+                  >
+                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                  <button className="btn-cancel-review">Cancel</button>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="review-box review-box--locked">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#BFC9C1" strokeWidth="1.5" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+              <p className="review-locked-msg">
+                {selectedOrder.status === 'PENDING'
+                  ? 'You can leave a review once the seller approves your order.'
+                  : 'Reviews are only available for completed orders.'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -68,6 +68,20 @@ function formatImpactValue(kg: number): string {
 }
 
 
+const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+
+function getPageNumbers(current: number, total: number): (number | null)[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: (number | null)[] = [1];
+  if (current > 3) pages.push(null);
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let p = start; p <= end; p++) pages.push(p);
+  if (current < total - 2) pages.push(null);
+  pages.push(total);
+  return pages;
+}
+
 export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps) {
   const [chartView, setChartView] = useState<'Week' | 'Month'>('Week');
 
@@ -76,9 +90,12 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
   const [impact, setImpact] = useState<ImpactSummary | null>(null);
   const [loadingData, setLoadingData] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+
   const handleCompleteOrder = async (purchaseID: string) => {
     try {
-      await purchaseAPI.complete(purchaseID);
+      await purchaseAPI.approve(purchaseID);
 
       // update local state
       setOrders(prev =>
@@ -111,10 +128,19 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
       socialImpactAPI.getSellerImpactSummary(sellerId),
     ]).then(([purchasesResult, ordersResult, impactResult]) => {
       if (purchasesResult.status === 'fulfilled') setPurchases(purchasesResult.value.data ?? []);
-      if (ordersResult.status === 'fulfilled') setOrders(ordersResult.value.data ?? []);
+      if (ordersResult.status === 'fulfilled') {
+        setOrders(ordersResult.value.data ?? []);
+        setCurrentPage(1);
+      }
       if (impactResult.status === 'fulfilled') setImpact(impactResult.value.data ?? null);
     }).finally(() => setLoadingData(false));
   }, [sellerId]);
+
+  // ── Pagination derived values ─────────────────────────────────────────────
+  const totalPages = Math.max(1, Math.ceil(orders.length / rowsPerPage));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageStart = (safePage - 1) * rowsPerPage;
+  const pagedOrders = orders.slice(pageStart, pageStart + rowsPerPage);
 
   const chartBars = chartView === 'Week' ? buildWeeklyData(purchases) : buildMonthlyData(purchases);
   const chartMax = Math.max(1, ...chartBars.map(b => b.value));
@@ -303,7 +329,7 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
             ) : orders.length === 0 ? (
               <div style={{ padding: '32px', textAlign: 'center', color: '#707973' }}>No orders found.</div>
             ) : (
-              orders.slice(0, 10).map((order, idx) => {
+              pagedOrders.map((order, idx) => {
                 const statusClass =
                   order.status === 'completed' ? 'sa-loyalty-green' :
                   order.status === 'pending'   ? 'sa-loyalty-amber' :
@@ -346,9 +372,55 @@ export default function SalesAnalytics({ onBack, sellerId }: SalesAnalyticsProps
         </div>
 
         <div className="sa-buyers-pagination">
-          <span className="sa-buyers-pagination-info">
-            Showing {Math.min(orders.length, 10)} of {orders.length} orders
-          </span>
+          <div className="sa-pagination-left">
+            <label className="sa-rows-label" htmlFor="sa-rows-select">Rows per page:</label>
+            <select
+              id="sa-rows-select"
+              className="sa-rows-select"
+              value={rowsPerPage}
+              onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+            >
+              {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+            <span className="sa-buyers-pagination-info">
+              {orders.length === 0
+                ? 'No orders'
+                : `${pageStart + 1}–${Math.min(pageStart + rowsPerPage, orders.length)} of ${orders.length}`}
+            </span>
+          </div>
+
+          <div className="sa-buyers-pagination-controls">
+            <button
+              className="sa-page-btn"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={safePage === 1}
+              aria-label="Previous page"
+            >
+              ‹
+            </button>
+            {getPageNumbers(safePage, totalPages).map((page, i) =>
+              page === null ? (
+                <span key={`ell-${i}`} className="sa-page-ellipsis">…</span>
+              ) : (
+                <button
+                  key={page}
+                  className={`sa-page-btn${safePage === page ? ' active' : ''}`}
+                  onClick={() => setCurrentPage(page)}
+                  aria-current={safePage === page ? 'page' : undefined}
+                >
+                  {page}
+                </button>
+              )
+            )}
+            <button
+              className="sa-page-btn"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={safePage === totalPages}
+              aria-label="Next page"
+            >
+              ›
+            </button>
+          </div>
         </div>
       </div>
     </div>

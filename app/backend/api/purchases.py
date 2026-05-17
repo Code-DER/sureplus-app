@@ -4,6 +4,7 @@ from api.dependency import get_current_user
 from services.purchase_service import (
     create_purchase,
     complete_purchase,
+    approve_purchase,
     get_seller_purchase_list,
     get_buyer_food_list,
     get_seller_orders,
@@ -25,6 +26,11 @@ def complete(purchase_id: str, current_user: dict = Depends(get_current_user)):
     if not owner_id or owner_id != current_user["userID"]:
         raise HTTPException(status_code=403, detail="Forbidden")
     return complete_purchase(purchase_id)
+
+@router.patch("/{purchase_id}/approve")
+def approve(purchase_id: str, current_user: dict = Depends(require_role("seller"))):
+    """Seller approves a pending order from their shop."""
+    return approve_purchase(purchase_id, current_user["userID"])
 
 @router.get("/my-food")
 def get_my_food(current_user: dict = Depends(require_role("buyer"))):

@@ -6,6 +6,7 @@ import CreateNewListing from './CreateNewListing';
 import ManageListings from './ManageListings';
 import SalesAnalytics from './SalesAnalytics';
 import SellerReviews from './SellerReviews';
+import OrderApproval from './OrderApproval';
 import NotificationDropdown from './NotificationDropdown';
 import { userAPI, foodAPI, notificationsAPI, purchaseAPI } from '../api/apis';
 import type { FoodItem } from '../types/food';
@@ -36,7 +37,7 @@ interface Notification {
   createdAt?: string;
 }
 
-type SidebarTab = 'dashboard' | 'manage-listings' | 'create-new' | 'sales-reports' | 'reviews';
+type SidebarTab = 'dashboard' | 'manage-listings' | 'create-new' | 'sales-reports' | 'reviews' | 'order-approval';
 
 const SIDEBAR_ICONS: Record<SidebarTab, React.ReactNode> = {
   'dashboard': (
@@ -54,6 +55,9 @@ const SIDEBAR_ICONS: Record<SidebarTab, React.ReactNode> = {
   'reviews': (
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M7.6 15.317l2.15-1.567 2.4 1.567-.9-2.75 2.25-2H11.45L10 7.6l-1.45 2.967H6.35l2.15 2H4.825L6.15 13.067l-1.1 5.6L10 15.967l5.175 2.7-1.35-5.6 4.35-3.4H13.6L12 4.667l-2.4 8H5l-1.85 3.4-2.15 4.25L10 16z" fill="currentColor"/></svg>
   ),
+  'order-approval': (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+  ),
 };
 
 const SIDEBAR_ITEMS: { id: SidebarTab; label: string }[] = [
@@ -62,6 +66,7 @@ const SIDEBAR_ITEMS: { id: SidebarTab; label: string }[] = [
   { id: 'create-new', label: 'Create New' },
   { id: 'sales-reports', label: 'Sales Reports' },
   { id: 'reviews', label: 'Reviews' },
+  { id: 'order-approval', label: 'Order Approvals' },
 ];
 
 export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) {
@@ -120,6 +125,7 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
     return ms > 0 && ms < 24 * 60 * 60 * 1000;
   }).length;
 
+  const pendingOrderCount = purchases.filter((p) => p.status === 'pending').length;
   const completedPurchases = purchases.filter((p) => p.status === 'completed');
   const totalSales = completedPurchases.reduce((sum, p) => sum + Number(p.totalPrice), 0);
 
@@ -213,6 +219,9 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
               >
                 <span className="sidebar-link-icon">{SIDEBAR_ICONS[item.id]}</span>
                 {item.label}
+                {item.id === 'order-approval' && pendingOrderCount > 0 && (
+                  <span className="sidebar-badge">{pendingOrderCount}</span>
+                )}
               </button>
             ))}
           </nav>
@@ -234,6 +243,11 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
             <SalesAnalytics onBack={() => setActiveTab('dashboard')} sellerId={sellerId} />
           ) : activeTab === 'reviews' ? (
             <SellerReviews
+              onBack={() => setActiveTab('dashboard')}
+              sellerId={sellerId}
+            />
+          ) : activeTab === 'order-approval' ? (
+            <OrderApproval
               onBack={() => setActiveTab('dashboard')}
               sellerId={sellerId}
             />

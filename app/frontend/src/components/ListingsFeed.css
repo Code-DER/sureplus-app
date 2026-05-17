@@ -1009,3 +1009,74 @@
     margin: 12px 16px;
   }
 }
+
+/* ── Pending Success Modal ────────────────────────────────────────────────── */
+.pending-success-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.pending-success-modal {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 36px 36px;
+  max-width: 420px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+}
+
+.pending-success-icon {
+  margin-bottom: 4px;
+}
+
+.pending-success-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #191C1A;
+  margin: 0;
+}
+
+.pending-success-sub {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2D6A4F;
+  margin: 0;
+}
+
+.pending-success-body {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  color: #5C6360;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.pending-success-btn {
+  margin-top: 8px;
+  background: #0F5238;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 32px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pending-success-btn:hover {
+  background: #2D6A4F;
+}
