@@ -148,6 +148,23 @@ def donate_purchased_food(post_id: str, purchase_id: str, food_id: str, quantity
         "Failed to process purchased food donation"
     )
 
+def donate_direct_food(post_id: str, food_name: str, food_picture: str, expiry_date: str, weight_kg: float, quantity: int):
+    """
+    Direct food donation — donor describes food without needing a prior purchase.
+    Handles goal capping and status transitions atomically via RPC.
+    """
+    return _execute(
+        supabase_admin.rpc("donate_direct_food_to_post", {
+            "p_post_id": post_id,
+            "p_food_name": food_name,
+            "p_food_picture": food_picture,
+            "p_expiry_date": expiry_date,
+            "p_weight_kg": weight_kg,
+            "p_quantity": quantity,
+        }),
+        "Failed to process direct food donation"
+    )
+
 def record_donation(post_id: str, user_id: str, donation_type: str,
                     amount: float = None, food_id: str = None,
                     quantity: int = None, food_kg: float = None):

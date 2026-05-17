@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import type { CharityProfile, CharityPost } from '../api/types';
 import { charityAPI, charityPostAPI } from '../api/apis';
 import CharityPostCard from './CharityPostCard';
-import DonateModal from './DonateModal';
+import DonateFoodDirectModal from './DonateFoodDirectModal';
 import './CharityProfileView.css';
 
 interface CharityProfileViewProps {
@@ -192,7 +192,7 @@ const CharityProfileView: React.FC<CharityProfileViewProps> = ({ userId, onBack 
       </section>
 
       {selectedPost && (
-        <DonateModal 
+        <DonateFoodDirectModal 
           post={selectedPost}
           onClose={() => setSelectedPost(null)}
           onSuccess={handleDonateSuccess}

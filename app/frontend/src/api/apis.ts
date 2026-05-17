@@ -152,6 +152,16 @@ export const charityPostAPI = {
         purchaseID?: string,
         quantity?: number
     }) => api.post<CharityDonationResult>(`/charity-posts/${charityId}/donate`, donation),
+    donateDirectToPost: (
+        charityId: string,
+        donation: {
+            foodName: string;
+            foodPicture: string;
+            expiryDate: string;   // "YYYY-MM-DD"
+            weightKg: number;
+            quantity: number;
+        }
+    ) => api.post<CharityDonationResult>(`/charity-posts/${charityId}/donate-direct`, donation),
     getDonationsByPost: (charityId: string) => api.get(`/charity-posts/${charityId}/donations`),
     getMyDonations: () => api.get('/charity-posts/donations/my-donations'),
     rateDonor: (postId: string, donationId: string, data: { rating: number, comment?: string }) => 
