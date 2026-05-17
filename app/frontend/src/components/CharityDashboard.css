@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap');
+
 .charity-dashboard-page {
   width: 100%;
   min-height: 100vh;
@@ -5,6 +7,10 @@
   display: flex;
   flex-direction: column;
 }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
 
 .charity-dashboard-header {
   position: sticky;
@@ -16,83 +22,71 @@
   padding: 16px 48px;
   margin: 16px 48px 0;
   background: #FFFDFD;
-  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.08);
+  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.15);
   border-radius: 24px;
+  gap: 16px;
 }
 
 .header-left h1 {
   margin: 0;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   color: #66B018;
-  letter-spacing: -0.6px;
+  letter-spacing: -0.5px;
 }
 
 .header-left p {
-  margin: 4px 0 0;
+  margin: 3px 0 0;
   font-family: 'Work Sans', sans-serif;
-  font-size: 14px;
-  color: #71717A;
+  font-size: 13px;
+  color: #707973;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
-.switch-role-btn {
-  background: transparent;
-  border: 1px solid #66B018;
-  color: #66B018;
-  padding: 8px 16px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.switch-role-btn:hover {
-  background: #66B018;
-  color: white;
-}
-
-.charity-header-avatar {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
-}
+/* ============================================================
+   NAV
+   ============================================================ */
 
 .charity-nav {
   display: flex;
-  gap: 8px;
-  background: #F3F4F6;
-  padding: 4px;
-  border-radius: 14px;
-  margin: 0 16px;
+  align-items: center;
+  gap: 4px;
 }
 
 .charity-nav-btn {
   background: transparent;
   border: none;
-  padding: 8px 16px;
-  border-radius: 10px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: #6B7280;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
 }
 
 .charity-nav-btn:hover {
-  color: #111827;
-  background: rgba(0, 0, 0, 0.05);
+  color: #191C1A;
+  background: #F0F2EF;
 }
 
 .charity-nav-btn.active {
-  background: white;
   color: #66B018;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  background: rgba(102, 176, 24, 0.08);
 }
+
+/* ============================================================
+   ICON BUTTON
+   ============================================================ */
 
 .icon-btn {
   background: none;
@@ -103,22 +97,53 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.15s;
   color: #6B7280;
-  position: relative;
 }
 
 .icon-btn:hover {
-  background-color: #F3F4F6;
-  color: #111827;
+  background-color: #F0F2EF;
+  color: #191C1A;
 }
+
+/* ============================================================
+   SWITCH ROLE BUTTON
+   ============================================================ */
+
+.switch-role-btn {
+  background: transparent;
+  border: 1.5px solid #BFC9C1;
+  color: #404943;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.switch-role-btn:hover {
+  border-color: #66B018;
+  background: #F5FBF0;
+  color: #0F5238;
+}
+
+.charity-header-avatar {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
 
 .charity-dashboard-main {
   flex: 1;
   padding: 32px 48px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 28px;
 }
 
 .dashboard-actions {
@@ -126,37 +151,43 @@
   justify-content: flex-end;
 }
 
+/* ============================================================
+   STATS BAR
+   ============================================================ */
+
 .stats-bar {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  gap: 16px;
   width: 100%;
 }
 
 .stat-card {
-  background: white;
-  padding: 24px;
-  border-radius: 20px;
+  background: #FFFFFF;
+  padding: 20px 24px;
+  border-radius: 12px;
+  border: 1px solid #E1E3DF;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0px 4px 8px rgba(30, 42, 46, 0.1);
 }
 
 .stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 22px;
+  flex-shrink: 0;
 }
 
 .stat-icon.raised {
@@ -175,41 +206,49 @@
 }
 
 .stat-icon.funded {
-  background: #F5F3FF;
-  color: #7C3AED;
+  background: #F0FDF4;
+  color: #16A34A;
 }
 
 .stat-info {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .stat-label {
-  font-size: 14px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
   font-weight: 500;
-  color: #6B7280;
+  color: #707973;
 }
 
 .stat-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 20px;
   font-weight: 800;
-  color: #111827;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #191C1A;
 }
 
+/* ============================================================
+   CREATE POST BUTTON
+   ============================================================ */
+
 .create-post-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 24px;
+  padding: 10px 20px;
   background: #A04100;
-  color: white;
+  color: #FFFFFF;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: transform 0.2s, background-color 0.2s;
+  transition: background 0.15s, transform 0.1s;
+  box-shadow: 0px 1px 3px rgba(160, 65, 0, 0.25);
 }
 
 .create-post-btn:hover {
@@ -217,65 +256,160 @@
   transform: translateY(-1px);
 }
 
+.create-post-btn:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================
+   POSTS SECTION
+   ============================================================ */
+
 .posts-section h2 {
-  margin: 0 0 20px;
-  font-size: 1.5rem;
-  color: #111827;
+  margin: 0 0 16px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #191C1A;
 }
 
 .charity-posts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
 .empty-posts {
-  background: white;
-  padding: 64px;
-  border-radius: 16px;
+  background: #FFFFFF;
+  padding: 56px 40px;
+  border-radius: 12px;
+  border: 1.5px dashed #BFC9C1;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  border: 2px dashed #D1D5DB;
+  gap: 12px;
 }
 
 .empty-posts p {
-  color: #6B7280;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 15px;
+  color: #707973;
   margin: 0;
 }
 
 .empty-posts button {
-  background-color: #66B018;
-  color: white;
+  background: #66B018;
+  color: #FFFFFF;
   border: none;
-  padding: 10px 20px;
+  padding: 10px 24px;
   border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s;
 }
 
-/* Modal specific styles */
+.empty-posts button:hover {
+  background: #4E8912;
+}
+
+/* ============================================================
+   LOAD MORE
+   ============================================================ */
+
+.dashboard-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.load-more-btn {
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  color: #66B018;
+  padding: 10px 28px;
+  border-radius: 9999px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.load-more-btn:hover {
+  border-color: #66B018;
+  background: #F5FBF0;
+}
+
+.load-more-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   LOADING / ERROR STATE
+   ============================================================ */
+
+.charity-dashboard-loading {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.charity-dashboard-error {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: 'Work Sans', sans-serif;
+  color: #707973;
+}
+
+/* ============================================================
+   MODAL — scoped overrides inside .charity-modal
+   ============================================================ */
+
 .charity-modal {
   width: 500px;
-  background: white;
+  max-width: 90vw;
+  background: #FFFFFF;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #BFC9C1;
+  box-shadow: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: charityModalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+@keyframes charityModalSlideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ============================================================
+   FORM STYLES
+   ============================================================ */
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 16px;
 }
 
 .form-group label {
-  font-size: 0.875rem;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: #191C1A;
+  line-height: 20px;
 }
 
 .label-with-counter {
@@ -285,8 +419,9 @@
 }
 
 .char-counter {
-  font-size: 0.75rem;
-  color: #6B7280;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12px;
+  color: #707973;
   font-weight: 400;
 }
 
@@ -295,17 +430,56 @@
   font-weight: 600;
 }
 
-.form-group input, .form-group textarea {
-  padding: 12px;
-  border: 1px solid #D1D5DB;
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 0 14px;
+  height: 50px;
+  background: #F2F4F0;
+  border: 1px solid #BFC9C1;
   border-radius: 8px;
-  font-size: 1rem;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 15px;
+  color: #191C1A;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-group textarea {
+  height: auto;
   min-height: 120px;
+  padding: 14px;
   resize: vertical;
 }
+
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 6L0 0H10L5 6Z' fill='%23707973'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 10px 6px;
+  padding-right: 36px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #66B018;
+  box-shadow: 0 0 0 3px rgba(102, 176, 24, 0.12);
+  background: #FAFFFE;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #9EA8A1;
+}
+
+/* ============================================================
+   FILE UPLOAD
+   ============================================================ */
 
 .file-upload-container {
   display: flex;
@@ -314,24 +488,28 @@
 }
 
 .upload-btn {
-  background: #F3F4F6;
-  border: 2px dashed #D1D5DB;
-  color: #374151;
+  background: #F2F4F0;
+  border: 1.5px dashed #BFC9C1;
+  color: #404943;
   padding: 20px;
   border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.15s, background 0.15s;
   text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .upload-btn:hover {
-  background: #E5E7EB;
-  border-color: #9CA3AF;
+  background: #E8EDEB;
+  border-color: #8E9E97;
 }
 
 .upload-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
@@ -341,7 +519,7 @@
   height: 200px;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #E5E7EB;
+  border: 1px solid #E1E3DF;
 }
 
 .image-preview img {
@@ -354,10 +532,10 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 24px;
-  height: 24px;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
+  width: 26px;
+  height: 26px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #FFFFFF;
   border: none;
   border-radius: 50%;
   display: flex;
@@ -366,48 +544,177 @@
   cursor: pointer;
   font-size: 18px;
   line-height: 1;
-  transition: background 0.2s;
+  transition: background 0.15s;
 }
 
 .remove-img-btn:hover {
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
 }
+
+/* ============================================================
+   MODAL ERROR
+   ============================================================ */
 
 .modal-error {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
   color: #BA1A1A;
-  font-size: 0.875rem;
-  margin-top: 8px;
+  background: #FFF1F0;
+  border: 1px solid #FFCCC7;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 4px;
 }
 
-.charity-dashboard-loading {
-  height: 100vh;
+/* ============================================================
+   MODAL ACTION BUTTONS — scoped to .charity-modal
+   to avoid conflicting with ListingsFeed.css .confirm-btn
+   ============================================================ */
+
+.charity-modal .modal-footer {
+  padding: 16px 24px;
+  background: #F8FAF9;
+  border-top: 1px solid #E8EDEB;
   display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.charity-modal .confirm-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
+  padding: 10px 22px;
+  height: auto;
+  width: auto;
+  margin: 0;
+  background: #66B018;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  box-shadow: none;
+}
+
+.charity-modal .confirm-btn:hover:not(:disabled) {
+  background: #4E8912;
+}
+
+.charity-modal .confirm-btn:disabled {
+  background: #9CA3AF;
+  cursor: not-allowed;
+}
+
+.charity-modal .cancel-btn {
+  padding: 10px 20px;
+  background: #FFFFFF;
+  border: 1px solid #BFC9C1;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #404943;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.charity-modal .cancel-btn:hover {
+  background: #F0F2EF;
+  border-color: #8E9E97;
+}
+
+.charity-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #E8EDEB;
+}
+
+.charity-modal .modal-header h2 {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #191C1A;
+}
+
+.charity-modal .close-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #707973;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.charity-modal .close-btn:hover {
+  background: #F0F2EF;
+  color: #191C1A;
+}
+
+.charity-modal .modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(90vh - 140px);
 }
 
 /* ============================================================
    RESPONSIVE — CHARITY DASHBOARD
    ============================================================ */
 
+@media (max-width: 900px) {
+  .charity-dashboard-header {
+    flex-wrap: wrap;
+    padding: 16px 24px;
+    margin: 12px 24px 0;
+    gap: 12px;
+  }
+
+  .charity-nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    border-top: 1px solid #E8EDEB;
+    padding-top: 10px;
+    margin-top: 2px;
+  }
+
+  .charity-dashboard-main {
+    padding: 24px;
+    gap: 20px;
+  }
+
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .charity-dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px 20px;
-    margin: 12px 16px 0;
+    padding: 14px 20px;
+    margin: 10px 16px 0;
     position: static;
   }
 
   .header-right {
-    width: 100%;
-    justify-content: flex-end;
+    gap: 8px;
   }
 
   .charity-dashboard-main {
     padding: 20px 16px;
-    gap: 20px;
+    gap: 18px;
   }
 
   .charity-posts-grid {
@@ -419,6 +726,25 @@
     max-width: 100%;
     border-radius: 16px 16px 0 0;
     margin-top: auto;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .charity-modal .modal-body {
+    max-height: 60vh;
+  }
+
+  /* Modal overlay aligns to bottom on mobile */
+  .modal-overlay:has(.charity-modal) {
+    align-items: flex-end;
+  }
+}
+
+@media (max-width: 560px) {
+  .stats-bar {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -426,23 +752,31 @@
   .charity-dashboard-header {
     margin: 8px 8px 0;
     border-radius: 16px;
+    padding: 12px 16px;
   }
 
   .header-left h1 {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .charity-dashboard-main {
-    padding: 16px 8px;
+    padding: 14px 10px;
+    gap: 14px;
   }
 
   .create-post-btn {
     width: 100%;
     justify-content: center;
-    padding: 12px 16px;
   }
 
   .empty-posts {
     padding: 40px 16px;
+  }
+
+  .charity-modal .confirm-btn,
+  .charity-modal .cancel-btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
   }
 }
