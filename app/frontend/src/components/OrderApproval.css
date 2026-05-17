@@ -283,19 +283,53 @@
   color: #8E9E97;
 }
 
+/* Tablet: hide Date column */
 @media (max-width: 700px) {
   .oa-table-header,
   .oa-table-row {
-    grid-template-columns: 1fr 1fr 0.5fr 0.8fr;
+    grid-template-columns: 1.8fr 1.6fr 0.5fr 0.9fr 1fr;
   }
 
+  /* Hide Date column (5th) */
   .oa-th:nth-child(5),
   .oa-td:nth-child(5) {
     display: none;
   }
 
-  .oa-th-action,
+  .oa-title {
+    font-size: 22px;
+  }
+}
+
+/* Mobile: card layout, one row per order */
+@media (max-width: 520px) {
+  .oa-table-header {
+    display: none;
+  }
+
+  .oa-table-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  /* Show all hidden cells on mobile card */
+  .oa-td:nth-child(5) {
+    display: flex;
+  }
+
   .oa-td-action {
     justify-content: flex-start;
+  }
+
+  .oa-approve-btn {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .oa-title {
+    font-size: 20px;
   }
 }

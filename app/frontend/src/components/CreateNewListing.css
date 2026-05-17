@@ -654,6 +654,8 @@
     grid-column: 1;
     flex-direction: column;
     align-items: flex-start;
+    gap: 20px;
+    padding: 24px;
   }
   .cnl-impact-price {
     width: 100%;
@@ -662,12 +664,19 @@
     width: 100%;
   }
   .cnl-title {
-    font-size: 32px;
-    line-height: 40px;
+    font-size: 28px;
+    line-height: 36px;
+  }
+  .cnl-card {
+    padding: 24px;
   }
 }
 
 @media (max-width: 600px) {
+  .cnl-title {
+    font-size: 22px;
+    line-height: 30px;
+  }
   .cnl-field-row {
     flex-direction: column;
   }
@@ -677,5 +686,9 @@
   .cnl-btn-draft,
   .cnl-btn-post {
     width: 100%;
+    text-align: center;
+  }
+  .cnl-card {
+    padding: 16px;
   }
 }
