@@ -1,6 +1,6 @@
 from database import supabase_admin
 from services import social_impact_service
-
+from services.notification_service import send_notification
 
 def create_purchase(data: dict, user_id: str):
     if not data["items"]:
@@ -67,6 +67,35 @@ def create_purchase(data: dict, user_id: str):
     supabase_admin.table("PurchaseItems") \
         .insert(purchase_items) \
         .execute()
+    
+    # Get purchase items with food IDs
+    food_ids = list({item["foodID"] for item in purchase_items})
+
+    # Get sellers from Food table
+    foods_res = supabase_admin.table("Food") \
+        .select("foodID, userID, foodName") \
+        .in_("foodID", food_ids) \
+        .execute()
+
+    seller_map = {}
+
+    for food in foods_res.data or []:
+        seller_id = food["userID"]
+
+        if seller_id not in seller_map:
+            seller_map[seller_id] = []
+
+        seller_map[seller_id].append(food["foodName"])
+
+    # Send notification per seller
+    for seller_id, foods in seller_map.items():
+        send_notification(
+            user_id=seller_id,
+            title="New Order Received",
+            message=f"You have a new order of: {', '.join(foods)}",
+            type="order",
+            link=f"/seller/orders/{purchase_id}"
+        )
 
     return {
         "purchaseID": purchase_id,
