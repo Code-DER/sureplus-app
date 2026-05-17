@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './ProductDetail.css'
 import type { FoodItem } from '../types/food'
+import { formatExpiration } from '../utils/format'
 
 import MinusIcon from '../assets/BUYER/minus.svg'
 import PlusIcon from '../assets/BUYER/plus.svg'
@@ -16,19 +17,6 @@ interface ProductDetailProps {
   listing: FoodItem
   onBack: () => void
   onAddToOrder: (listing: FoodItem, qty: number) => void
-}
-
-function formatExpiration(dateStr: string | null): string {
-  if (!dateStr) return 'No expiry date'
-  const exp = new Date(dateStr)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  if (diffDays < 0) return 'Expired'
-  if (diffDays === 0) return 'Expires today'
-  if (diffDays === 1) return 'Expires tomorrow'
-  if (diffDays <= 7) return `Expires in ${diffDays} days`
-  return exp.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })
 }
 
 export default function ProductDetail({ listing, onBack, onAddToOrder }: ProductDetailProps) {
@@ -57,11 +45,11 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
             <img
               src={listing.picture}
               alt={listing.foodName}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+              className="detail-product-img"
             />
           ) : (
             <div className="detail-image-placeholder">
-              <span className="icon-placeholder" style={{ width: 48, height: 48, background: '#ddd', borderRadius: 8 }} />
+              <span className="detail-image-icon" />
               <span>No Product Photo</span>
             </div>
           )}
@@ -74,10 +62,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
 
           {/* Allergen safety badge */}
           {listing.isSafeForCurrentUser === false && (
-            <div style={{
-              background: '#FFF3E0', border: '1px solid #FFA726', borderRadius: 8,
-              padding: '8px 12px', marginBottom: 12, fontSize: 13, color: '#E65100'
-            }}>
+            <div className="detail-allergen-alert" role="alert">
               ⚠ This item contains allergens you're sensitive to
             </div>
           )}
@@ -90,8 +75,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
                 {allergenNames.map((name) => (
                   <div
                     key={name}
-                    className="allergen-tag"
-                    style={listing.matchedAllergenIDs.length > 0 ? { borderColor: '#FFA726', background: '#FFF8F0' } : {}}
+                    className={`allergen-tag${listing.matchedAllergenIDs.length > 0 ? ' allergen-tag--matched' : ''}`}
                   >
                     <img src={VeganIcon} alt="Allergen" width="12" height="12" />
                     <span>{name}</span>
@@ -130,7 +114,7 @@ export default function ProductDetail({ listing, onBack, onAddToOrder }: Product
           </div>
 
           {listing.stockQuantity === 0 && (
-            <p style={{ color: '#BA1A1A', fontSize: 13, margin: '-8px 0 8px' }}>Out of stock</p>
+            <p className="detail-oos-msg">Out of stock</p>
           )}
 
           {/* Add to Order */}

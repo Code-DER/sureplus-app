@@ -211,6 +211,10 @@ export default function HistoryView() {
               key={order.id}
               className={`history-card ${selectedOrder.id === order.id ? 'active' : ''}`}
               onClick={() => handleSelectOrder(order)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleSelectOrder(order)}
+              aria-current={selectedOrder.id === order.id ? 'true' : undefined}
             >
               <div className="history-card-top">
                 <span className="history-date">{order.dateStr}</span>

@@ -81,6 +81,7 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
   const [showNotifs, setShowNotifs] = useState(false);
 
   const triggerRefresh = useCallback(() => setRefreshKey((k) => k + 1), []);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,6 +155,11 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
       {/* ===== TOP HEADER BAR ===== */}
       <header className="seller-dashboard-header">
         <div className="seller-header-left">
+          <button className="seller-hamburger-btn" onClick={() => setSidebarOpen(v => !v)} aria-label="Open menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
           <span className="seller-header-title">Overview Dashboard</span>
         </div>
         <div className="seller-header-right">
@@ -182,10 +188,12 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
         </div>
       </header>
 
+      {sidebarOpen && <div className="seller-sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+
       {/* ===== MAIN LAYOUT ===== */}
       <div className="seller-body">
         {/* ===== SIDEBAR ===== */}
-        <aside className="seller-sidebar">
+        <aside className={`seller-sidebar${sidebarOpen ? ' open' : ''}`}>
           <div className="sidebar-brand">
             <div className="sidebar-logo">
               <span className="sidebar-logo-letter">S</span>
@@ -196,7 +204,7 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
             </div>
           </div>
 
-          <button className="btn-add-listing" onClick={() => setActiveTab('create-new')}>
+          <button className="btn-add-listing" onClick={() => { setActiveTab('create-new'); setSidebarOpen(false); }}>
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M8.5 1v15M1 8.5h15" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
             Post Surplus Food
           </button>
@@ -206,7 +214,7 @@ export default function SellerDashboard({ onSwitchRole }: SellerDashboardProps) 
               <button
                 key={item.id}
                 className={`sidebar-link ${activeTab === item.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
               >
                 <span className="sidebar-link-icon">{SIDEBAR_ICONS[item.id]}</span>
                 {item.label}

@@ -533,3 +533,29 @@
   color: #66B018;
   font-weight: 600;
 }
+
+/* ============================================================
+   RESPONSIVE — ADMIN REPORTS
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  .rp-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .rp-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rp-layout {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rp-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -423,3 +423,28 @@
   border-color: #94A3B8;
   color: #64748B;
 }
+
+/* ============================================================
+   RESPONSIVE — ADMIN PARTNER TAGGING
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .pt-layout {
+    flex-direction: column;
+  }
+
+  .pt-card {
+    flex-direction: column;
+  }
+
+  .pt-img-col {
+    width: 100%;
+    height: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pt-img-col {
+    height: 120px;
+  }
+}

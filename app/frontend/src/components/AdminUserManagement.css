@@ -777,3 +777,38 @@
   gap: 12px;
   padding-top: 4px;
 }
+
+/* ============================================================
+   RESPONSIVE — ADMIN USER MANAGEMENT
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .user-management-grid {
+    flex-direction: column;
+  }
+
+  .user-filters-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}

@@ -18,7 +18,6 @@ interface ListingsFeedProps {
 
 import ExpiryIcon from '../assets/BUYER/Expiry Icon.svg'
 import CartIcon from '../assets/BUYER/Cart Icon.svg'
-import LocationIcon from '../assets/BUYER/location.svg'
 
 interface OrderItem {
   id: string       // foodID (UUID)
@@ -27,19 +26,6 @@ interface OrderItem {
   qty: number
   weightKg: number
   picture: string | null
-}
-
-function formatExpiration(dateStr: string | null): string {
-  if (!dateStr) return 'No expiry date'
-  const exp = new Date(dateStr)
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  if (diffDays < 0) return 'Expired'
-  if (diffDays === 0) return 'Expires today'
-  if (diffDays === 1) return 'Expires tomorrow'
-  if (diffDays <= 7) return `In ${diffDays} days`
-  return exp.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
 }
 
 export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: ListingsFeedProps) {
@@ -83,6 +69,7 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
   const [selectedListing, setSelectedListing] = useState<FoodItem | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   const [showNotifs, setShowNotifs] = useState(false)
+  const [navOpen, setNavOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'listings' | 'charity' | 'history' | 'impact' | 'profile'>('listings')
 
   const [impactStats, setImpactStats] = useState<ImpactStats | null>(null)
@@ -176,17 +163,19 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
         <nav className="navbar">
           <div className="navbar-left">
             <span className="brand">Sureplus</span>
-            <a href="#" className={`nav-link ${activeTab === 'listings' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('listings') }}>Listings</a>
-            <a href="#" className={`nav-link ${activeTab === 'charity' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('charity') }}>Charity</a>
-            <a href="#" className={`nav-link ${activeTab === 'history' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('history') }}>History</a>
-            <a href="#" className={`nav-link ${activeTab === 'impact' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('impact') }}>Impact</a>
-            <a href="#" className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('profile') }}>Profile</a>
+            <div className="nav-links-desktop">
+              <button type="button" className={`nav-link ${activeTab === 'listings' ? 'active' : ''}`} onClick={() => setActiveTab('listings')}>Listings</button>
+              <button type="button" className={`nav-link ${activeTab === 'charity' ? 'active' : ''}`} onClick={() => setActiveTab('charity')}>Charity</button>
+              <button type="button" className={`nav-link ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>History</button>
+              <button type="button" className={`nav-link ${activeTab === 'impact' ? 'active' : ''}`} onClick={() => setActiveTab('impact')}>Impact</button>
+              <button type="button" className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`} onClick={() => setActiveTab('profile')}>Profile</button>
+            </div>
           </div>
-          <div className="navbar-right" style={{ position: 'relative' }}>
+          <div className="navbar-right">
             {isSeller && onOpenSellerDashboard && (
               <button
                 type="button"
-                className="seller-dashboard-btn"
+                className="seller-dashboard-btn nav-desktop-only"
                 onClick={onOpenSellerDashboard}
               >
                 Seller Dashboard
@@ -205,10 +194,32 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
               onClick={() => setActiveTab('profile')}
               title="View Profile"
             />
-
+            <button className="icon-btn nav-hamburger-btn" aria-label="Open menu" onClick={(e) => { e.stopPropagation(); setNavOpen(v => !v) }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
             {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
           </div>
         </nav>
+        {navOpen && (
+          <>
+            <div className="mobile-nav-overlay" onClick={() => setNavOpen(false)} />
+            <div className="mobile-nav-menu">
+              {(['listings', 'charity', 'history', 'impact', 'profile'] as const).map(tab => (
+                <button key={tab} className={`mobile-nav-link ${activeTab === tab ? 'active' : ''}`}
+                  onClick={() => { setActiveTab(tab); setNavOpen(false); }}>
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+              {isSeller && onOpenSellerDashboard && (
+                <button className="mobile-nav-link mobile-nav-seller" onClick={() => { onOpenSellerDashboard(); setNavOpen(false); }}>
+                  Seller Dashboard
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Main content */}
@@ -255,13 +266,13 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
                 {/* Loading state */}
                 {loadingListings && (
-                  <div className="listings-grid">
+                  <div className="listings-grid" aria-busy="true" aria-label="Loading listings">
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="listing-card" style={{ opacity: 0.5 }}>
-                        <div className="listing-img-placeholder" style={{ background: '#f0f0f0' }} />
+                      <div key={i} className="listing-card listing-card--skeleton" aria-hidden="true">
+                        <div className="listing-img-placeholder listing-img-skeleton" />
                         <div className="listing-info">
-                          <div style={{ height: 16, background: '#e0e0e0', borderRadius: 4, marginBottom: 8 }} />
-                          <div style={{ height: 12, background: '#e8e8e8', borderRadius: 4, width: '60%' }} />
+                          <div className="skeleton-line" />
+                          <div className="skeleton-line skeleton-line--short" />
                         </div>
                       </div>
                     ))}
@@ -270,18 +281,9 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
                 {/* Error state */}
                 {!loadingListings && listingsError && (
-                  <div style={{
-                    padding: '40px 24px', textAlign: 'center', color: '#BA1A1A',
-                    background: '#FFEBEE', borderRadius: 12, margin: '24px 0'
-                  }}>
-                    <p style={{ margin: '0 0 16px', fontSize: 16 }}>{listingsError}</p>
-                    <button
-                      onClick={() => setSafeForMe((v) => v)}
-                      style={{
-                        background: '#BA1A1A', color: 'white', border: 'none',
-                        borderRadius: 8, padding: '8px 20px', cursor: 'pointer'
-                      }}
-                    >
+                  <div className="listings-error" role="alert">
+                    <p>{listingsError}</p>
+                    <button className="listings-error-retry" onClick={() => setSafeForMe((v) => v)}>
                       Retry
                     </button>
                   </div>
@@ -289,9 +291,9 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
 
                 {/* Empty state */}
                 {!loadingListings && !listingsError && listings.length === 0 && (
-                  <div style={{ padding: '60px 24px', textAlign: 'center', color: '#707973' }}>
-                    <p style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>No listings found</p>
-                    <p style={{ fontSize: 14, margin: 0 }}>
+                  <div className="listings-empty">
+                    <p className="listings-empty-title">No listings found</p>
+                    <p className="listings-empty-body">
                       {safeForMe
                         ? 'No allergen-safe listings are available right now.'
                         : 'No food listings are available right now. Check back soon!'}
@@ -307,18 +309,20 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                         key={item.foodID}
                         className="listing-card"
                         onClick={() => setSelectedListing(item)}
-                        style={{ cursor: 'pointer' }}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && setSelectedListing(item)}
+                        aria-label={`View details for ${item.foodName}`}
                       >
                         {item.picture ? (
                           <img
                             className="listing-img-placeholder"
                             src={item.picture}
                             alt={item.foodName}
-                            style={{ objectFit: 'cover' }}
                           />
                         ) : (
-                          <div className="listing-img-placeholder" aria-label={`Image for ${item.foodName}`}>
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
+                          <div className="listing-img-placeholder" role="img" aria-label={`No photo for ${item.foodName}`}>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5" aria-hidden="true">
                               <rect x="3" y="3" width="18" height="18" rx="2" />
                               <circle cx="8.5" cy="8.5" r="1.5" />
                               <polyline points="21 15 16 10 5 21" />
@@ -337,24 +341,24 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                           <div className="listing-meta">
                             {item.stockQuantity > 0 ? (
                               <div className="meta-row">
-                                <img src={ExpiryIcon} alt="Expiry" width="11" height="12" />
+                                <img src={ExpiryIcon} alt="" width="11" height="12" aria-hidden="true" />
                                 <span>{item.stockQuantity} available</span>
                               </div>
                             ) : (
-                              <div className="meta-row" style={{ color: '#BA1A1A' }}>
+                              <div className="meta-row oos">
                                 <span>Out of stock</span>
                               </div>
                             )}
                             {item.expirationDate && (
                               <div className="meta-row expiry">
-                                <img src={ExpiryIcon} alt="Expiry" width="11" height="12" />
+                                <img src={ExpiryIcon} alt="" width="11" height="12" aria-hidden="true" />
                                 <span>Expiration: {formatExpiration(item.expirationDate)}</span>
                               </div>
                             )}
                           </div>
 
                           {item.isSafeForCurrentUser === false && (
-                            <div style={{ fontSize: 11, color: '#E65100', marginTop: 6, fontWeight: 600 }}>
+                            <div className="listing-allergen-warning" role="alert">
                               ⚠ Contains your allergens
                             </div>
                           )}
@@ -405,7 +409,9 @@ export default function ListingsFeed({ isSeller, onOpenSellerDashboard }: Listin
                         onClick={() => removeFromOrder(item.id)}
                         aria-label={`Remove ${item.name}`}
                       >
-                        <img src={LocationIcon} alt="Location" width="12" height="14" />
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                          <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
                       </button>
                     </div>
                   ))

@@ -426,3 +426,73 @@
 .btn-cancel-review:hover {
   background: #F3F4F6;
 }
+
+/* ============================================================
+   RESPONSIVE — HISTORY VIEW
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  .history-sidebar {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .history-view {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .history-sidebar {
+    width: 100%;
+  }
+
+  .history-list {
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  .history-detail-panel {
+    border-radius: 12px;
+  }
+
+  .history-stats-bar {
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 0 16px;
+    padding: 12px 16px;
+  }
+
+  .history-detail-header {
+    padding: 16px;
+  }
+
+  .history-items-section {
+    padding: 16px;
+  }
+
+  .history-total-row {
+    padding: 16px;
+  }
+
+  .history-review-section {
+    padding: 0 16px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .history-stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+    display: grid;
+  }
+
+  .review-stars-large {
+    font-size: 24px;
+  }
+
+  .btn-submit-review,
+  .btn-cancel-review {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+}

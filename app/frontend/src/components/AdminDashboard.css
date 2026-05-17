@@ -245,6 +245,115 @@
   gap: 24px;
 }
 
+
+/* ============================================================
+   HAMBURGER + OVERLAY
+   ============================================================ */
+
+.admin-hamburger-btn {
+  display: none;
+}
+
+.admin-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 45;
+}
+
+/* ============================================================
+   RESPONSIVE — ADMIN DASHBOARD
+   ============================================================ */
+
+@media (max-width: 1200px) {
+  .admin-topbar-floating {
+    left: 48px;
+    right: 48px;
+  }
+  .admin-main-content {
+    right: 48px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .admin-topbar-floating {
+    left: 24px;
+    right: 24px;
+  }
+  .admin-sidebar-floating {
+    left: 0;
+    width: 240px;
+  }
+  .admin-main-content {
+    left: 248px;
+    right: 24px;
+  }
+  .admin-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-hamburger-btn {
+    display: flex;
+  }
+
+  .admin-topbar-floating {
+    left: 0;
+    right: 0;
+    top: 0;
+    border-radius: 0;
+    z-index: 100;
+    padding: 0 16px;
+  }
+
+  .admin-sidebar-floating {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100dvh;
+    width: 275px;
+    z-index: 200;
+    border-radius: 0 24px 24px 0;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+
+  .admin-sidebar-floating.open {
+    transform: translateX(0);
+  }
+
+  .admin-main-content {
+    left: 0;
+    right: 0;
+    top: 65px;
+    padding-bottom: 32px;
+  }
+
+  .admin-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-dashboard-card {
+    padding: 32px 16px 20px;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-topbar-floating {
+    height: 56px;
+  }
+
+  .admin-main-content {
+    top: 56px;
+  }
+}
+
 .admin-stat-card {
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
