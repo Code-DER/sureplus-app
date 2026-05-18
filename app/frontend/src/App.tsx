@@ -62,7 +62,7 @@ function App() {
   }
 
   if (view === 'charity' && isCharity) {
-    return <CharityDashboard onSwitchRole={() => setView('buyer')} />
+    return <CharityDashboard />
   }
 
   return (

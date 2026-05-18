@@ -3,7 +3,7 @@ import { charityPostAPI } from '../api/apis';
 import './RateUserModal.css';
 
 interface RateUserModalProps {
-  postID?: string; // Optional for backward compatibility, but preferred for F-2
+  postID?: string;
   donationID: string;
   targetName: string;
   onClose: () => void;
@@ -11,13 +11,15 @@ interface RateUserModalProps {
 }
 
 const RateUserModal: React.FC<RateUserModalProps> = ({ postID, donationID, targetName, onClose, onSuccess }) => {
-  const [rating, setRating] = useState<number>(5); // Default to thumbs up (5)
+  const [rating, setRating] = useState<number>(0);
+  const [hovered, setHovered] = useState<number>(0);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (rating === 0) { setError('Please select a star rating.'); return; }
     setLoading(true);
     setError(null);
 
@@ -28,8 +30,6 @@ const RateUserModal: React.FC<RateUserModalProps> = ({ postID, donationID, targe
           comment: comment || undefined
         });
       } else {
-        // Fallback to legacy endpoint if postID missing
-        // This is safe because both end up calling rating_service.create_rating
         const { ratingsAPI } = await import('../api/apis');
         await ratingsAPI.rate({
           donationID,
@@ -45,54 +45,77 @@ const RateUserModal: React.FC<RateUserModalProps> = ({ postID, donationID, targe
     }
   };
 
+  const activeRating = hovered || rating;
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="rate-user-modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Rate Donor</h2>
-          <button className="close-btn" onClick={onClose}>&times;</button>
+      <div className="rum" onClick={e => e.stopPropagation()}>
+        <div className="rum-header">
+          <h2 className="rum-title">Rate Donor</h2>
+          <button className="rum-close" onClick={onClose} aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="1" y1="1" x2="17" y2="17"/><line x1="17" y1="1" x2="1" y2="17"/>
+            </svg>
+          </button>
         </div>
+
         <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            <p className="rate-prompt">How was your experience with <strong>{targetName}</strong>?</p>
-            
-            <div className="thumbs-container">
-              <button 
-                type="button" 
-                className={`thumb-btn up ${rating === 5 ? 'active' : ''}`}
-                onClick={() => setRating(5)}
-              >
-                <span className="thumb-icon">👍</span>
-                <span className="thumb-label">Thumbs Up</span>
-              </button>
-              <button 
-                type="button" 
-                className={`thumb-btn down ${rating === 1 ? 'active' : ''}`}
-                onClick={() => setRating(1)}
-              >
-                <span className="thumb-icon">👎</span>
-                <span className="thumb-label">Thumbs Down</span>
-              </button>
+          <div className="rum-body">
+            <div className="rum-donor-name">
+              <div className="rum-donor-avatar">{targetName.charAt(0).toUpperCase()}</div>
+              <div>
+                <p className="rum-donor-label">Rating experience with</p>
+                <p className="rum-donor-value">{targetName}</p>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>Comment (Optional)</label>
-              <textarea 
+            <div className="rum-stars-section">
+              <p className="rum-stars-prompt">How would you rate this donor?</p>
+              <div className="rum-stars" onMouseLeave={() => setHovered(0)}>
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    type="button"
+                    className={`rum-star ${star <= activeRating ? 'filled' : ''}`}
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHovered(star)}
+                    aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                  >
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill={star <= activeRating ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  </button>
+                ))}
+              </div>
+              {activeRating > 0 && (
+                <p className="rum-rating-label">
+                  {['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][activeRating]}
+                </p>
+              )}
+            </div>
+
+            <div className="rum-field">
+              <div className="rum-label-row">
+                <label className="rum-label">Comment <span className="rum-optional">(optional)</span></label>
+                <span className="rum-counter">{comment.length}/500</span>
+              </div>
+              <textarea
+                className="rum-textarea"
                 value={comment}
                 onChange={e => setComment(e.target.value)}
-                placeholder="Share a short comment about the donation..."
+                placeholder="Share a short comment about this donation…"
                 maxLength={500}
-                rows={4}
+                rows={3}
               />
-              <span className="char-count">{comment.length}/500</span>
             </div>
 
-            {error && <p className="modal-error">{error}</p>}
+            {error && <div className="rum-error">{error}</div>}
           </div>
-          <div className="modal-footer">
-            <button type="button" className="cancel-btn" onClick={onClose} disabled={loading}>Cancel</button>
-            <button type="submit" className="confirm-btn" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Rating'}
+
+          <div className="rum-footer">
+            <button type="button" className="rum-btn-cancel" onClick={onClose} disabled={loading}>Cancel</button>
+            <button type="submit" className="rum-btn-submit" disabled={loading || rating === 0}>
+              {loading ? 'Submitting…' : 'Submit Rating'}
             </button>
           </div>
         </form>
