@@ -10,128 +10,28 @@
 }
 
 /* ----------------------------------------------------------------
-   SIDEBAR
+   SIDEBAR  — mirrors SellerDashboard sidebar structure
+   (shared classes: sidebar-brand, sidebar-logo, sidebar-logo-letter,
+    sidebar-brand-text, btn-add-listing, sidebar-nav, sidebar-link,
+    sidebar-link-icon — all defined in SellerDashboard.css globally)
    ---------------------------------------------------------------- */
 
 .charity-sidebar {
-  width: 220px;
-  min-width: 220px;
-  background: #FFFFFF;
-  border-radius: 0 24px 24px 0;
-  padding: 28px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
   position: sticky;
   top: 0;
-  height: 100vh;
-  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.04);
-  z-index: 50;
-}
-
-.sidebar-brand {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  color: #1A3C2E;
-  padding: 4px 8px;
-  letter-spacing: -0.3px;
-}
-
-.sidebar-user-section {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 8px;
-  border-radius: 12px;
-  background: #F7F8F6;
-}
-
-.sidebar-user-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.sidebar-user-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1A3C2E;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sidebar-user-role {
-  font-size: 11px;
-  color: #707973;
-  font-weight: 500;
-}
-
-.sidebar-post-request-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding: 10px 14px;
-  background: #1A3C2E;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.sidebar-post-request-btn:hover {
-  background: #0F2A1E;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-}
-
-.sidebar-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 10px 12px;
-  background: transparent;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #707973;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s;
-}
-
-.sidebar-nav-item:hover {
-  background: #F2F4F0;
-  color: #1A3C2E;
-}
-
-.sidebar-nav-item.active {
-  background: #F2F4F0;
-  color: #1A3C2E;
-  font-weight: 700;
-}
-
-.sidebar-nav-item svg {
+  align-self: flex-start;
+  width: 260px;
+  min-width: 260px;
   flex-shrink: 0;
-  opacity: 0.7;
-}
-
-.sidebar-nav-item.active svg {
-  opacity: 1;
+  background: white;
+  border-right: 1px solid #F3F4F6;
+  border-radius: 0 24px 24px 0;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100vh;
+  z-index: 50;
 }
 
 /* ----------------------------------------------------------------
@@ -614,8 +514,8 @@
 
 @media (max-width: 900px) {
   .charity-sidebar {
-    width: 180px;
-    min-width: 180px;
+    width: 200px;
+    min-width: 200px;
   }
 
   .charity-dashboard-main {
@@ -638,11 +538,6 @@
     padding: 16px;
     gap: 12px;
     position: static;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    flex: unset;
   }
 
   .charity-dashboard-main {

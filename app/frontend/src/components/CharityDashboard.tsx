@@ -113,53 +113,50 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
 
       {/* ── Sidebar ── */}
       <aside className="charity-sidebar">
-        <div className="sidebar-brand">Sureplus Charity</div>
-
-        <div className="sidebar-user-section">
-          <UserAvatar
-            firstName={profile?.firstName}
-            lastName={profile?.lastName}
-            size={36}
-            style={{ flexShrink: 0 }}
-          />
-          <div className="sidebar-user-info">
-            <span className="sidebar-user-name">{profile?.organizationName || 'Sureplus'}</span>
-            <span className="sidebar-user-role">Charity Portal</span>
+        <div className="sidebar-brand">
+          <div className="sidebar-logo">
+            <span className="sidebar-logo-letter">S</span>
+          </div>
+          <div className="sidebar-brand-text">
+            <h2>{profile?.organizationName || 'Sureplus'}</h2>
+            <span>Charity Portal</span>
           </div>
         </div>
 
-        <button className="sidebar-post-request-btn" onClick={() => setShowCreateModal(true)}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="16"></line>
-            <line x1="8" y1="12" x2="16" y2="12"></line>
+        <button className="btn-add-listing" onClick={() => setShowCreateModal(true)}>
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+            <path d="M8.5 1v15M1 8.5h15" stroke="white" strokeWidth="2" strokeLinecap="round"/>
           </svg>
           Post Request
         </button>
 
         <nav className="sidebar-nav">
           <button
-            className={`sidebar-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            className={`sidebar-link ${activeTab === 'dashboard' ? 'active' : ''}`}
             onClick={() => setActiveTab('dashboard')}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="3" width="7" height="7"></rect>
-              <rect x="14" y="3" width="7" height="7"></rect>
-              <rect x="14" y="14" width="7" height="7"></rect>
-              <rect x="3" y="14" width="7" height="7"></rect>
-            </svg>
+            <span className="sidebar-link-icon">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="0" y="0" width="8" height="6" rx="1" fill="currentColor"/>
+                <rect x="10" y="0" width="8" height="8" rx="1" fill="currentColor"/>
+                <rect x="0" y="8" width="8" height="10" rx="1" fill="currentColor"/>
+                <rect x="10" y="10" width="8" height="8" rx="1" fill="currentColor"/>
+              </svg>
+            </span>
             Dashboard
           </button>
           <button
-            className={`sidebar-nav-item ${activeTab === 'profile' ? 'active' : ''}`}
+            className={`sidebar-link ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
+            <span className="sidebar-link-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </span>
             Activity
           </button>
         </nav>
