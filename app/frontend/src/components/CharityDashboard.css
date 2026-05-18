@@ -25,13 +25,61 @@
   flex-shrink: 0;
   background: white;
   border-right: 1px solid #F3F4F6;
-  border-radius: 0 24px 24px 0;
+  border-radius: 0;
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
   gap: 24px;
   height: 100vh;
   z-index: 50;
+}
+
+.sidebar-footer-actions {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px 0;
+  border-top: 1px solid #F3F4F6;
+}
+
+.sidebar-footer-icon-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6B7280;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.sidebar-footer-icon-btn:hover {
+  background: #F3F4F6;
+  color: #111827;
+}
+
+.sidebar-edit-org-btn {
+  flex: 1;
+  background: transparent;
+  border: 1.5px solid #D1D5DB;
+  color: #374151;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.sidebar-edit-org-btn:hover {
+  border-color: #065F46;
+  color: #065F46;
+  background: #F0FDF4;
 }
 
 /* ----------------------------------------------------------------
@@ -46,40 +94,6 @@
   gap: 28px;
   min-width: 0;
   overflow-y: auto;
-}
-
-/* ----------------------------------------------------------------
-   CONTENT HEADER BAR (sticky white pill at top of main area)
-   ---------------------------------------------------------------- */
-
-.charity-content-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 28px;
-  height: 65px;
-  background: #FFFDFD;
-  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.15);
-  border-radius: 24px;
-  position: sticky;
-  top: 16px;
-  z-index: 40;
-  flex-shrink: 0;
-}
-
-.charity-content-header-brand {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 32px;
-  letter-spacing: -0.6px;
-  color: #2D6A4F;
-}
-
-.charity-content-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
 /* ----------------------------------------------------------------
@@ -105,48 +119,6 @@
   margin: 4px 0 0;
   font-size: 14px;
   color: #707973;
-}
-
-.overview-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.overview-edit-org-btn {
-  background: transparent;
-  border: 1.5px solid #1A3C2E;
-  color: #1A3C2E;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.overview-edit-org-btn:hover {
-  background: #1A3C2E;
-  color: #FFFFFF;
-}
-
-.icon-btn {
-  background: none;
-  border: none;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #707973;
-  position: relative;
-  transition: background 0.2s;
-}
-
-.icon-btn:hover {
-  background: #E8EAE5;
-  color: #1A3C2E;
 }
 
 /* ----------------------------------------------------------------
