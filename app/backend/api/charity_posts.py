@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 from database import supabase_admin
-from models.charity_post import CharityPostCreate, CharityPostUpdate, CharityPostResponse, CharityPostDonateRequest, DirectFoodDonationCreate
+from models.charity_post import CharityPostCreate, CharityPostUpdate, CharityPostResponse, CharityPostDonateRequest
 from models.donation import DonationResponse
 from services import charity_post_service, social_impact_service, notification_service, rating_service
 from api.dependency import get_current_user, require_role
@@ -183,53 +183,6 @@ async def donate_to_post(
         "post": response.data[0],
         "donationID": donation_id
     }
-
-@router.post("/{charity_id}/donate-direct", response_model=CharityDonationResult)
-async def donate_direct_to_post(
-    charity_id: UUID,
-    donation: DirectFoodDonationCreate,
-    current_user: dict = Depends(get_current_user),  # any logged-in user, no buyer role needed
-):
-    """Direct food donation — donor describes food without needing a prior purchase."""
-    post_id = str(charity_id)
-    user_id = current_user["userID"]
-
-    response = charity_post_service.donate_direct_food(
-        post_id, donation.foodName, donation.foodPicture, donation.expiryDate.isoformat(),
-        donation.weightKg, donation.quantity
-    )
-
-    if not response.data:
-        raise HTTPException(status_code=400, detail="Failed to process donation")
-
-    post_data = response.data[0]["post"]
-    kg_added = response.data[0]["kg_added"]
-
-    # Record in Donation table
-    record_res = charity_post_service.record_donation(
-        post_id, user_id, "food_direct",
-        food_kg=float(kg_added)
-    )
-    donation_id = record_res.data[0]["donationID"] if record_res.data else None
-
-    if donation_id:
-        social_impact_service.create_food_donation_impact(
-            donation_id=donation_id,
-            rescued_kg=float(kg_added)
-        )
-
-    try:
-        notification_service.send_notification(
-            user_id=post_data["userID"],
-            title="New Food Donation Received 🎉",
-            message=f"Someone donated food to your post \"{post_data['title']}\".",
-            type="donation",
-            link="/charity/dashboard"
-        )
-    except Exception:
-        logger.warning("Donation notification failed", exc_info=True)
-
-    return {"post": post_data, "donationID": donation_id}
 
 @router.get("/donations/my-donations", response_model=List[DonationResponse])
 async def get_my_donations(

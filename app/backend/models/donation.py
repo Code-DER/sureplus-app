@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
 
-DonationType = Literal['money', 'food', 'food_direct']
+DonationType = Literal['money', 'food']
 
 class DonationResponse(BaseModel):
     donationID: UUID
