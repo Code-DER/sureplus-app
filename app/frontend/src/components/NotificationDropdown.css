@@ -6,11 +6,11 @@
 }
 
 .notif-dropdown {
-  position: absolute;
-  top: calc(100% + 14px);
-  right: 0;
+  position: fixed;
+  top: 70px;
+  right: 20px;
   width: 350px;
-  max-width: 92vw;
+  max-width: calc(100vw - 40px);
   background: #FFFFFF;
   border: 1px solid #F4F4F5;
   border-radius: 16px;
@@ -27,18 +27,9 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Arrow */
+/* Arrow hidden — dropdown is now fixed to viewport, not anchored to the bell */
 .notif-arrow {
-  position: absolute;
-  top: -9px;
-  right: 22px;
-  width: 18px;
-  height: 18px;
-  background: #FFFFFF;
-  border-left: 1px solid #F4F4F5;
-  border-top: 1px solid #F4F4F5;
-  transform: rotate(45deg);
-  z-index: 951;
+  display: none;
 }
 
 /* Header */
@@ -230,7 +221,9 @@
 /* ====== Responsive ====== */
 @media (max-width: 480px) {
   .notif-dropdown {
-    width: calc(100vw - 20px);
-    right: -10px;
+    width: calc(100vw - 24px);
+    right: 12px;
+    left: 12px;
+    top: 60px;
   }
 }
