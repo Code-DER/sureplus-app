@@ -2,19 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import type { CharityProfile, CharityPost } from '../api/types';
 import { charityAPI, charityPostAPI, uploadsAPI } from '../api/apis';
 import CharityPostCard from './CharityPostCard';
-import UserAvatar from './UserAvatar';
 import ProfileView from './ProfileView';
 import NotificationBell from './NotificationBell';
 import Toast, { type ToastItem } from './Toast';
 import './CharityDashboard.css';
 
-interface CharityDashboardProps {
-  onSwitchRole: () => void;
-}
-
 type CharityTab = 'dashboard' | 'profile';
 
-const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => {
+const CharityDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<CharityTab>('dashboard');
   const [profile, setProfile] = useState<CharityProfile | null>(null);
   const [posts, setPosts] = useState<CharityPost[]>([]);
