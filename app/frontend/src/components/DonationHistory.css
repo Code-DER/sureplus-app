@@ -43,36 +43,38 @@
 }
 
 .rate-btn {
-  padding: 6px 12px;
-  background: #edf2f7;
-  color: #4a5568;
-  border: none;
-  border-radius: 4px;
+  padding: 7px 14px;
+  background: #F0FDF4;
+  color: #2D6A4F;
+  border: 1.5px solid #DCFCE7;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  font-family: inherit;
 }
 
 .rate-btn:hover {
-  background: #e2e8f0;
-  color: #2d3748;
+  background: #2D6A4F;
+  color: white;
+  border-color: #2D6A4F;
 }
 
 .rated-badge {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
-  background: #f0fff4;
-  color: #2f855a;
-  border-radius: 4px;
+  padding: 5px 10px;
+  background: #FEF9C3;
+  color: #92400E;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
 }
 
 .rated-badge svg {
-  color: #48bb78;
+  color: #F59E0B;
 }
 
 .no-donations {
