@@ -354,27 +354,29 @@ export default function ProfileView() {
           </div>
         </div>
 
-        {/* Stats Row */}
-        <div className="profile-stats-row">
-          <div className="stat-box">
-            <span className="stat-label">Carbon Offset</span>
-            <span className="stat-value orange">
-              {impactSummary ? `${impactSummary.totalCarbonOffset} ` : '0'}
-            </span>
+        {/* Stats Row — buyers and sellers only */}
+        {profile.role !== 'charity' && (
+          <div className="profile-stats-row">
+            <div className="stat-box">
+              <span className="stat-label">Carbon Offset</span>
+              <span className="stat-value orange">
+                {impactSummary ? `${impactSummary.totalCarbonOffset} ` : '0'}
+              </span>
+            </div>
+            <div className="stat-box">
+              <span className="stat-label">People Fed</span>
+              <span className="stat-value green">
+                {impactSummary ? `${impactSummary.totalPeopleFed} kg` : '0'}
+              </span>
+            </div>
+            <div className="stat-box">
+              <span className="stat-label">Purchase Count</span>
+              <span className="stat-value teal">
+                {impactSummary ? `${impactSummary.purchaseCount} purchases` : '0 purchases'}
+              </span>
+            </div>
           </div>
-          <div className="stat-box">
-            <span className="stat-label">People Fed</span>
-            <span className="stat-value green">
-              {impactSummary ? `${impactSummary.totalPeopleFed} kg` : '0'}
-            </span>
-          </div>
-          <div className="stat-box">
-            <span className="stat-label">Purchase Count</span>
-            <span className="stat-value teal">
-              {impactSummary ? `${impactSummary.purchaseCount} purchases` : '0 purchases'}
-            </span>
-          </div>
-        </div>
+        )}
 
         {/* Become a Seller Row */}
         {/* B-9: Frontend gates on 'buyer' role. Backend is the authoritative guard. */}
