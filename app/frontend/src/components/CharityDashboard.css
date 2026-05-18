@@ -34,6 +34,15 @@
   z-index: 50;
 }
 
+.charity-sidebar .sidebar-brand {
+  position: relative;
+}
+
+.charity-sidebar .sidebar-brand .sidebar-footer-icon-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .sidebar-footer-actions {
   margin-top: auto;
   display: flex;
