@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { CharityProfile, CharityPost } from '../api/types';
 import { charityAPI, charityPostAPI, uploadsAPI } from '../api/apis';
 import CharityPostCard from './CharityPostCard';
 import UserAvatar from './UserAvatar';
 import ProfileView from './ProfileView';
 import NotificationBell from './NotificationBell';
+import Toast, { type ToastItem } from './Toast';
 import './CharityDashboard.css';
 
 interface CharityDashboardProps {
@@ -31,6 +32,12 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [editingPost, setEditingPost] = useState<CharityPost | null>(null);
+
+  // Toast
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const addToast = useCallback((message: string, type: ToastItem['type'] = 'success') => {
+    setToasts(prev => [...prev, { id: Date.now(), message, type }]);
+  }, []);
 
   const fetchData = async (isInitial = true) => {
     try {
@@ -280,15 +287,18 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
       )}
 
       {showProfileModal && profile && (
-        <CharityProfileModal 
+        <CharityProfileModal
           profile={profile}
-          onClose={() => setShowProfileModal(false)} 
+          onClose={() => setShowProfileModal(false)}
           onSuccess={() => {
             setShowProfileModal(false);
             fetchData();
-          }} 
+            addToast('Organization profile updated successfully!');
+          }}
         />
       )}
+
+      <Toast toasts={toasts} onRemove={(id) => setToasts(prev => prev.filter(t => t.id !== id))} />
 
       {editingPost && (
         <EditCharityPostModal 
@@ -337,88 +347,78 @@ const CharityProfileModal: React.FC<CharityProfileModalProps> = ({ profile, onCl
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="charity-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
-        <div className="modal-header">
-          <h2>Edit Charity Profile</h2>
-          <button className="close-btn" onClick={onClose}>&times;</button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            <div className="form-group">
-              <label>Organization Name</label>
-              <input 
-                type="text" 
-                value={formData.organizationName} 
-                onChange={e => setFormData({...formData, organizationName: e.target.value})} 
-                required 
-              />
-            </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div className="form-group">
-                <label>First Name</label>
-                <input 
-                  type="text" 
-                  value={formData.firstName} 
-                  onChange={e => setFormData({...formData, firstName: e.target.value})} 
-                  required 
-                />
-              </div>
-              <div className="form-group">
-                <label>Last Name</label>
-                <input 
-                  type="text" 
-                  value={formData.lastName} 
-                  onChange={e => setFormData({...formData, lastName: e.target.value})} 
-                  required 
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Phone Number</label>
-              <input 
-                type="text" 
-                value={formData.phoneNumber} 
-                onChange={e => setFormData({...formData, phoneNumber: e.target.value})} 
-                placeholder="e.g., 09123456789"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Street / Address</label>
-              <input 
-                type="text" 
-                value={formData.street} 
-                onChange={e => setFormData({...formData, street: e.target.value})} 
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div className="form-group">
-                <label>Barangay</label>
-                <input 
-                  type="text" 
-                  value={formData.barangay} 
-                  onChange={e => setFormData({...formData, barangay: e.target.value})} 
-                />
-              </div>
-              <div className="form-group">
-                <label>City</label>
-                <input 
-                  type="text" 
-                  value={formData.city} 
-                  onChange={e => setFormData({...formData, city: e.target.value})} 
-                />
-              </div>
-            </div>
-
-            {error && <p className="modal-error">{error}</p>}
+      <div className="cfm" onClick={e => e.stopPropagation()}>
+        <div className="cfm-header">
+          <div>
+            <h2 className="cfm-title">Edit Organization</h2>
+            <p className="cfm-subtitle">Update your charity's profile information</p>
           </div>
-          <div className="modal-footer">
-            <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="confirm-btn" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes'}
+          <button className="cfm-close" onClick={onClose} aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="1" y1="1" x2="17" y2="17"/><line x1="17" y1="1" x2="1" y2="17"/>
+            </svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="cfm-body">
+
+            <div className="cfm-section">
+              <span className="cfm-section-label">Organization Info</span>
+              <div className="cfm-field">
+                <label className="cfm-label">Organization Name</label>
+                <input className="cfm-input" type="text" value={formData.organizationName}
+                  onChange={e => setFormData({...formData, organizationName: e.target.value})}
+                  placeholder="e.g., Gojo Community Center" required />
+              </div>
+              <div className="cfm-grid-2">
+                <div className="cfm-field">
+                  <label className="cfm-label">First Name</label>
+                  <input className="cfm-input" type="text" value={formData.firstName}
+                    onChange={e => setFormData({...formData, firstName: e.target.value})} required />
+                </div>
+                <div className="cfm-field">
+                  <label className="cfm-label">Last Name</label>
+                  <input className="cfm-input" type="text" value={formData.lastName}
+                    onChange={e => setFormData({...formData, lastName: e.target.value})} required />
+                </div>
+              </div>
+            </div>
+
+            <div className="cfm-section">
+              <span className="cfm-section-label">Contact & Address</span>
+              <div className="cfm-field">
+                <label className="cfm-label">Phone Number</label>
+                <input className="cfm-input" type="text" value={formData.phoneNumber}
+                  onChange={e => setFormData({...formData, phoneNumber: e.target.value})}
+                  placeholder="e.g., 09123456789" />
+              </div>
+              <div className="cfm-field">
+                <label className="cfm-label">Street / Address</label>
+                <input className="cfm-input" type="text" value={formData.street}
+                  onChange={e => setFormData({...formData, street: e.target.value})} />
+              </div>
+              <div className="cfm-grid-2">
+                <div className="cfm-field">
+                  <label className="cfm-label">Barangay</label>
+                  <input className="cfm-input" type="text" value={formData.barangay}
+                    onChange={e => setFormData({...formData, barangay: e.target.value})} />
+                </div>
+                <div className="cfm-field">
+                  <label className="cfm-label">City</label>
+                  <input className="cfm-input" type="text" value={formData.city}
+                    onChange={e => setFormData({...formData, city: e.target.value})} />
+                </div>
+              </div>
+            </div>
+
+            {error && <div className="cfm-error">{error}</div>}
+          </div>
+
+          <div className="cfm-footer">
+            <button type="button" className="cfm-btn-cancel" onClick={onClose}>Cancel</button>
+            <button type="submit" className="cfm-btn-submit green" disabled={loading}>
+              {loading ? 'Saving…' : 'Save Changes'}
             </button>
           </div>
         </form>
@@ -510,92 +510,83 @@ const CreateCharityPostModal: React.FC<ModalProps> = ({ onClose, onSuccess }) =>
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="charity-modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Create Donation Post</h2>
-          <button className="close-btn" onClick={onClose}>&times;</button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            <div className="form-group">
-              <label>Title</label>
-              <input 
-                type="text" 
-                value={formData.title} 
-                onChange={e => setFormData({...formData, title: e.target.value})} 
-                placeholder="e.g., Community Soup Kitchen Fund"
-                required 
-              />
-            </div>
-            <div className="form-group">
-              <div className="label-with-counter">
-                <label>Description (Optional)</label>
-                <span className={`char-counter ${formData.description.length > 1000 ? 'error' : ''}`}>
-                  {formData.description.length}/1000
-                </span>
-              </div>
-              <textarea 
-                value={formData.description} 
-                onChange={e => setFormData({...formData, description: e.target.value})} 
-                placeholder="Describe what this donation will be used for..."
-                maxLength={1000}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Post Image</label>
-              <div className="file-upload-container">
-                {formData.imageUrl && (
-                  <div className="image-preview">
-                    <img src={formData.imageUrl} alt="Preview" />
-                    <button type="button" className="remove-img-btn" onClick={() => setFormData(prev => ({...prev, imageUrl: ''}))}>&times;</button>
-                  </div>
-                )}
-                <input 
-                  type="file" 
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                />
-                {!formData.imageUrl && (
-                  <button type="button" className="upload-btn" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                    {uploading ? 'Uploading...' : 'Upload Image'}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="form-group" style={{ display: 'none' }}>
-              <label>Donation Mode</label>
-              <select 
-                value={formData.donationMode} 
-                onChange={e => setFormData({...formData, donationMode: e.target.value as 'money' | 'food' | 'both'})}
-                disabled={true}
-              >
-                <option value="food">Food only</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Food Goal (kg)</label>
-              <input 
-                type="number" 
-                value={formData.foodGoalKg} 
-                onChange={e => setFormData({...formData, foodGoalKg: e.target.value})} 
-                placeholder="0.00"
-                min="0.1"
-                step="0.1"
-                required 
-              />
-            </div>
-
-            {error && <p className="modal-error">{error}</p>}
+      <div className="cfm" onClick={e => e.stopPropagation()}>
+        <div className="cfm-header">
+          <div>
+            <h2 className="cfm-title">Create Donation Post</h2>
+            <p className="cfm-subtitle">Share your community request with donors</p>
           </div>
-          <div className="modal-footer">
-            <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="confirm-btn" disabled={loading || uploading || formData.description.length > 1000}>
-              {loading ? 'Creating...' : 'Create Post'}
+          <button className="cfm-close" onClick={onClose} aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="1" y1="1" x2="17" y2="17"/><line x1="17" y1="1" x2="1" y2="17"/>
+            </svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="cfm-body">
+
+            <div className="cfm-section">
+              <span className="cfm-section-label">Post Details</span>
+              <div className="cfm-field">
+                <label className="cfm-label">Title <span className="cfm-required">*</span></label>
+                <input className="cfm-input" type="text" value={formData.title}
+                  onChange={e => setFormData({...formData, title: e.target.value})}
+                  placeholder="e.g., Community Soup Kitchen Fund" required />
+              </div>
+              <div className="cfm-field">
+                <div className="cfm-label-row">
+                  <label className="cfm-label">Description</label>
+                  <span className={`cfm-counter ${formData.description.length > 1000 ? 'over' : ''}`}>
+                    {formData.description.length}/1000
+                  </span>
+                </div>
+                <textarea className="cfm-textarea" value={formData.description}
+                  onChange={e => setFormData({...formData, description: e.target.value})}
+                  placeholder="Describe what this donation will be used for…"
+                  maxLength={1000} rows={4} />
+              </div>
+              <div className="cfm-field">
+                <label className="cfm-label">Food Goal (kg) <span className="cfm-required">*</span></label>
+                <input className="cfm-input" type="number" value={formData.foodGoalKg}
+                  onChange={e => setFormData({...formData, foodGoalKg: e.target.value})}
+                  placeholder="e.g., 50" min="0.1" step="0.1" required />
+              </div>
+            </div>
+
+            <div className="cfm-section">
+              <span className="cfm-section-label">Post Image</span>
+              <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" style={{ display: 'none' }} />
+              {formData.imageUrl ? (
+                <div className="cfm-image-preview">
+                  <img src={formData.imageUrl} alt="Preview" />
+                  <button type="button" className="cfm-remove-img" onClick={() => setFormData(prev => ({...prev, imageUrl: ''}))}>
+                    <svg width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <line x1="1" y1="1" x2="17" y2="17"/><line x1="17" y1="1" x2="1" y2="17"/>
+                    </svg>
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <button type="button" className="cfm-upload-area" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="3"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  <span>{uploading ? 'Uploading…' : 'Click to upload image'}</span>
+                  <span className="cfm-upload-hint">PNG, JPG up to 10MB</span>
+                </button>
+              )}
+            </div>
+
+            {error && <div className="cfm-error">{error}</div>}
+          </div>
+
+          <div className="cfm-footer">
+            <button type="button" className="cfm-btn-cancel" onClick={onClose}>Cancel</button>
+            <button type="submit" className="cfm-btn-submit orange" disabled={loading || uploading || formData.description.length > 1000}>
+              {loading ? 'Creating…' : '+ Create Post'}
             </button>
           </div>
         </form>
@@ -661,92 +652,92 @@ const EditCharityPostModal: React.FC<EditModalProps> = ({ post, onClose, onSucce
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="charity-modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Edit Donation Post</h2>
-          <button className="close-btn" onClick={onClose}>&times;</button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            <div className="form-group">
-              <label>Title</label>
-              <input 
-                type="text" 
-                value={formData.title} 
-                onChange={e => setFormData({...formData, title: e.target.value})} 
-                required 
-              />
-            </div>
-            <div className="form-group">
-              <div className="label-with-counter">
-                <label>Description (Optional)</label>
-                <span className={`char-counter ${formData.description.length > 1000 ? 'error' : ''}`}>
-                  {formData.description.length}/1000
-                </span>
-              </div>
-              <textarea 
-                value={formData.description} 
-                onChange={e => setFormData({...formData, description: e.target.value})} 
-                maxLength={1000}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Post Image</label>
-              <div className="file-upload-container">
-                {formData.imageUrl && (
-                  <div className="image-preview">
-                    <img src={formData.imageUrl} alt="Preview" />
-                    <button type="button" className="remove-img-btn" onClick={() => setFormData(prev => ({...prev, imageUrl: ''}))}>&times;</button>
-                  </div>
-                )}
-                <input 
-                  type="file" 
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                />
-                {!formData.imageUrl && (
-                  <button type="button" className="upload-btn" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                    {uploading ? 'Uploading...' : 'Upload Image'}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Status</label>
-              <select 
-                value={formData.status} 
-                onChange={e => setFormData({...formData, status: e.target.value as 'active' | 'funded' | 'closed'})}
-              >
-                <option value="active">Active</option>
-                <option value="funded">Funded</option>
-                <option value="closed">Closed</option>
-              </select>
-            </div>
-
-            {(post.donationMode === 'food' || post.donationMode === 'both') && (
-              <div className="form-group">
-                <label>Food Goal (kg)</label>
-                <input 
-                  type="number" 
-                  value={formData.foodGoalKg} 
-                  onChange={e => setFormData({...formData, foodGoalKg: e.target.value})} 
-                  min="0.1"
-                  step="0.1"
-                  required 
-                />
-              </div>
-            )}
-
-            {error && <p className="modal-error">{error}</p>}
+      <div className="cfm" onClick={e => e.stopPropagation()}>
+        <div className="cfm-header">
+          <div>
+            <h2 className="cfm-title">Edit Donation Post</h2>
+            <p className="cfm-subtitle">Update your post details</p>
           </div>
-          <div className="modal-footer">
-            <button type="button" className="cancel-btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="confirm-btn" disabled={loading || uploading || formData.description.length > 1000}>
-              {loading ? 'Saving Changes...' : 'Save Changes'}
+          <button className="cfm-close" onClick={onClose} aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="1" y1="1" x2="17" y2="17"/><line x1="17" y1="1" x2="1" y2="17"/>
+            </svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="cfm-body">
+
+            <div className="cfm-section">
+              <span className="cfm-section-label">Post Details</span>
+              <div className="cfm-field">
+                <label className="cfm-label">Title <span className="cfm-required">*</span></label>
+                <input className="cfm-input" type="text" value={formData.title}
+                  onChange={e => setFormData({...formData, title: e.target.value})} required />
+              </div>
+              <div className="cfm-field">
+                <div className="cfm-label-row">
+                  <label className="cfm-label">Description</label>
+                  <span className={`cfm-counter ${formData.description.length > 1000 ? 'over' : ''}`}>
+                    {formData.description.length}/1000
+                  </span>
+                </div>
+                <textarea className="cfm-textarea" value={formData.description}
+                  onChange={e => setFormData({...formData, description: e.target.value})}
+                  maxLength={1000} rows={4} />
+              </div>
+              {(post.donationMode === 'food' || post.donationMode === 'both') && (
+                <div className="cfm-field">
+                  <label className="cfm-label">Food Goal (kg)</label>
+                  <input className="cfm-input" type="number" value={formData.foodGoalKg}
+                    onChange={e => setFormData({...formData, foodGoalKg: e.target.value})}
+                    min="0.1" step="0.1" required />
+                </div>
+              )}
+              <div className="cfm-field">
+                <label className="cfm-label">Status</label>
+                <select className="cfm-input" value={formData.status}
+                  onChange={e => setFormData({...formData, status: e.target.value as 'active' | 'funded' | 'closed'})}>
+                  <option value="active">Active</option>
+                  <option value="funded">Funded</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="cfm-section">
+              <span className="cfm-section-label">Post Image</span>
+              <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" style={{ display: 'none' }} />
+              {formData.imageUrl ? (
+                <div className="cfm-image-preview">
+                  <img src={formData.imageUrl} alt="Preview" />
+                  <button type="button" className="cfm-remove-img" onClick={() => setFormData(prev => ({...prev, imageUrl: ''}))}>
+                    <svg width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <line x1="1" y1="1" x2="17" y2="17"/><line x1="17" y1="1" x2="1" y2="17"/>
+                    </svg>
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <button type="button" className="cfm-upload-area" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="3"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  <span>{uploading ? 'Uploading…' : 'Click to upload image'}</span>
+                  <span className="cfm-upload-hint">PNG, JPG up to 10MB</span>
+                </button>
+              )}
+            </div>
+
+            {error && <div className="cfm-error">{error}</div>}
+          </div>
+
+          <div className="cfm-footer">
+            <button type="button" className="cfm-btn-cancel" onClick={onClose}>Cancel</button>
+            <button type="submit" className="cfm-btn-submit green" disabled={loading || uploading || formData.description.length > 1000}>
+              {loading ? 'Saving…' : 'Save Changes'}
             </button>
           </div>
         </form>
