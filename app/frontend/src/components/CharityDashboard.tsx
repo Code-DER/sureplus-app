@@ -103,10 +103,8 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
   if (loading) return <div className="charity-dashboard-loading"><div className="spinner"></div></div>;
   if (error) return <div className="charity-dashboard-error"><p>{error}</p><button onClick={() => { setLoading(true); fetchData(); }}>Retry</button></div>;
 
-  const totalRaised = stats?.totalRaised || 0;
   const totalFoodDonated = stats?.totalFoodKg || 0;
   const activePostsCount = stats?.activeCount || 0;
-  const fundedPostsCount = stats?.fundedCount || 0;
 
   return (
     <div className="charity-dashboard-page">
@@ -156,13 +154,6 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
           <>
             <section className="stats-bar">
               <div className="stat-card">
-                <div className="stat-icon raised">₱</div>
-                <div className="stat-info">
-                  <span className="stat-label">Total Raised</span>
-                  <span className="stat-value">₱{totalRaised.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                </div>
-              </div>
-              <div className="stat-card">
                 <div className="stat-icon donated">🥗</div>
                 <div className="stat-info">
                   <span className="stat-label">Food Donated</span>
@@ -174,13 +165,6 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
                 <div className="stat-info">
                   <span className="stat-label">Active Posts</span>
                   <span className="stat-value">{activePostsCount}</span>
-                </div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-icon funded">🎉</div>
-                <div className="stat-info">
-                  <span className="stat-label">Funded Posts</span>
-                  <span className="stat-value">{fundedPostsCount}</span>
                 </div>
               </div>
             </section>
