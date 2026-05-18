@@ -4,7 +4,6 @@ import { charityAPI, charityPostAPI, uploadsAPI } from '../api/apis';
 import CharityPostCard from './CharityPostCard';
 import UserAvatar from './UserAvatar';
 import ProfileView from './ProfileView';
-import SocialImpactView from './SocialImpactView';
 import NotificationBell from './NotificationBell';
 import './CharityDashboard.css';
 
@@ -12,7 +11,7 @@ interface CharityDashboardProps {
   onSwitchRole: () => void;
 }
 
-type CharityTab = 'dashboard' | 'impact' | 'profile';
+type CharityTab = 'dashboard' | 'profile';
 
 const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => {
   const [activeTab, setActiveTab] = useState<CharityTab>('dashboard');
@@ -124,13 +123,7 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
           >
             Dashboard
           </button>
-          <button 
-            className={`charity-nav-btn ${activeTab === 'impact' ? 'active' : ''}`}
-            onClick={() => setActiveTab('impact')}
-          >
-            Impact
-          </button>
-          <button 
+          <button
             className={`charity-nav-btn ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
@@ -239,7 +232,6 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
           </>
         )}
 
-        {activeTab === 'impact' && <SocialImpactView />}
         {activeTab === 'profile' && <ProfileView />}
       </main>
 
