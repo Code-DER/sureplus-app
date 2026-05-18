@@ -73,3 +73,12 @@ class CharityPostDonateRequest(BaseModel):
         if self.donationType == 'food' and (self.foodID is None or self.quantity is None):
             raise ValueError('foodID and quantity are required for food donations')
         return self
+
+from datetime import date
+
+class DirectFoodDonationCreate(BaseModel):
+    foodName: str
+    foodPicture: str = ""
+    expiryDate: date
+    weightKg: float = Field(gt=0)
+    quantity: int = Field(gt=0)
