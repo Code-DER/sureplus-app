@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap');
-
 /* ====== Profile View Container ====== */
 .profile-view {
   display: flex;
@@ -17,15 +15,14 @@
 }
 
 .profile-user-card {
-  background: #FFFFFF;
-  border: 1px solid #E1E3DF;
+  background: white;
+  border: 1px solid #E9ECEF;
   border-radius: 12px;
   padding: 32px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .profile-avatar-wrapper {
@@ -34,6 +31,7 @@
   height: 128px;
   margin-bottom: 8px;
 }
+
 
 .avatar-check-badge {
   position: absolute;
@@ -46,19 +44,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #FFFFFF;
+  border: 2px solid white;
 }
-
 .check-icon {
   width: 12px;
   height: 12px;
-  background: #FFFFFF;
+  background: white;
 }
 
 .user-name-large {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   color: #191C1A;
 }
@@ -67,15 +63,14 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
 .role-pill {
   background: #B1F0CE;
-  color: #0F5238;
+  color: #66B018;
   padding: 4px 12px;
   border-radius: 16px;
-  font-family: 'Work Sans', sans-serif;
   font-size: 12px;
   font-weight: 600;
 }
@@ -85,34 +80,30 @@
   align-items: center;
   gap: 4px;
   color: #A04100;
-  font-family: 'Work Sans', sans-serif;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .star-icon {
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .btn-edit-profile {
   width: 100%;
   background: #FE6B00;
-  color: #FFFFFF;
+  color: white;
   border: none;
   border-radius: 24px;
   padding: 12px 0;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
 }
 
 .btn-edit-profile:hover {
   background: #E05D00;
 }
 
-/* Rescuer Impact Card */
 .rescuer-impact-card {
   background: #66B018;
   border-radius: 50px;
@@ -129,15 +120,13 @@
 }
 
 .impact-label {
-  font-family: 'Work Sans', sans-serif;
   color: rgba(255, 255, 255, 0.9);
   font-size: 11px;
   font-weight: 500;
 }
 
 .impact-value {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  color: #FFFFFF;
+  color: white;
   font-size: 20px;
   font-weight: 700;
 }
@@ -148,148 +137,35 @@
   background: rgba(255, 255, 255, 0.5);
 }
 
-.impact-icon-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Buyer Info Card */
-.buyer-info-card {
-  background: #FE6B00;
-  border-radius: 50px;
-  padding: 16px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.buyer-info-card .impact-label {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.buyer-info-card .impact-value {
-  color: #FFFFFF;
-}
-
-.points-icon {
-  width: 24px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.points-icon-text {
-  font-size: 22px;
-}
-
-/* Seller / Charity Info Cards */
-.seller-info-card,
-.charity-info-card {
-  background: #FFFFFF;
-  border: 1px solid #E1E3DF;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.seller-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
-}
-
-.seller-header h4 {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 17px;
-  font-weight: 700;
-  color: #191C1A;
-}
-
-.seller-badges {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: flex-start;
-}
-
-.seller-type-badge {
-  background: #B1F0CE;
-  color: #0F5238;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.verified-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #E8F5E8;
-  color: #2E7D32;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.verified-badge .check-icon {
-  width: 12px;
-  height: 12px;
-  background: #2E7D32;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #FFFFFF;
-  font-size: 8px;
-  font-weight: bold;
-}
 
 /* ====== RIGHT COLUMN ====== */
 .profile-right-col {
   flex: 1;
-  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* Account Details Card */
 .account-details-card {
-  background: #FFFFFF;
-  border: 1px solid #E1E3DF;
+  background: white;
+  border: 1px solid #E9ECEF;
   border-radius: 12px;
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .account-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 28px;
-  border-bottom: 1px solid #E8EDEB;
+  padding: 24px 32px;
+  border-bottom: 1px solid #E9ECEF;
 }
 
 .account-header h3 {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 600;
   color: #191C1A;
 }
 
@@ -302,9 +178,9 @@
 .account-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  row-gap: 28px;
-  column-gap: 28px;
-  padding: 28px;
+  row-gap: 32px;
+  column-gap: 32px;
+  padding: 32px;
 }
 
 .account-field {
@@ -315,24 +191,22 @@
 
 .account-field label,
 .account-full-row label {
-  font-family: 'Work Sans', sans-serif;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: #707973;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
 }
 
 .account-field p {
   margin: 0;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
   color: #191C1A;
 }
 
 .account-full-row {
-  padding: 0 28px 28px;
+  padding: 0 32px 32px 32px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -340,7 +214,7 @@
 
 .address-value {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
 }
 
@@ -352,8 +226,7 @@
 
 .address-value p {
   margin: 0;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
   color: #191C1A;
 }
@@ -361,11 +234,12 @@
 /* Stats Row */
 .profile-stats-row {
   display: flex;
-  gap: 14px;
+  gap: 16px;
 }
 
+/* Uses same stat-box class, but styling is refined */
 .stat-box {
-  background: #F2F4F0;
+  background: #ECEEEA;
   border: 1px solid #BFC9C1;
   border-radius: 8px;
   padding: 16px 20px;
@@ -375,21 +249,18 @@
   flex: 1;
 }
 
-.stat-box .stat-label {
-  font-family: 'Work Sans', sans-serif;
+.stat-label {
   font-size: 11px;
-  font-weight: 600;
-  color: #707973;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
+  font-weight: 500;
+  color: #404943;
 }
 
 .stat-value {
   display: block;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  margin-top: 2px;
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 4px;
+  opacity: 1 !important;
 }
 
 .stat-value.orange {
@@ -412,35 +283,23 @@
 
 .settings-box {
   flex: 1;
-  background: #FFFFFF;
-  border: 1px solid #E1E3DF;
+  background: white;
+  border: 1px solid #E9ECEF;
   border-radius: 12px;
   padding: 16px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.settings-box:not(.disabled):hover {
-  border-color: #BFC9C1;
-  box-shadow: 0px 2px 6px rgba(30, 42, 46, 0.08);
-}
-
-.settings-box.disabled {
-  opacity: 0.7;
 }
 
 .settings-icon-bg {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: #F2F4F0;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #ECEEEA;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .bell-icon-green,
@@ -451,17 +310,15 @@
 }
 
 .settings-info h4 {
-  margin: 0 0 3px 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 15px;
+  margin: 0 0 4px 0;
+  font-size: 16px;
   font-weight: 700;
   color: #191C1A;
 }
 
 .settings-info p {
   margin: 0;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   color: #707973;
 }
 
@@ -469,27 +326,25 @@
 .profile-logout-row {
   display: flex;
   justify-content: flex-end;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .btn-logout {
   background: transparent;
   color: #BA1A1A;
   border: none;
-  padding: 8px 20px;
+  padding: 8px 24px;
   border-radius: 8px;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  transition: background 0.15s;
 }
 
 .btn-logout:hover {
-  background: rgba(186, 26, 26, 0.06);
+  background: rgba(186, 26, 26, 0.05);
 }
 
 .logout-icon {
@@ -498,7 +353,35 @@
   background: #BA1A1A;
 }
 
-/* ── Become a Seller / Charity Modal ────────────────────────────────────── */
+.buyer-info-card {
+  background: #FE6B00;
+  border-radius: 50px;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buyer-info-card .impact-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.buyer-info-card .impact-value {
+  color: white;
+}
+
+.points-icon {
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+/* ── Become a Seller Modal ──────────────────────────────────────────────── */
 .seller-modal-overlay {
   position: fixed;
   inset: 0;
@@ -511,22 +394,15 @@
 }
 
 .seller-modal {
-  background: #FFFFFF;
+  background: white;
   border-radius: 16px;
-  border: 1px solid #BFC9C1;
   padding: 32px;
   width: 100%;
   max-width: 440px;
-  box-shadow: 0px 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   gap: 16px;
-  animation: sellerModalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes sellerModalIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .seller-modal-header {
@@ -537,8 +413,7 @@
 
 .seller-modal-header h3 {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
   color: #191C1A;
 }
@@ -550,45 +425,37 @@
   color: #707973;
   cursor: pointer;
   line-height: 1;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: background 0.15s, color 0.15s;
+  padding: 0 4px;
 }
 
 .seller-modal-close:hover {
-  background: #F0F2EF;
   color: #191C1A;
 }
 
 .seller-modal-desc {
   margin: 0;
-  font-family: 'Work Sans', sans-serif;
   font-size: 14px;
   color: #707973;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 .seller-modal-error {
-  background: #FFF1F0;
-  border: 1px solid #FFCCC7;
-  color: #BA1A1A;
+  background: #FFEBEE;
+  color: #D32F2F;
   padding: 10px 14px;
   border-radius: 8px;
-  font-family: 'Work Sans', sans-serif;
   font-size: 13px;
-  font-weight: 500;
 }
 
 .seller-modal-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .seller-modal-field label {
-  font-family: 'Work Sans', sans-serif;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   color: #404943;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -600,17 +467,10 @@
   display: flex;
   align-items: center;
   padding: 0 16px;
-  height: 50px;
-  background: #F2F4F0;
-  border: 1px solid #BFC9C1;
+  height: 48px;
+  background: #FFFFFF;
+  border: 1px solid #E9ECEF;
   border-radius: 8px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.seller-select-wrapper:focus-within,
-.seller-input-wrapper:focus-within {
-  border-color: #66B018;
-  box-shadow: 0 0 0 3px rgba(102, 176, 24, 0.12);
 }
 
 .seller-select-wrapper select,
@@ -619,15 +479,10 @@
   border: none;
   outline: none;
   background: transparent;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
   color: #191C1A;
   height: 100%;
-}
-
-.seller-select-wrapper select::placeholder,
-.seller-input-wrapper input::placeholder {
-  color: #9EA8A1;
 }
 
 .seller-select-wrapper select {
@@ -642,7 +497,7 @@
 
 .seller-select-wrapper::after {
   content: '▾';
-  font-size: 13px;
+  font-size: 14px;
   color: #707973;
   pointer-events: none;
   position: absolute;
@@ -651,48 +506,44 @@
 
 .seller-modal-footer {
   display: flex;
-  gap: 10px;
-  margin-top: 4px;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 .btn-seller-cancel {
   flex: 1;
-  background: #F2F4F0;
+  background: #F0F2F5;
   color: #404943;
-  border: 1px solid #BFC9C1;
-  border-radius: 8px;
+  border: none;
+  border-radius: 24px;
   padding: 12px;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
 }
 
 .btn-seller-cancel:hover {
-  background: #E8EDEB;
+  background: #E2E6EA;
 }
 
 .btn-seller-submit {
   flex: 2;
   background: #66B018;
-  color: #FFFFFF;
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 24px;
   padding: 12px;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
 }
 
 .btn-seller-submit:hover:not(:disabled) {
-  background: #4E8912;
+  background: #0A3D29;
 }
 
 .btn-seller-submit:disabled {
-  opacity: 0.55;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -712,7 +563,6 @@
   border-radius: 50%;
   background: #B1F0CE;
   color: #66B018;
-  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 28px;
   font-weight: 700;
   display: flex;
@@ -722,7 +572,6 @@
 
 .seller-modal-success h3 {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #191C1A;
@@ -730,23 +579,74 @@
 
 .seller-modal-success p {
   margin: 0;
-  font-family: 'Work Sans', sans-serif;
   font-size: 14px;
   color: #707973;
-  line-height: 1.5;
 }
 
-/* Modal textarea (charity application) */
-.seller-input-wrapper textarea {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 15px;
+.seller-info-card {
+  background: white;
+  border: 1px solid #F1F3F5;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.seller-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.seller-header h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
   color: #191C1A;
-  resize: vertical;
-  padding: 0;
+}
+
+.seller-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.seller-type-badge {
+  background: #B1F0CE;
+  color: #66B018;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #E8F5E8;
+  color: #2E7D32;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.verified-badge .check-icon {
+  width: 12px;
+  height: 12px;
+  background: #2E7D32;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
 }
 
 /* ============================================================
@@ -781,24 +681,6 @@
   .user-name-large {
     font-size: 22px;
   }
-
-  .account-grid {
-    grid-template-columns: 1fr;
-    row-gap: 20px;
-    padding: 20px;
-  }
-
-  .account-full-row {
-    padding: 0 20px 20px;
-  }
-
-  .profile-stats-row {
-    flex-wrap: wrap;
-  }
-
-  .stat-box {
-    min-width: calc(50% - 7px);
-  }
 }
 
 @media (max-width: 480px) {
@@ -809,17 +691,5 @@
   .btn-edit-profile {
     padding: 10px 0;
     font-size: 14px;
-  }
-
-  .profile-stats-row {
-    flex-direction: column;
-  }
-
-  .stat-box {
-    min-width: unset;
-  }
-
-  .seller-modal {
-    padding: 24px 20px;
   }
 }
