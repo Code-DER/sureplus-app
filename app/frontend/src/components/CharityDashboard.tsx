@@ -157,7 +157,7 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </span>
-            Activity
+            Profile
           </button>
         </nav>
 
@@ -178,7 +178,7 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
       <main className="charity-dashboard-main">
 
         {activeTab === 'dashboard' && (
-          <>
+          <div className="charity-content-card">
             {/* Page header */}
             <div className="dashboard-overview-header">
               <div>
@@ -259,10 +259,14 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
                 </div>
               )}
             </section>
-          </>
+          </div>
         )}
 
-        {activeTab === 'profile' && <ProfileView />}
+        {activeTab === 'profile' && (
+          <div className="charity-content-card">
+            <ProfileView />
+          </div>
+        )}
       </main>
 
       {showCreateModal && (
