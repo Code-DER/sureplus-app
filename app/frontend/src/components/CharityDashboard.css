@@ -149,6 +149,40 @@
 }
 
 /* ----------------------------------------------------------------
+   CONTENT HEADER BAR (sticky white pill at top of main area)
+   ---------------------------------------------------------------- */
+
+.charity-content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 65px;
+  background: #FFFDFD;
+  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.15);
+  border-radius: 24px;
+  position: sticky;
+  top: 16px;
+  z-index: 40;
+  flex-shrink: 0;
+}
+
+.charity-content-header-brand {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 32px;
+  letter-spacing: -0.6px;
+  color: #2D6A4F;
+}
+
+.charity-content-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ----------------------------------------------------------------
    OVERVIEW HEADER
    ---------------------------------------------------------------- */
 
