@@ -245,9 +245,6 @@ export default function ProfileView() {
               size={128}
               style={{ border: '4px solid #FFD4AE' }}
             />
-            <div className="avatar-check-badge">
-              <img src={CheckmarkIcon} alt="Verified" width="16" height="16" />
-            </div>
           </div>
           
           <h2 className="user-name-large">{profile.firstName}</h2>
