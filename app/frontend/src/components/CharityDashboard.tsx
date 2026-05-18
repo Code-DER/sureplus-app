@@ -120,7 +120,7 @@ const CharityDashboard: React.FC = () => {
             <span className="sidebar-logo-letter">S</span>
           </div>
           <div className="sidebar-brand-text">
-            <h2>{profile?.organizationName || 'Sureplus'}</h2>
+            <h2>{profile?.organizationName || profile?.firstName || 'Sureplus'}</h2>
             <span>Charity Portal</span>
           </div>
         </div>
@@ -185,7 +185,7 @@ const CharityDashboard: React.FC = () => {
             <div className="dashboard-overview-header">
               <div>
                 <h1 className="overview-title">Overview</h1>
-                <p className="overview-subtitle">Welcome back, {profile?.organizationName}!</p>
+                <p className="overview-subtitle">Welcome back, {profile?.organizationName || profile?.firstName}!</p>
               </div>
             </div>
 
