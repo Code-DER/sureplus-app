@@ -1,97 +1,199 @@
-.charity-dashboard-page {
-  width: 100%;
+/* ================================================================
+   CHARITY DASHBOARD — SIDEBAR LAYOUT
+   ================================================================ */
+
+.charity-dashboard-layout {
+  display: flex;
   min-height: 100vh;
   background: #F2F4F0;
+  font-family: 'Work Sans', sans-serif;
+}
+
+/* ----------------------------------------------------------------
+   SIDEBAR
+   ---------------------------------------------------------------- */
+
+.charity-sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #FFFFFF;
+  border-radius: 0 24px 24px 0;
+  padding: 28px 16px;
   display: flex;
   flex-direction: column;
-}
-
-.charity-dashboard-header {
+  gap: 20px;
   position: sticky;
   top: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 48px;
-  margin: 16px 48px 0;
-  background: #FFFDFD;
-  box-shadow: 0px 20px 32px rgba(30, 42, 46, 0.08);
-  border-radius: 24px;
+  height: 100vh;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.04);
+  z-index: 50;
 }
 
-.header-left h1 {
-  margin: 0;
+.sidebar-brand {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 24px;
+  font-size: 15px;
   font-weight: 800;
-  color: #66B018;
-  letter-spacing: -0.6px;
+  color: #1A3C2E;
+  padding: 4px 8px;
+  letter-spacing: -0.3px;
 }
 
-.header-left p {
-  margin: 4px 0 0;
-  font-family: 'Work Sans', sans-serif;
-  font-size: 14px;
-  color: #71717A;
-}
-
-.header-right {
+.sidebar-user-section {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  background: #F7F8F6;
 }
 
-.switch-role-btn {
-  background: transparent;
-  border: 1px solid #66B018;
-  color: #66B018;
-  padding: 8px 16px;
-  border-radius: 12px;
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1A3C2E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+  font-size: 11px;
+  color: #707973;
+  font-weight: 500;
+}
+
+.sidebar-post-request-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  background: #1A3C2E;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s;
 }
 
-.switch-role-btn:hover {
-  background: #66B018;
-  color: white;
+.sidebar-post-request-btn:hover {
+  background: #0F2A1E;
 }
 
-.charity-header-avatar {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.charity-nav {
+.sidebar-nav {
   display: flex;
-  gap: 8px;
-  background: #F3F4F6;
-  padding: 4px;
-  border-radius: 14px;
-  margin: 0 16px;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
 }
 
-.charity-nav-btn {
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
   background: transparent;
   border: none;
-  padding: 8px 16px;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
-  color: #6B7280;
+  color: #707973;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.sidebar-nav-item:hover {
+  background: #F2F4F0;
+  color: #1A3C2E;
+}
+
+.sidebar-nav-item.active {
+  background: #F2F4F0;
+  color: #1A3C2E;
+  font-weight: 700;
+}
+
+.sidebar-nav-item svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.sidebar-nav-item.active svg {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------------
+   MAIN CONTENT
+   ---------------------------------------------------------------- */
+
+.charity-dashboard-main {
+  flex: 1;
+  padding: 36px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* ----------------------------------------------------------------
+   OVERVIEW HEADER
+   ---------------------------------------------------------------- */
+
+.dashboard-overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.overview-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: #1A3C2E;
+  letter-spacing: -0.8px;
+}
+
+.overview-subtitle {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #707973;
+}
+
+.overview-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.overview-edit-org-btn {
+  background: transparent;
+  border: 1.5px solid #1A3C2E;
+  color: #1A3C2E;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.charity-nav-btn:hover {
-  color: #111827;
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.charity-nav-btn.active {
-  background: white;
-  color: #66B018;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.overview-edit-org-btn:hover {
+  background: #1A3C2E;
+  color: #FFFFFF;
 }
 
 .icon-btn {
@@ -103,113 +205,153 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s;
-  color: #6B7280;
+  color: #707973;
   position: relative;
+  transition: background 0.2s;
 }
 
 .icon-btn:hover {
-  background-color: #F3F4F6;
-  color: #111827;
+  background: #E8EAE5;
+  color: #1A3C2E;
 }
 
-.charity-dashboard-main {
-  flex: 1;
-  padding: 32px 48px;
+/* ----------------------------------------------------------------
+   STATS ROW
+   ---------------------------------------------------------------- */
+
+.overview-stats-row {
   display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.dashboard-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.stats-bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
-  width: 100%;
 }
 
-.stat-card {
-  background: white;
-  padding: 24px;
-  border-radius: 20px;
+/* Food donated — solid dark card */
+.food-donated-card {
+  flex: 1;
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px 28px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s, box-shadow 0.2s;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+.food-donated-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.stat-icon {
-  width: 48px;
-  height: 48px;
+.food-donated-value {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 36px;
+  font-weight: 800;
+  color: #1A3C2E;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.food-donated-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #707973;
+  font-weight: 500;
+}
+
+.food-donated-icon {
+  width: 56px;
+  height: 56px;
+  background: #F2F4F0;
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  color: #1A3C2E;
+  flex-shrink: 0;
 }
 
-.stat-icon.raised {
-  background: #ECFDF5;
-  color: #059669;
-}
-
-.stat-icon.donated {
-  background: #FFF7ED;
-  color: #EA580C;
-}
-
-.stat-icon.active {
-  background: #EFF6FF;
-  color: #2563EB;
-}
-
-.stat-icon.funded {
-  background: #F5F3FF;
-  color: #7C3AED;
-}
-
-.stat-info {
+/* Active posts — dashed outline card */
+.active-posts-card {
+  width: 200px;
+  min-width: 200px;
+  border: 2px dashed #B8C4BE;
+  border-radius: 16px;
+  padding: 24px 28px;
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  background: #FFFFFF;
 }
 
-.stat-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #6B7280;
+.active-posts-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #707973;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 }
 
-.stat-value {
-  font-size: 20px;
-  font-weight: 800;
-  color: #111827;
+.active-posts-value {
   font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 40px;
+  font-weight: 800;
+  color: #1A3C2E;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.active-posts-sub {
+  font-size: 12px;
+  color: #707973;
+}
+
+/* ----------------------------------------------------------------
+   POSTS SECTION
+   ---------------------------------------------------------------- */
+
+.posts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.posts-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.posts-section-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1A3C2E;
+}
+
+.posts-section-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #707973;
 }
 
 .create-post-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
+  gap: 6px;
+  padding: 10px 20px;
   background: #A04100;
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: transform 0.2s, background-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.15s;
 }
 
 .create-post-btn:hover {
@@ -217,15 +359,9 @@
   transform: translateY(-1px);
 }
 
-.posts-section h2 {
-  margin: 0 0 20px;
-  font-size: 1.5rem;
-  color: #111827;
-}
-
 .charity-posts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 24px;
 }
 
@@ -247,7 +383,7 @@
 }
 
 .empty-posts button {
-  background-color: #66B018;
+  background-color: #1A3C2E;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -256,7 +392,63 @@
   cursor: pointer;
 }
 
-/* Modal specific styles */
+/* ----------------------------------------------------------------
+   LOAD MORE
+   ---------------------------------------------------------------- */
+
+.dashboard-load-more {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.load-more-btn {
+  padding: 10px 28px;
+  border: 1.5px solid #1A3C2E;
+  background: transparent;
+  color: #1A3C2E;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background: #1A3C2E;
+  color: white;
+}
+
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------------
+   LOADING / ERROR STATES
+   ---------------------------------------------------------------- */
+
+.charity-dashboard-loading {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.charity-dashboard-error {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #6B7280;
+}
+
+/* ----------------------------------------------------------------
+   MODALS
+   ---------------------------------------------------------------- */
+
 .charity-modal {
   width: 500px;
   background: white;
@@ -295,11 +487,14 @@
   font-weight: 600;
 }
 
-.form-group input, .form-group textarea {
+.form-group input,
+.form-group textarea,
+.form-group select {
   padding: 12px;
   border: 1px solid #D1D5DB;
   border-radius: 8px;
   font-size: 1rem;
+  font-family: inherit;
 }
 
 .form-group textarea {
@@ -379,35 +574,54 @@
   margin-top: 8px;
 }
 
-.charity-dashboard-loading {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ----------------------------------------------------------------
+   RESPONSIVE
+   ---------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .charity-sidebar {
+    width: 180px;
+    min-width: 180px;
+  }
+
+  .charity-dashboard-main {
+    padding: 24px 20px;
+  }
 }
 
-/* ============================================================
-   RESPONSIVE — CHARITY DASHBOARD
-   ============================================================ */
-
-@media (max-width: 768px) {
-  .charity-dashboard-header {
+@media (max-width: 700px) {
+  .charity-dashboard-layout {
     flex-direction: column;
-    align-items: flex-start;
+  }
+
+  .charity-sidebar {
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    border-radius: 0 0 20px 20px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 16px;
     gap: 12px;
-    padding: 16px 20px;
-    margin: 12px 16px 0;
     position: static;
   }
 
-  .header-right {
-    width: 100%;
-    justify-content: flex-end;
+  .sidebar-nav {
+    flex-direction: row;
+    flex: unset;
   }
 
   .charity-dashboard-main {
     padding: 20px 16px;
-    gap: 20px;
+  }
+
+  .overview-stats-row {
+    flex-direction: column;
+  }
+
+  .active-posts-card {
+    width: 100%;
+    min-width: unset;
   }
 
   .charity-posts-grid {
@@ -418,31 +632,5 @@
     width: 100%;
     max-width: 100%;
     border-radius: 16px 16px 0 0;
-    margin-top: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .charity-dashboard-header {
-    margin: 8px 8px 0;
-    border-radius: 16px;
-  }
-
-  .header-left h1 {
-    font-size: 20px;
-  }
-
-  .charity-dashboard-main {
-    padding: 16px 8px;
-  }
-
-  .create-post-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 12px 16px;
-  }
-
-  .empty-posts {
-    padding: 40px 16px;
   }
 }

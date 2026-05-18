@@ -106,81 +106,128 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
   const totalFoodDonated = stats?.totalFoodKg || 0;
   const activePostsCount = stats?.activeCount || 0;
 
+  const familiesHelped = Math.floor(totalFoodDonated * 2);
+
   return (
-    <div className="charity-dashboard-page">
-      <header className="charity-dashboard-header">
-        <div className="header-left">
-          <h1>{profile?.organizationName || 'Charity Dashboard'}</h1>
-          <p>Support your mission and track community impact.</p>
-        </div>
+    <div className="charity-dashboard-layout">
 
-        <nav className="charity-nav">
-          <button 
-            className={`charity-nav-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            Dashboard
-          </button>
-          <button
-            className={`charity-nav-btn ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
-          >
-            Account
-          </button>
-        </nav>
+      {/* ── Sidebar ── */}
+      <aside className="charity-sidebar">
+        <div className="sidebar-brand">Sureplus Charity</div>
 
-        <div className="header-right">
-          <NotificationBell buttonClassName="icon-btn">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M2 17V15H4V8C4 6.61667 4.4167 5.3875 5.25 4.3125C6.0833 3.2375 7.1667 2.5333 8.5 2.2V1.5C8.5 1.0833 8.6458 0.7292 8.9375 0.4375C9.2292 0.1458 9.5833 0 10 0C10.4167 0 10.7708 0.1458 11.0625 0.4375C11.3542 0.7292 11.5 1.0833 11.5 1.5V2.2C12.8333 2.5333 13.9167 3.2375 14.75 4.3125C15.5833 5.3875 16 6.6167 16 8V15H18V17H2ZM10 20C9.45 20 8.9792 19.8042 8.5875 19.4125C8.1958 19.0208 8 18.55 8 18H12C12 18.55 11.8042 19.0208 11.4125 19.4125C11.0208 19.8042 10.55 20 10 20ZM6 15H14V8C14 6.9 13.6083 5.9583 12.825 5.175C12.0417 4.3917 11.1 4 10 4C8.9 4 7.9583 4.3917 7.175 5.175C6.3917 5.9583 6 6.9 6 8V15Z" />
-            </svg>
-          </NotificationBell>
-          <button className="switch-role-btn" onClick={() => setShowProfileModal(true)}>
-            Edit Org
-          </button>
+        <div className="sidebar-user-section">
           <UserAvatar
             firstName={profile?.firstName}
             lastName={profile?.lastName}
-            size={33}
-            className="charity-header-avatar"
-            onClick={() => setActiveTab('profile')}
-            style={{ cursor: 'pointer' }}
+            size={36}
+            style={{ flexShrink: 0 }}
           />
+          <div className="sidebar-user-info">
+            <span className="sidebar-user-name">{profile?.organizationName || 'Sureplus'}</span>
+            <span className="sidebar-user-role">Charity Portal</span>
+          </div>
         </div>
-      </header>
 
+        <button className="sidebar-post-request-btn" onClick={() => setShowCreateModal(true)}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          Post Request
+        </button>
+
+        <nav className="sidebar-nav">
+          <button
+            className={`sidebar-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            Dashboard
+          </button>
+          <button
+            className={`sidebar-nav-item ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Activity
+          </button>
+        </nav>
+      </aside>
+
+      {/* ── Main Content ── */}
       <main className="charity-dashboard-main">
+
         {activeTab === 'dashboard' && (
           <>
-            <section className="stats-bar">
-              <div className="stat-card">
-                <div className="stat-icon donated">🥗</div>
-                <div className="stat-info">
-                  <span className="stat-label">Food Donated</span>
-                  <span className="stat-value">{totalFoodDonated.toFixed(1)} kg</span>
+            {/* Page header */}
+            <div className="dashboard-overview-header">
+              <div>
+                <h1 className="overview-title">Overview</h1>
+                <p className="overview-subtitle">Welcome back, {profile?.organizationName}!</p>
+              </div>
+              <div className="overview-header-actions">
+                <NotificationBell buttonClassName="icon-btn">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 17V15H4V8C4 6.61667 4.4167 5.3875 5.25 4.3125C6.0833 3.2375 7.1667 2.5333 8.5 2.2V1.5C8.5 1.0833 8.6458 0.7292 8.9375 0.4375C9.2292 0.1458 9.5833 0 10 0C10.4167 0 10.7708 0.1458 11.0625 0.4375C11.3542 0.7292 11.5 1.0833 11.5 1.5V2.2C12.8333 2.5333 13.9167 3.2375 14.75 4.3125C15.5833 5.3875 16 6.6167 16 8V15H18V17H2ZM10 20C9.45 20 8.9792 19.8042 8.5875 19.4125C8.1958 19.0208 8 18.55 8 18H12C12 18.55 11.8042 19.0208 11.4125 19.4125C11.0208 19.8042 10.55 20 10 20ZM6 15H14V8C14 6.9 13.6083 5.9583 12.825 5.175C12.0417 4.3917 11.1 4 10 4C8.9 4 7.9583 4.3917 7.175 5.175C6.3917 5.9583 6 6.9 6 8V15Z" />
+                  </svg>
+                </NotificationBell>
+                <button className="overview-edit-org-btn" onClick={() => setShowProfileModal(true)}>
+                  Edit Org
+                </button>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="overview-stats-row">
+              <div className="food-donated-card">
+                <div className="food-donated-left">
+                  <span className="food-donated-value">{totalFoodDonated.toFixed(1)} kg</span>
+                  <span className="food-donated-sub">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 11l19-9-9 19-2-8-8-2z"></path>
+                    </svg>
+                    {familiesHelped} families helped
+                  </span>
+                </div>
+                <div className="food-donated-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
+                    <path d="M7 2v20"></path>
+                    <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+                  </svg>
                 </div>
               </div>
-              <div className="stat-card">
-                <div className="stat-icon active">📢</div>
-                <div className="stat-info">
-                  <span className="stat-label">Active Posts</span>
-                  <span className="stat-value">{activePostsCount}</span>
-                </div>
+
+              <div className="active-posts-card">
+                <span className="active-posts-label">ACTIVE POSTS</span>
+                <span className="active-posts-value">{activePostsCount}</span>
+                <span className="active-posts-sub">{posts.length} existing donations</span>
               </div>
-            </section>
+            </div>
 
-            <section className="dashboard-actions">
-              <button className="create-post-btn" onClick={() => setShowCreateModal(true)}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Create New Post
-              </button>
-            </section>
-
+            {/* Posts section */}
             <section className="posts-section">
-              <h2>Your Donation Posts</h2>
+              <div className="posts-section-header">
+                <div>
+                  <h2 className="posts-section-title">Your Donation Posts</h2>
+                  <p className="posts-section-sub">Manage and monitor your active community requests.</p>
+                </div>
+                <button className="create-post-btn" onClick={() => setShowCreateModal(true)}>
+                  + Create New Post
+                </button>
+              </div>
+
               {posts.length === 0 ? (
                 <div className="empty-posts">
                   <p>You haven't created any donation posts yet.</p>
@@ -189,7 +236,7 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
               ) : (
                 <div className="charity-posts-grid">
                   {posts.map(post => (
-                    <CharityPostCard 
+                    <CharityPostCard
                       key={post.charityID}
                       post={post}
                       isOwner={true}
@@ -203,8 +250,8 @@ const CharityDashboard: React.FC<CharityDashboardProps> = ({ onSwitchRole }) => 
 
               {hasMore && (
                 <div className="dashboard-load-more">
-                  <button 
-                    className="load-more-btn" 
+                  <button
+                    className="load-more-btn"
                     onClick={() => fetchData(false)}
                     disabled={loadingMore}
                   >
