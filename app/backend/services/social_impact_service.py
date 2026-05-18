@@ -105,7 +105,7 @@ def fetch_summary_by_user(user_id: str):
     donation_res = supabase_admin.table("Donation") \
         .select("donationID") \
         .eq("userID", user_id) \
-        .in_("donationType", ["food", "food_direct"]) \
+        .eq("donationType", "food") \
         .execute()
     donation_ids = [r["donationID"] for r in (donation_res.data or [])]
     

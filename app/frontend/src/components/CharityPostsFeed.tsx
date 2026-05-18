@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import type { CharityPost } from '../api/types';
 import { charityPostAPI } from '../api/apis';
 import CharityPostCard from './CharityPostCard';
-import DonateFoodDirectModal from './DonateFoodDirectModal';
+import DonateModal from './DonateModal';
 import CharityProfileView from './CharityProfileView';
 import CharityDirectory from './CharityDirectory';
 import './CharityPostsFeed.css';
@@ -218,7 +218,7 @@ const CharityPostsFeed: React.FC = () => {
       )}
 
       {selectedPost && (
-        <DonateFoodDirectModal
+        <DonateModal
           post={selectedPost}
           onClose={() => setSelectedPost(null)}
           onSuccess={handleDonateSuccess}
