@@ -9,12 +9,15 @@ import './index.css'
 import { getAuthUser } from './api/apis'
 
 function App() {
+  // Authentication Variables
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return !!localStorage.getItem('token');
   });
 
+  // For Dashboard View of the User
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
 
+  // View Options
   const [view, setView] = useState<'buyer' | 'seller' | 'admin' | 'charity'>(() => {
     const u = getAuthUser();
     if (u?.role === 'charity') return 'charity';
@@ -23,6 +26,7 @@ function App() {
     return 'buyer';
   });
 
+  // Handle Login depending on user
   const handleLogin = () => {
     setIsAuthenticated(true);
     const u = getAuthUser();
@@ -37,6 +41,7 @@ function App() {
   const isCharity = user?.role === 'charity';
 
   if (!isAuthenticated) {
+    // Go to signup page if user wants to sign up
     if (authView === 'signup') {
       return (
         <Signup 
@@ -45,6 +50,7 @@ function App() {
         />
       );
     }
+    // Go to login page if user is not authenticated
     return (
       <Login 
         onLogin={handleLogin} 
@@ -53,18 +59,22 @@ function App() {
     );
   }
 
+  // Go to seller dashboard if user is a seller
   if (view === 'seller' && isSeller) {
     return <SellerDashboard onSwitchRole={() => setView('buyer')} />
   }
 
+  // Go to admin dashboard if user is an admin
   if (view === 'admin') {
     return <AdminDashboard onSwitchRole={() => setView('buyer')} />
   }
 
+  // Go to charity dashboard if user is a charity
   if (view === 'charity' && isCharity) {
     return <CharityDashboard />
   }
 
+  // Go to listings feed if user is a buyer
   return (
     <>
       <ListingsFeed
