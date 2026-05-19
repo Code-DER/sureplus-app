@@ -160,6 +160,12 @@ export default function AdminUserManagement() {
     }
   }, []);
 
+  useEffect(() => {
+    if (showLogs && selectedUserId) {
+      void loadUserLogs(selectedUserId);
+    }
+  }, [showLogs, selectedUserId, loadUserLogs]);
+
   const toggleLogs = () => {
     if (!selectedUser) return;
     if (!showLogs) {
