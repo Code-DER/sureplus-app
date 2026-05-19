@@ -153,7 +153,7 @@ export default function AdminUserManagement() {
   const loadUserLogs = useCallback(async (userId: string) => {
     setLogsLoading(true);
     try {
-      const res = await adminAPI.getAdminActivity({ targetID: userId, limit: 20 });
+      const res = await adminAPI.getAdminActivity({ userID: userId, limit: 20 });
       setUserLogs(res.data ?? []);
     } finally {
       setLogsLoading(false);
