@@ -3,7 +3,6 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
-
 from database import supabase_admin
 from models.charity_post import CharityPostCreate, CharityPostUpdate, CharityPostResponse, CharityPostDonateRequest, DirectFoodDonationCreate
 from models.donation import DonationResponse
@@ -13,6 +12,7 @@ from api.dependency import get_current_user, require_role
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+# Request model for rating a donor after a donation
 class CharityRateDonorRequest(BaseModel):
     rating: int = Field(ge=1, le=5)
     comment: Optional[str] = Field(None, max_length=500)

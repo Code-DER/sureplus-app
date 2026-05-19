@@ -5,6 +5,7 @@ from api.dependency import get_current_user
 
 router = APIRouter()
 
+# Endpoint for buyers to submit a rating for a seller after a purchase
 @router.post("/", response_model=RatingResponse)
 def rate(data: RatingCreate, current_user: dict = Depends(get_current_user)):
     try:
@@ -12,6 +13,7 @@ def rate(data: RatingCreate, current_user: dict = Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+# Endpoint for sellers to view ratings they have received
 @router.get("/seller/{seller_id}")
 def seller_ratings(seller_id: str):
     return get_seller_rating_list(seller_id)

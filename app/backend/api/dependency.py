@@ -2,12 +2,12 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 import os
-
 from services import auth_service
 
+# OAuth2 scheme for extracting the token from the Authorization header
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
-
+# Helper function to get the JWT secret key from the environment variables
 def _get_jwt_secret() -> str:
     secret_key = os.getenv("JWT_SECRET_KEY")
     if not secret_key:

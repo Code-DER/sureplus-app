@@ -5,6 +5,7 @@ from services.buyer_service import get_buyer_by_id
 
 router = APIRouter()
 
+# Endpoint to fetch the profile of currently logged in user
 @router.get("/me", response_model=BuyerRead)
 async def get_my_buyer_profile(current_user: dict = Depends(get_current_user)):
     buyer = get_buyer_by_id(current_user["userID"])

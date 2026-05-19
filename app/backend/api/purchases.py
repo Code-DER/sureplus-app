@@ -17,6 +17,7 @@ router = APIRouter(prefix="/purchase")
 
 @router.post("")
 def create(data: PurchaseCreate, current_user: dict = Depends(require_role("buyer", "seller"))):
+    """Creates a new purchase order. Buyers can create orders for food items, while sellers can create orders for donations."""
     return create_purchase(data.model_dump(mode='json'), user_id=current_user["userID"])
 
 @router.put("/{purchase_id}/complete")
@@ -41,12 +42,15 @@ def get_my_food(current_user: dict = Depends(require_role("buyer"))):
 
 @router.get("/buyer/orders")
 def buyer_order_history(current_user: dict = Depends(get_current_user)):
+    """Returns the order history for the buyer."""
     return get_buyer_orders(current_user["userID"])
 
 @router.get("/seller/{seller_id}")
 def seller_purchases(seller_id: str, current_user: dict = Depends(get_current_user)):
+    """Returns the list of purchase for a given seller."""
     return get_seller_purchase_list(seller_id)
 
 @router.get("/seller/{seller_id}/orders")
 def seller_orders(seller_id: str, current_user: dict = Depends(get_current_user)):
+    """Returns the list of orders for a given seller."""
     return get_seller_orders(seller_id)

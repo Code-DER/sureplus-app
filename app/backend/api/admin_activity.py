@@ -1,13 +1,12 @@
 from fastapi import APIRouter, Depends, Query
 from typing import List, Optional
-
 from api.dependency import require_role
 from models.admin_activity import AdminActivityResponse
 from services import admin_activity_service
 
 router = APIRouter()
 
-
+# Endpoint to fetch admin activity logs
 @router.get("/", response_model=List[AdminActivityResponse])
 async def get_admin_activity_logs(
     actionType: Optional[str] = None,
