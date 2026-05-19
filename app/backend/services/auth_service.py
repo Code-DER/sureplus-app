@@ -3,8 +3,6 @@ Authentication service for managing user login and signup.
 """
 from passlib.context import CryptContext
 from database import supabase_admin
-
-
 from fastapi import HTTPException
 import jwt
 import os
@@ -13,6 +11,7 @@ from dotenv import load_dotenv
 from services.user_service import create_seller_profile
 from services.notification_service import send_notification
 
+# Load environment variables from env file
 load_dotenv()
 
 # Context for password hashing

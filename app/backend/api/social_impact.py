@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from uuid import UUID
 from typing import List
-
 from models.social_impact import SocialImpactResponse, SocialImpactSummary, GlobalImpactResponse
 from services import social_impact_service, purchase_service, charity_post_service
 from api.dependency import get_current_user

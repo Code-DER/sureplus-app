@@ -21,6 +21,7 @@ from api.admin import router as admin_router
 
 app = FastAPI(title="SurePlus API")
 
+# For CORS configuration
 def _cors_origins() -> list[str]:
     configured = os.getenv(
         "BACKEND_CORS_ORIGINS",
@@ -28,7 +29,7 @@ def _cors_origins() -> list[str]:
     )
     return [origin.strip() for origin in configured.split(",") if origin.strip()]
 
-
+# Add CORS middleware to allow requests from the frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins(),

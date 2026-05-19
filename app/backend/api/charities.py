@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from uuid import UUID
-
 from database import supabase_admin
 from models.charity import CharityResponse, CharityUpdate, CharityProfileResponse
 from services import charity_service

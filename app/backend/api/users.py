@@ -50,7 +50,8 @@ async def get_user_by_id(user_id: UUID, current_user: dict = Depends(get_current
     
     # Return the user details
     return response.data[0]
-    
+
+# Endpoint for buyers to upgrade to sellers
 @router.post("/upgrade")
 async def upgrade_to_seller(seller_input: SellerSignUp, current_user: dict = Depends(get_current_user)):
     if current_user["role"] == "charity":
@@ -70,6 +71,7 @@ async def upgrade_to_seller(seller_input: SellerSignUp, current_user: dict = Dep
 
     return {"message": "Successfully upgraded to seller!"}
 
+# Endpoint for users to update their own profile information
 @router.patch("/update")
 async def update_user_profile(update_data: UserUpdate, current_user: dict = Depends(get_current_user)):
     update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
@@ -81,6 +83,7 @@ async def update_user_profile(update_data: UserUpdate, current_user: dict = Depe
 
     return {"message": "User profile updated successfully!", "Data": response.data}
 
+# Endpoint for users to change their password
 @router.post("/change-password")
 async def change_password(data: PasswordChange, current_user: dict = Depends(get_current_user)):
     user_response = supabase_admin.table("User").select("*").eq("userID", current_user['userID']).execute()

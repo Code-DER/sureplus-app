@@ -1,3 +1,6 @@
+"""
+    Service layer for handling social impact-related operations, including computing metrics and fetching summaries.
+"""
 import math
 from database import supabase_admin
 

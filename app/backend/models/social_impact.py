@@ -1,11 +1,8 @@
-"""
-Models for tracking social and environmental impact.
-"""
 from pydantic import BaseModel, model_validator
-
 from uuid import UUID
 from typing import Optional
 
+# Model for the response of a social impact record
 class SocialImpactResponse(BaseModel):
     impactID: UUID
     purchaseID: Optional[UUID] = None
@@ -14,6 +11,7 @@ class SocialImpactResponse(BaseModel):
     rescuedKilos: float
     peopleFed: int
 
+    # Ensure that exactly one of purchaseID or donationID is provided
     @model_validator(mode='after')
     def check_exactly_one_source(self):
         # Prevent both being provided (data integrity error)
@@ -27,6 +25,7 @@ class SocialImpactResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# Model for the summary of social impact metrics
 class SocialImpactSummary(BaseModel):
     totalCarbonOffset: float
     totalRescuedKilos: float
@@ -34,6 +33,7 @@ class SocialImpactSummary(BaseModel):
     purchaseCount: int
     donationCount: int
 
+# Model for the global impact metrics
 class GlobalImpactResponse(BaseModel):
     totalCarbonOffset: float
     totalRescuedKilos: float

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-
+# Model for Admin Activity Logs
 class AdminActivityResponse(BaseModel):
     activityID: UUID
     userID: UUID

@@ -1,3 +1,6 @@
+"""
+    Service layer for handling user-related operations, including fetching user details and creating seller profiles.
+"""
 from database import supabase_admin
 from uuid import UUID
 from services.notification_service import send_notification

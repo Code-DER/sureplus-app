@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from typing import Optional, List
 from uuid import UUID
-
 from database import supabase_admin
 from api.dependency import require_role
 from models.admin_reports import ReportsOverviewResponse, ReportsTransactionRow, ReportsTransactionsResponse
@@ -15,7 +14,7 @@ from services.auth_service import hash_password
 router = APIRouter()
 
 
-# ── Dashboard stats ──────────────────────────────────────────────────────────
+# ── Dashboard stats ─────────────────────────────────────────────────────────
 
 @router.get("/stats")
 async def get_admin_stats(current_user: dict = Depends(require_role("admin"))):

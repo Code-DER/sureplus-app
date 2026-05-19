@@ -7,6 +7,7 @@ from services.seller_service import get_seller_by_id
 
 router = APIRouter()
 
+# Endpoint to fetch the profile of currently logged in seller
 @router.get("/me", response_model=SellerRead)
 async def get_my_seller_profile(current_user: dict = Depends(get_current_user)):
     if current_user['role'] != 'seller':
@@ -18,6 +19,7 @@ async def get_my_seller_profile(current_user: dict = Depends(get_current_user)):
 
     return seller
 
+# Endpoint to fetch a seller's public profile by their ID
 @router.get("/{seller_id}", response_model=SellerRead)
 async def get_seller_public_profile(seller_id: UUID):
     seller = get_seller_by_id(seller_id)
@@ -26,6 +28,7 @@ async def get_seller_public_profile(seller_id: UUID):
     
     return seller
 
+# Endpoint for sellers to update their seller profile
 @router.patch("/update")
 async def update_seller_profile(update_data: SellerUpdate, current_user: dict = Depends(get_current_user)):
     if current_user['role'] != 'seller':

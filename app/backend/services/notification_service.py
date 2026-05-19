@@ -1,7 +1,11 @@
+"""
+    Service for handling notification-related operations.
+"""
+
 from database import supabase_admin
 from uuid import UUID
 
-# Function to send a notification to a user
+# Service to send a notification to a user
 def send_notification(user_id: UUID, title: str, message: str, type: str = "system", link: str = None):
     # Notification data
     notification_data = {

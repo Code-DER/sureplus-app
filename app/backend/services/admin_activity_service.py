@@ -2,10 +2,9 @@
 Service for handling admin activity audit logs.
 """
 from typing import Optional
-
 from database import supabase_admin
 
-
+# Service to fetch admin activities
 def fetch_admin_activities(
     action_type: Optional[str] = None,
     target_entity: Optional[str] = None,
@@ -26,7 +25,7 @@ def fetch_admin_activities(
 
     return query.execute()
 
-
+# Service to record an admin activity
 def record_admin_activity(
     admin_id: str,
     action_type: str,

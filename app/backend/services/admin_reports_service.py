@@ -1,6 +1,10 @@
+"""
+    Service for handling admin reports and analytics.
+"""
+
 from database import supabase_admin
 
-
+# Service to fetch reports overview data for admin dashboard
 def fetch_reports_overview() -> dict:
     """
     Basic accounting + inventory distribution derived from current schema.
@@ -49,7 +53,7 @@ def fetch_reports_overview() -> dict:
         ],
     }
 
-
+# Service to fetch recent transactions for admin dashboard
 def fetch_recent_transactions(limit: int, page: int = 1) -> dict:
     offset = (page - 1) * limit
     rows = []

@@ -7,6 +7,7 @@ from services import charity_application_service, admin_activity_service
 
 router = APIRouter()
 
+# Endpoint for charity applications
 @router.post("/", response_model=CharityApplicationResponse)
 async def create_application(application: CharityApplicationCreate, current_user: dict = Depends(get_current_user)):
     try:
@@ -19,16 +20,19 @@ async def create_application(application: CharityApplicationCreate, current_user
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+# Endpoint for own user's application as a charity
 @router.get("/mine", response_model=List[CharityApplicationResponse])
 async def get_my_applications(current_user: dict = Depends(get_current_user)):
     response = charity_application_service.fetch_application_by_user(current_user["userID"])
     return response.data
 
+# Endpoint for admin to view pending applications
 @router.get("/pending", response_model=List[CharityApplicationResponse])
 async def get_pending_applications(current_user: dict = Depends(require_role("admin"))):
     response = charity_application_service.fetch_all_pending()
     return response.data
 
+# Endpoint for admin to review an application
 @router.put("/{application_id}/review")
 async def review_application(
     application_id: UUID, 
