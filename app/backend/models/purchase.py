@@ -3,19 +3,20 @@ from typing import List, Literal
 from datetime import datetime
 from uuid import UUID
 
-"""
-Models for purchase transactions.
-"""
+# Model for an Item in a Purchase
 class PurchaseItemCreate(BaseModel):
     foodID: UUID
     quantity: int
 
+# Model for a Purchase
 class PurchaseBase(BaseModel):
     paymentMethod: Literal["GCash" , "Cash on Delivery", "Maya"] = "GCash"
 
+# Model for creating a purchase
 class PurchaseCreate(PurchaseBase):
     items: List[PurchaseItemCreate]
-    
+
+# Model for the response of a Purchase
 class PurchaseResponse(PurchaseBase):
     purchaseID: UUID
     userID: UUID
@@ -24,6 +25,7 @@ class PurchaseResponse(PurchaseBase):
     class Config:
         from_attributes = True
 
+# Model for the response of an item in a purchase
 class PurchaseItemResponse(BaseModel):
     purchaseID: UUID
     foodID: UUID

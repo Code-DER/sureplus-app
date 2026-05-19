@@ -3,12 +3,14 @@ from pydantic import BaseModel, Field
 from uuid import UUID
 from datetime import datetime
 
+# Model for creating a rating
 class RatingCreate(BaseModel):
     purchaseID: Optional[UUID] = None
     donationID: Optional[UUID] = None
     rating: int = Field(ge=1, le=5)
     comment: Optional[str] = Field(None, max_length=500)
 
+# Model for the response of a rating
 class RatingResponse(BaseModel):
     ratingID: UUID
     purchaseID: Optional[UUID]

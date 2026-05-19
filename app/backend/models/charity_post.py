@@ -1,13 +1,12 @@
-"""
-Models for charity donation posts.
-"""
 from typing import Literal, Optional
 from pydantic import BaseModel, Field, model_validator
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, date
 
+# Mode of Donation
 DonationMode = Literal['money', 'food', 'both']
 
+# Model for Creating a Charity Post
 class CharityPostCreate(BaseModel):
     title: str
     description: Optional[str] = Field(default=None, max_length=1000)
@@ -16,6 +15,7 @@ class CharityPostCreate(BaseModel):
     amountNeeded: Optional[float] = Field(default=None, gt=0)
     foodGoalKg: Optional[float] = Field(default=None, gt=0)
 
+    # Custom validation to ensure required fields
     @model_validator(mode='after')
     def check_goals(self):
         if self.donationMode in ('money', 'both') and self.amountNeeded is None:
@@ -24,6 +24,7 @@ class CharityPostCreate(BaseModel):
             raise ValueError('foodGoalKg is required for food or both mode')
         return self
 
+# Model for Updating a Charity Post
 class CharityPostUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = Field(default=None, max_length=1000)
@@ -33,6 +34,7 @@ class CharityPostUpdate(BaseModel):
     status: Optional[Literal['active', 'funded', 'closed']] = None
     # donationMode is intentionally not updatable after creation
 
+# Model for the response of a Charity Post
 class CharityPostResponse(BaseModel):
     charityID: UUID
     userID: UUID
@@ -48,6 +50,7 @@ class CharityPostResponse(BaseModel):
     isPartner: bool = False
     createdAt: datetime
 
+    # Custom validator to flatten the the Charity relationship
     @model_validator(mode='before')
     @classmethod
     def flatten_charity(cls, data):
@@ -57,6 +60,7 @@ class CharityPostResponse(BaseModel):
                 data['isPartner'] = charity.get('isPartner', False)
         return data
 
+# Model for Donating to a Charity Post
 class CharityPostDonateRequest(BaseModel):
     donationType: Literal['money', 'food']
     # Money fields
@@ -74,8 +78,7 @@ class CharityPostDonateRequest(BaseModel):
             raise ValueError('foodID and quantity are required for food donations')
         return self
 
-from datetime import date
-
+# Model for direct food donation without purchase
 class DirectFoodDonationCreate(BaseModel):
     foodName: str
     foodPicture: str = ""
