@@ -121,6 +121,17 @@ async def create_admin_user(
         raise HTTPException(status_code=500, detail="Failed to create admin user.")
 
     new_user = user_res.data[0]
+    new_user_id = new_user["userID"]
+
+    # Ensure Admin record exists for the new admin (B-9 extension)
+    try:
+        supabase_admin.table("Admin").insert({
+            "userID": new_user_id,
+            "employeeID": f"EMP-{new_user_id[:8].upper()}", # Auto-generate a placeholder
+            "adminType": "staff"
+        }).execute()
+    except Exception as e:
+        print(f"Warning: Failed to create Admin record for new user: {e}")
 
     # Record activity (non-blocking - failure won't prevent response)
     try:
@@ -128,13 +139,13 @@ async def create_admin_user(
             admin_id=current_user["userID"],
             action_type="create_admin",
             description=f"Created admin account for {data.emailAddress}",
-            target_id=new_user["userID"],
+            target_id=new_user_id,
             target_entity="User",
         )
     except Exception as e:
         print(f"Warning: Failed to record admin activity: {e}")
 
-    return {"message": "Admin user created.", "userID": new_user["userID"]}
+    return {"message": "Admin user created.", "userID": new_user_id}
 
 
 @router.patch("/users/{user_id}/role")
@@ -297,6 +308,17 @@ async def toggle_charity_partner(
     res = supabase_admin.table("Charity").update({"isPartner": isPartner}).eq("userID", str(user_id)).execute()
     if not res.data:
         raise HTTPException(status_code=404, detail="Charity not found")
+
+    try:
+        admin_activity_service.record_admin_activity(
+            admin_id=current_user["userID"],
+            action_type="toggle_partner_status",
+            description=f"Set partner status to {isPartner} for charity {user_id}",
+            target_id=str(user_id),
+            target_entity="Charity",
+        )
+    except Exception as e:
+        print(f"Warning: Failed to record admin activity: {e}")
 
     return {"message": f"Partner status updated to {isPartner}", "isPartner": isPartner}
 

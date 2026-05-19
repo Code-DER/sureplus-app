@@ -46,5 +46,6 @@ def record_admin_activity(
         return supabase_admin.table("AdminActivity").insert(admin_activity).execute()
     except Exception as e:
         # Logging failure to write admin activity should not block the main flow
-        print(f"Warning: Failed to record admin activity: {e}")
+        # In a real production app, use a proper logger
+        print(f"ERROR: Failed to record admin activity for admin {admin_id}: {e}")
         return None
