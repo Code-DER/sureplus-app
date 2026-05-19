@@ -5,6 +5,7 @@ import logging
 from fastapi import HTTPException
 from database import supabase_admin
 
+# Logger for charity post
 logger = logging.getLogger(__name__)
 
 def _execute(query, error_detail: str):

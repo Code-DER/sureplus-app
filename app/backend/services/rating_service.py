@@ -1,3 +1,6 @@
+"""
+    Service layer for handling rating-related operations, including creating ratings and fetching seller ratings.
+"""
 from database import supabase_admin
 from fastapi import HTTPException
 from services.notification_service import send_notification
@@ -128,6 +131,7 @@ def create_rating(rater_id, data):
 
     return result.data[0]
 
+# Service to fetch all ratings for a specific seller
 def get_seller_rating_list(seller_id):
     res = supabase_admin.table("Rating") \
         .select("*") \

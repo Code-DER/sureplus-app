@@ -1,3 +1,6 @@
+"""
+    Service layer for handling purchase-related operations, including creating purchases,
+"""
 import logging
 from typing import Optional
 from fastapi import HTTPException

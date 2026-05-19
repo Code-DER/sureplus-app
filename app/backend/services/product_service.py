@@ -1,14 +1,16 @@
+"""
+    Service for handling product-related operations.
+"""
 import logging
 from datetime import date
 from typing import Dict, Iterable, List, Optional, Set
-
 from fastapi import HTTPException
-
 from database import supabase_admin
 
-
+# Logger for product service
 logger = logging.getLogger(__name__)
 
+# Constants for selecting columns in queries
 FOOD_COLUMNS = (
     "foodID, userID, foodName, description, picture, isEdible, "
     "price, stockQuantity, weightKg, expirationDate, createdAt, "
@@ -16,7 +18,7 @@ FOOD_COLUMNS = (
 )
 ALLERGEN_COLUMNS = "allergenID, name"
 
-
+# Helper function to execute Supabase queries with error handling
 def _execute(query, error_detail: str):
     try:
         res = query.execute()
@@ -32,7 +34,7 @@ def _execute(query, error_detail: str):
             
         raise HTTPException(status_code=500, detail=detail) from exc
 
-
+# Utility function to deduplicate values while preserving order
 def _dedupe(values: Iterable) -> List[str]:
     seen: Set[str] = set()
     deduped: List[str] = []
@@ -43,7 +45,7 @@ def _dedupe(values: Iterable) -> List[str]:
             deduped.append(value_str)
     return deduped
 
-
+# Helper function to fetch allergen details for a list of allergen IDs
 def _fetch_allergen_map(allergen_ids: Iterable) -> Dict[str, dict]:
     ids = _dedupe(allergen_ids)
     if not ids:
@@ -55,7 +57,7 @@ def _fetch_allergen_map(allergen_ids: Iterable) -> Dict[str, dict]:
     )
     return {str(row["allergenID"]): row for row in response.data or []}
 
-
+# Helper function to validate that allergen IDs exist in the database
 def _validate_allergen_ids(allergen_ids: Iterable) -> List[str]:
     ids = _dedupe(allergen_ids)
     allergen_map = _fetch_allergen_map(ids)
@@ -69,7 +71,7 @@ def _validate_allergen_ids(allergen_ids: Iterable) -> List[str]:
 
     return ids
 
-
+# Helper function to fetch food-allergen relationships for a list of food IDs
 def _fetch_food_allergen_rows(food_ids: Iterable) -> List[dict]:
     ids = _dedupe(food_ids)
     if not ids:
@@ -81,7 +83,7 @@ def _fetch_food_allergen_rows(food_ids: Iterable) -> List[dict]:
     )
     return response.data or []
 
-
+# Helper function to fetch allergen IDs that a user is allergic to
 def _fetch_user_allergen_ids(user_id: str) -> Set[str]:
     response = _execute(
         supabase_admin.table("UserAllergies").select("allergenID").eq("userID", user_id),
@@ -89,7 +91,7 @@ def _fetch_user_allergen_ids(user_id: str) -> Set[str]:
     )
     return {str(row["allergenID"]) for row in response.data or []}
 
-
+# Helper function to enrich food listings with allergen details and user-specific allergy info
 def _attach_allergens(food_rows: List[dict], user_id: Optional[str] = None) -> List[dict]:
     food_ids = [row["foodID"] for row in food_rows]
     relation_rows = _fetch_food_allergen_rows(food_ids)
@@ -119,7 +121,7 @@ def _attach_allergens(food_rows: List[dict], user_id: Optional[str] = None) -> L
 
     return enriched_food
 
-
+# Service to list food listings with optional filters
 def list_foods(
     user_id: Optional[str] = None,
     safe_for_user: bool = False,
@@ -144,7 +146,7 @@ def list_foods(
 
     return foods
 
-
+# Service to get a single food listing by id
 def get_food(food_id: str, user_id: Optional[str] = None) -> dict:
     response = _execute(
         supabase_admin.table("Food").select(FOOD_COLUMNS).eq("foodID", food_id).limit(1),
@@ -156,7 +158,7 @@ def get_food(food_id: str, user_id: Optional[str] = None) -> dict:
 
     return _attach_allergens([response.data[0]], user_id=user_id)[0]
 
-
+# Service to create a new food listing
 def create_food(seller_id: str, food_data: dict) -> dict:
     allergen_ids = _validate_allergen_ids(food_data.pop("allergenIDs", []))
     food_data["userID"] = seller_id
@@ -175,7 +177,7 @@ def create_food(seller_id: str, food_data: dict) -> dict:
     food = response.data[0]
     return get_food(food["foodID"], user_id=seller_id)
 
-
+# Service to update an existing food listing
 def update_food(seller_id: str, food_id: str, food_data: dict) -> dict:
     existing_food = get_food(food_id)
     if str(existing_food["userID"]) != str(seller_id):
@@ -207,7 +209,7 @@ def update_food(seller_id: str, food_id: str, food_data: dict) -> dict:
 
     return get_food(food_id, user_id=seller_id)
 
-
+# Service to delete a food listing
 def delete_food(seller_id: str, food_id: str) -> None:
     existing_food = get_food(food_id)
     if str(existing_food["userID"]) != str(seller_id):
@@ -218,7 +220,7 @@ def delete_food(seller_id: str, food_id: str) -> None:
         "Failed to delete food listing",
     )
 
-
+# Service to list all allergens
 def list_allergens() -> List[dict]:
     response = _execute(
         supabase_admin.table("Allergen").select(ALLERGEN_COLUMNS).order("name"),
@@ -226,7 +228,7 @@ def list_allergens() -> List[dict]:
     )
     return response.data or []
 
-
+# Service to create a new allergen
 def create_allergen(allergen_data: dict) -> dict:
     response = _execute(
         supabase_admin.table("Allergen").insert(allergen_data),
@@ -238,7 +240,7 @@ def create_allergen(allergen_data: dict) -> dict:
 
     return response.data[0]
 
-
+# Service to get a user's allergies
 def get_user_allergies(user_id: str) -> dict:
     allergy_rows = _execute(
         supabase_admin.table("UserAllergies").select("allergenID").eq("userID", user_id),
@@ -251,7 +253,7 @@ def get_user_allergies(user_id: str) -> dict:
         "allergens": list(allergen_map.values()),
     }
 
-
+# Service to replace a user's allergies with a new list
 def replace_user_allergies(user_id: str, allergen_ids: Iterable) -> dict:
     ids = _validate_allergen_ids(allergen_ids)
 
@@ -265,7 +267,7 @@ def replace_user_allergies(user_id: str, allergen_ids: Iterable) -> dict:
 
     return get_user_allergies(user_id)
 
-
+# Service to add a single allergen to a user's allergies
 def add_user_allergy(user_id: str, allergen_id: str) -> dict:
     _validate_allergen_ids([allergen_id])
     existing_ids = _fetch_user_allergen_ids(user_id)
@@ -280,7 +282,7 @@ def add_user_allergy(user_id: str, allergen_id: str) -> dict:
 
     return get_user_allergies(user_id)
 
-
+# Service to remove a single allergen from a user's allergies
 def remove_user_allergy(user_id: str, allergen_id: str) -> dict:
     _execute(
         supabase_admin.table("UserAllergies")

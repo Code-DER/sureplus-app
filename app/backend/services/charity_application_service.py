@@ -2,16 +2,16 @@
 Service for handling charity applications.
 """
 import logging
-
 from database import supabase_admin
-
 from uuid import UUID
 from typing import Optional
 from services import admin_activity_service
 from services.notification_service import send_notification
 
+# Set up logger for the charity application
 logger = logging.getLogger(__name__)
 
+# Service to submit a charity application
 def submit_application(user_id: str, data: dict, role: Optional[str] = None):
     # Check role exclusivity (B-9)
     if role == "seller":
@@ -39,18 +39,21 @@ def submit_application(user_id: str, data: dict, role: Optional[str] = None):
     
     return supabase_admin.table("CharityApplication").insert(application_data).execute()
 
+# Service to fetch charity application by user id
 def fetch_application_by_user(user_id: str):
     return supabase_admin.table("CharityApplication") \
         .select("*") \
         .eq("userID", user_id) \
         .execute()
 
+# Service to fetch all pending charity applications for admin review
 def fetch_all_pending():
     return supabase_admin.table("CharityApplication") \
         .select("*") \
         .eq("status", "pending") \
         .execute()
 
+# Service to review a charity application (approve/reject)
 def review_application(application_id: str, status: str, org_name: Optional[str] = None, admin_id: Optional[str] = None):
     # 1. Fetch and validate the application before making any changes
     application_response = supabase_admin.table("CharityApplication") \
