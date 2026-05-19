@@ -2,11 +2,13 @@ import axios from "axios";
 import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import type { CharityDonationResult } from './types';
 
+// Interface for JWT Payload
 export interface SureplusJwtPayload extends JwtPayload {
   userID: string;
   role: string;
 }
 
+// Get logged in user
 export const getAuthUser = () => {
   const token = localStorage.getItem("token");
   if (!token) {
